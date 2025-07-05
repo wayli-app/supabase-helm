@@ -6,6 +6,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+## [0.2.0] - 2025-07-05
+
+### What Changed
+- Automated version bump (minor): Direct push contains feature commits
+
+### Recent Changes
+- feat: provide initial Helm chart.
+- Initial commit
+
+### Breaking Changes
+- None
+
+### Migration Guide
+- No migration required
+
+---
+
 
 ### Added
 - Initial release of Supabase Helm Chart
