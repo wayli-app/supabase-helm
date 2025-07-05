@@ -10,8 +10,200 @@ This Helm chart deploys a complete Supabase stack on Kubernetes.
 
 ## Installing the Chart
 
+### Method 1: From GitHub Container Registry (Recommended)
+
+The chart is published to GitHub Container Registry (GHCR) and can be installed directly:
+
 ```bash
+# Install directly from GHCR
+helm install my-supabase oci://ghcr.io/wayli-app/charts/supabase
+
+# Install a specific version
+helm install my-supabase oci://ghcr.io/wayli-app/charts/supabase --version {version}
+
+# Install with custom values
+helm install my-supabase oci://ghcr.io/wayli-app/charts/supabase \
+  --set global.supabase.publicUrl=https://my-supabase.example.com \
+  --set global.supabase.organizationName="My Organization"
+```
+
+### Method 2: From Helm Repository
+
+Add the Helm repository and install:
+
+```bash
+# Add the Helm repository
+helm repo add supabase-helm https://wayli-app.github.io/supabase-helm
+helm repo update
+
+# Install the chart
+helm install my-supabase supabase-helm/supabase
+
+# Install a specific version
+helm install my-supabase supabase-helm/supabase --version {version}
+```
+
+### Method 3: From Local Chart Directory
+
+For development or custom modifications:
+
+```bash
+# Clone the repository
+git clone https://github.com/wayli-app/supabase-helm.git
+cd supabase-helm
+
+# Install from local chart directory
 helm install my-supabase ./charts/supabase
+```
+
+### Prerequisites
+
+Before installing, ensure you have:
+
+1. **Kubernetes cluster** (1.19+)
+2. **Helm** (3.2.0+)
+3. **Required secrets** (see [Creating Required Secrets](#creating-required-secrets) section)
+4. **Storage provisioner** support in your cluster
+5. **GHCR authentication** (if using Method 1):
+   ```bash
+   # Login to GHCR (only needed once)
+   helm registry login ghcr.io
+   ```
+
+### Quick Start
+
+For a quick test deployment with default settings:
+
+```bash
+# Create required secrets first
+kubectl create secret generic supabase-secret \
+  --from-literal=jwtSecret='your-super-secret-jwt-token-with-at-least-32-characters-long' \
+  --from-literal=anonKey='your-anon-key' \
+  --from-literal=serviceRoleKey='your-service-role-key' \
+  --from-literal=secretKeyBase='your-secret-key-base' \
+  --from-literal=vaultEncKey='your-vault-encryption-key' \
+  --from-literal=dbEncKey='your-db-encryption-key'
+
+# Install from GHCR
+helm install my-supabase oci://ghcr.io/wayli-app/charts/supabase
+
+# Check the deployment
+kubectl get pods -l app.kubernetes.io/instance=my-supabase
+```
+
+## Upgrading the Chart
+
+### From GHCR (Recommended)
+
+```bash
+# Upgrade to the latest version
+helm upgrade my-supabase oci://ghcr.io/wayli-app/charts/supabase
+
+# Upgrade to a specific version
+helm upgrade my-supabase oci://ghcr.io/wayli-app/charts/supabase --version 0.3.0
+
+# Upgrade with custom values
+helm upgrade my-supabase oci://ghcr.io/wayli-app/charts/supabase \
+  --set global.supabase.publicUrl=https://my-supabase.example.com
+```
+
+### From Helm Repository
+
+```bash
+# Update the repository
+helm repo update
+
+# Upgrade to the latest version
+helm upgrade my-supabase supabase-helm/supabase
+
+# Upgrade to a specific version
+helm upgrade my-supabase supabase-helm/supabase --version 0.3.0
+```
+
+## Uninstalling the Chart
+
+```bash
+# Uninstall the release
+helm uninstall my-supabase
+
+# Remove the Helm repository (if added)
+helm repo remove supabase-helm
+```
+
+**Note:** This will remove all Supabase services but will **NOT** delete persistent data (databases, storage, etc.) unless you explicitly delete the PVCs.
+
+## Accessing Supabase Services
+
+After installation, you can access the various Supabase services:
+
+### Studio (Dashboard)
+```bash
+# Port forward to access Studio
+kubectl port-forward svc/my-supabase-studio 3000:3000
+```
+Then visit: http://localhost:3000
+
+### API Gateway (Kong)
+```bash
+# Port forward to access Kong API
+kubectl port-forward svc/my-supabase-kong 8000:8000
+```
+Then visit: http://localhost:8000
+
+### Database
+```bash
+# Port forward to access PostgreSQL directly
+kubectl port-forward svc/my-supabase-db 5432:5432
+```
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Pods not starting**: Check if required secrets exist
+   ```bash
+   kubectl get secret supabase-secret
+   ```
+
+2. **Database connection issues**: Verify PostgreSQL is running
+   ```bash
+   kubectl get pods -l app.kubernetes.io/component=db
+   ```
+
+3. **Storage issues**: Check PVC status
+   ```bash
+   kubectl get pvc -l app.kubernetes.io/instance=my-supabase
+   ```
+
+4. **Authentication issues**: Verify JWT secrets are properly set
+   ```bash
+   kubectl describe secret supabase-secret
+   ```
+
+### Getting Logs
+
+```bash
+# Get logs from all Supabase pods
+kubectl logs -l app.kubernetes.io/instance=my-supabase --all-containers
+
+# Get logs from a specific service
+kubectl logs -l app.kubernetes.io/component=auth --all-containers
+
+# Follow logs in real-time
+kubectl logs -l app.kubernetes.io/instance=my-supabase -f
+```
+
+### Checking Chart Status
+
+```bash
+# Check Helm release status
+helm status my-supabase
+
+# List all resources created by the chart
+helm get all my-supabase
+
+# Check values used in the release
+helm get values my-supabase
 ```
 
 ## Configuration
