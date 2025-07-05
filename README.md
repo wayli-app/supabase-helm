@@ -390,7 +390,8 @@ The following table lists the configurable parameters of the Supabase chart and 
 | `db.postgres.persistence.storageClass` | Storage class name                             | `""`                  |
 | `db.postgres.persistence.accessMode` | Access mode                                    | `"ReadWriteOnce"`     |
 | `db.postgres.existingSecret`   | Existing secret containing PostgreSQL password | `""`                  |
-| `db.postgres.secretKeys.userPasswordKey` | Key in existing secret for PostgreSQL password | `"password"`          |
+| `db.postgres.secretKeys.adminPasswordKey` | Key in existing secret for admin password | `"postgres-password"` |
+| `db.postgres.secretKeys.userPasswordKey` | Key in existing secret for user password | `"password"`          |
 
 ### Vector Configuration
 
@@ -422,7 +423,9 @@ The following table lists the configurable parameters of the Supabase chart and 
 
 ## Creating Required Secrets
 
-Before deploying the chart, you need to create a secret containing the required keys:
+Before deploying the chart, you need to create secrets containing the required keys:
+
+### Supabase Secret
 
 ```bash
 kubectl create secret generic supabase-secret \
@@ -433,6 +436,18 @@ kubectl create secret generic supabase-secret \
   --from-literal=vaultEncKey='your-vault-encryption-key' \
   --from-literal=dbEncKey='your-db-encryption-key'
 ```
+
+### Database Secret
+
+```bash
+kubectl create secret generic supabase-db-secret \
+  --from-literal=postgres-password='your-admin-password' \
+  --from-literal=password='your-user-password'
+```
+
+**Note:** The database secret uses two different keys:
+- `postgres-password` - Used for the PostgreSQL admin user (`supabase_admin`)
+- `password` - Used for regular database connections
 
 ## Persistence
 

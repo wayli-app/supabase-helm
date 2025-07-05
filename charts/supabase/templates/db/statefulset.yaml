@@ -103,7 +103,7 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.db.postgres.existingSecret | default (printf "%s-db-secret" (include "supabase.fullname" .)) }}
-                  key: {{ .Values.db.postgres.secretKeys.userPasswordKey | default "password" }}
+                  key: {{ .Values.db.postgres.secretKeys.adminPasswordKey | default "postgres-password" }}
             - name: POSTGRES_USER
               value: supabase_admin
             - name: POSTGRES_DB
