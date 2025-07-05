@@ -184,8 +184,6 @@ db:
     existingSecret: ""
     # Secret keys configuration for existing secret
     secretKeys:
-      # Admin password key in the secret
-      adminPasswordKey: postgres-password
       # User password key in the secret
       userPasswordKey: password
     # PostgreSQL resource configuration
