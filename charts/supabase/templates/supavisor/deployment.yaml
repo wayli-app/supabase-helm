@@ -101,12 +101,12 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.global.supabase.existingSecret | default (printf "%s-secret" (include "supabase.fullname" .)) }}
-                  key: {{ .Values.supavisor.secretKeys.jwtSecretKey | default "jwt-secret" }}
+                  key: {{ .Values.global.supabase.secretKeys.jwtSecret }}
             - name: METRICS_JWT_SECRET
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.global.supabase.existingSecret | default (printf "%s-secret" (include "supabase.fullname" .)) }}
-                  key: {{ .Values.supavisor.secretKeys.jwtSecretKey | default "jwt-secret" }}
+                  key: {{ .Values.global.supabase.secretKeys.jwtSecret }}
             # Region and ERL configuration
             - name: REGION
               value: {{ .Values.supavisor.env.region }}

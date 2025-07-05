@@ -73,6 +73,54 @@ global:
     secretKeyBase: ""
     # Vault encryption key
     vaultEncKey: ""
+    # Auth configuration
+    auth:
+      # Authentication settings
+      disableSignup: false
+      # Enable email signup
+      enableEmailSignup: true
+      # Enable anonymous users
+      enableAnonymousUsers: false
+      # Enable email autoconfirm
+      enableEmailAutoconfirm: false
+      # Enable phone signup
+      enablePhoneSignup: false
+      # Enable phone autoconfirm
+      enablePhoneAutoconfirm: false
+      # Additional redirect URLs
+      additionalRedirectUrls: ""
+      # SMTP configuration
+      smtp:
+        # SMTP admin email
+        adminEmail: ""
+        # SMTP host
+        host: ""
+        # SMTP port
+        port: 587
+        # SMTP user
+        user: ""
+        # SMTP password
+        password: ""
+        # SMTP sender name
+        senderName: ""
+        # Existing secret containing SMTP credentials
+        existingSecret: ""
+        # Secret keys configuration for existing secret
+        secretKeys:
+          # SMTP user key in the secret
+          userKey: smtp-user
+          # SMTP password key in the secret
+          passwordKey: smtp-password
+      # Mailer URL paths
+      mailer:
+        # Invite URL path
+        urlpathsInvite: /auth/v1/verify
+        # Confirmation URL path
+        urlpathsConfirmation: /auth/v1/verify
+        # Recovery URL path
+        urlpathsRecovery: /auth/v1/verify
+        # Email change URL path
+        urlpathsEmailChange: /auth/v1/verify
 
 # Common labels to add to all resources
 commonLabels: {}
@@ -394,56 +442,6 @@ auth:
     limits:
       cpu: 500m
       memory: 512Mi
-  # Auth-specific configuration
-  config:
-    # Authentication settings
-    auth:
-      # Disable signup
-      disableSignup: false
-      # Enable email signup
-      enableEmailSignup: true
-      # Enable anonymous users
-      enableAnonymousUsers: false
-      # Enable email autoconfirm
-      enableEmailAutoconfirm: false
-      # Enable phone signup
-      enablePhoneSignup: false
-      # Enable phone autoconfirm
-      enablePhoneAutoconfirm: false
-      # Additional redirect URLs
-      additionalRedirectUrls: ""
-    # SMTP configuration
-    smtp:
-      # SMTP admin email
-      adminEmail: ""
-      # SMTP host
-      host: ""
-      # SMTP port
-      port: 587
-      # SMTP user
-      user: ""
-      # SMTP password
-      password: ""
-      # SMTP sender name
-      senderName: ""
-      # Existing secret containing SMTP credentials
-      existingSecret: ""
-      # Secret keys configuration for existing secret
-      secretKeys:
-        # SMTP user key in the secret
-        userKey: smtp-user
-        # SMTP password key in the secret
-        passwordKey: smtp-password
-    # Mailer URL paths
-    mailer:
-      # Invite URL path
-      urlpathsInvite: /auth/v1/verify
-      # Confirmation URL path
-      urlpathsConfirmation: /auth/v1/verify
-      # Recovery URL path
-      urlpathsRecovery: /auth/v1/verify
-      # Email change URL path
-      urlpathsEmailChange: /auth/v1/verify
   # Additional environment variables
   extraEnvVars: []
   # Additional pod annotations
@@ -1227,22 +1225,8 @@ supavisor:
     maxClientConn: 100
     # Database pool size
     dbPoolSize: 10
-  # Supavisor secrets configuration
-  existingSecret: ""
-  # Secret key references for existing secret
-  secretKeys:
-    # Secret key base key in the secret
-    secretKeyBaseKey: secret-key-base
-    # Vault encryption key key in the secret
-    vaultEncKeyKey: vault-enc-key
-    # JWT secret key in the secret
-    jwtSecretKey: jwt-secret
   # Supavisor environment variables
   env:
-    # Secret key base (can be set directly or via secret)
-    secretKeyBase: ""
-    # Vault encryption key (can be set directly or via secret)
-    vaultEncKey: ""
     # Region
     region: local
     # ERL AFLAGS

@@ -79,9 +79,9 @@ spec:
         - name: GOTRUE_SITE_URL
           value: {{ .Values.global.supabase.publicUrl | quote }}
         - name: GOTRUE_URI_ALLOW_LIST
-          value: {{ .Values.auth.config.auth.additionalRedirectUrls | quote }}
+          value: {{ .Values.global.supabase.auth.additionalRedirectUrls | quote }}
         - name: GOTRUE_DISABLE_SIGNUP
-          value: {{ .Values.auth.config.auth.disableSignup | quote }}
+          value: {{ .Values.global.supabase.auth.disableSignup | quote }}
         - name: GOTRUE_JWT_ADMIN_ROLES
           value: "service_role"
         - name: GOTRUE_JWT_AUD
@@ -96,49 +96,49 @@ spec:
               name: {{ .Values.global.supabase.existingSecret | default (printf "%s-secret" (include "supabase.fullname" .)) }}
               key: {{ .Values.global.supabase.secretKeys.jwtSecret }}
         - name: GOTRUE_EXTERNAL_EMAIL_ENABLED
-          value: {{ .Values.auth.config.auth.enableEmailSignup | quote }}
+          value: {{ .Values.global.supabase.auth.enableEmailSignup | quote }}
         - name: GOTRUE_EXTERNAL_ANONYMOUS_USERS_ENABLED
-          value: {{ .Values.auth.config.auth.enableAnonymousUsers | quote }}
+          value: {{ .Values.global.supabase.auth.enableAnonymousUsers | quote }}
         - name: GOTRUE_MAILER_AUTOCONFIRM
-          value: {{ .Values.auth.config.auth.enableEmailAutoconfirm | quote }}
+          value: {{ .Values.global.supabase.auth.enableEmailAutoconfirm | quote }}
         - name: GOTRUE_EXTERNAL_PHONE_ENABLED
-          value: {{ .Values.auth.config.auth.enablePhoneSignup | quote }}
+          value: {{ .Values.global.supabase.auth.enablePhoneSignup | quote }}
         - name: GOTRUE_SMS_AUTOCONFIRM
-          value: {{ .Values.auth.config.auth.enablePhoneAutoconfirm | quote }}
+          value: {{ .Values.global.supabase.auth.enablePhoneAutoconfirm | quote }}
         - name: GOTRUE_SMTP_ADMIN_EMAIL
-          value: {{ .Values.auth.config.smtp.adminEmail | quote }}
+          value: {{ .Values.global.supabase.auth.smtp.adminEmail | quote }}
         - name: GOTRUE_SMTP_HOST
-          value: {{ .Values.auth.config.smtp.host | quote }}
+          value: {{ .Values.global.supabase.auth.smtp.host | quote }}
         - name: GOTRUE_SMTP_PORT
-          value: {{ .Values.auth.config.smtp.port | quote }}
+          value: {{ .Values.global.supabase.auth.smtp.port | quote }}
         - name: GOTRUE_SMTP_USER
-          {{- if .Values.auth.config.smtp.existingSecret }}
+          {{- if .Values.global.supabase.auth.smtp.existingSecret }}
           valueFrom:
             secretKeyRef:
-              name: {{ .Values.auth.config.smtp.existingSecret }}
-              key: {{ .Values.auth.config.smtp.secretKeys.userKey }}
+              name: {{ .Values.global.supabase.auth.smtp.existingSecret }}
+              key: {{ .Values.global.supabase.auth.smtp.secretKeys.userKey }}
           {{- else }}
-          value: {{ .Values.auth.config.smtp.user | quote }}
+          value: {{ .Values.global.supabase.auth.smtp.user | quote }}
           {{- end }}
         - name: GOTRUE_SMTP_PASS
-          {{- if .Values.auth.config.smtp.existingSecret }}
+          {{- if .Values.global.supabase.auth.smtp.existingSecret }}
           valueFrom:
             secretKeyRef:
-              name: {{ .Values.auth.config.smtp.existingSecret }}
-              key: {{ .Values.auth.config.smtp.secretKeys.passwordKey }}
+              name: {{ .Values.global.supabase.auth.smtp.existingSecret }}
+              key: {{ .Values.global.supabase.auth.smtp.secretKeys.passwordKey }}
           {{- else }}
-          value: {{ .Values.auth.config.smtp.password | quote }}
+          value: {{ .Values.global.supabase.auth.smtp.password | quote }}
           {{- end }}
         - name: GOTRUE_SMTP_SENDER_NAME
-          value: {{ .Values.auth.config.smtp.senderName | quote }}
+          value: {{ .Values.global.supabase.auth.smtp.senderName | quote }}
         - name: GOTRUE_MAILER_URLPATHS_INVITE
-          value: {{ .Values.auth.config.mailer.urlpathsInvite | quote }}
+          value: {{ .Values.global.supabase.auth.mailer.urlpathsInvite | quote }}
         - name: GOTRUE_MAILER_URLPATHS_CONFIRMATION
-          value: {{ .Values.auth.config.mailer.urlpathsConfirmation | quote }}
+          value: {{ .Values.global.supabase.auth.mailer.urlpathsConfirmation | quote }}
         - name: GOTRUE_MAILER_URLPATHS_RECOVERY
-          value: {{ .Values.auth.config.mailer.urlpathsRecovery | quote }}
+          value: {{ .Values.global.supabase.auth.mailer.urlpathsRecovery | quote }}
         - name: GOTRUE_MAILER_URLPATHS_EMAIL_CHANGE
-          value: {{ .Values.auth.config.mailer.urlpathsEmailChange | quote }}
+          value: {{ .Values.global.supabase.auth.mailer.urlpathsEmailChange | quote }}
         {{- with .Values.auth.extraEnvVars }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
