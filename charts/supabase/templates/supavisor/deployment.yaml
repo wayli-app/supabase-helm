@@ -1,0 +1,146 @@
+{{- if .Values.supavisor.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "supabase.fullname" . }}-supavisor
+  namespace: {{ include "supabase.namespace" . }}
+  labels:
+    {{- include "supabase.labels" . | nindent 4 }}
+    app.kubernetes.io/component: supavisor
+    supabaseComponent: {{ include "supabase.fullname" . }}-supavisor
+  {{- with .Values.supavisor.extraAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "supabase.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: supavisor
+      supabaseComponent: {{ include "supabase.fullname" . }}-supavisor
+  template:
+    metadata:
+      labels:
+        {{- include "supabase.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: supavisor
+        supabaseComponent: {{ include "supabase.fullname" . }}-supavisor
+      {{- with .Values.supavisor.extraAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      {{- if .Values.supavisor.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml .Values.supavisor.imagePullSecrets | nindent 8 }}
+      {{- end }}
+      {{- if .Values.supavisor.serviceAccount.create }}
+      serviceAccountName: {{ .Values.supavisor.serviceAccount.name | default (printf "%s-supavisor" (include "supabase.fullname" .)) }}
+      {{- end }}
+      {{- with .Values.supavisor.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.supavisor.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.supavisor.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: supavisor
+          image: "{{ .Values.supavisor.image.repository }}:{{ .Values.supavisor.image.tag }}"
+          imagePullPolicy: {{ .Values.supavisor.image.pullPolicy }}
+          command: ["/bin/sh", "-c", "/app/bin/migrate && /app/bin/server"]
+        {{- with .Values.supavisor.livenessProbe }}
+        livenessProbe:
+          {{- toYaml . | nindent 12 }}
+        {{- end }}
+        {{- with .Values.supavisor.readinessProbe }}
+        readinessProbe:
+          {{- toYaml . | nindent 12 }}
+        {{- end }}
+          env:
+            # Port configuration
+            - name: PORT
+              value: {{ .Values.supavisor.service.port | quote }}
+            # PostgreSQL configuration from db section
+            - name: POSTGRES_PORT
+              value: {{ .Values.db.postgres.service.port | quote }}
+            - name: POSTGRES_DB
+              value: postgres
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.db.postgres.existingSecret | default (printf "%s-db-secret" (include "supabase.fullname" .)) }}
+                  key: {{ .Values.db.postgres.secretKeys.userPasswordKey }}
+            - name: POSTGRES_HOST
+              value: {{ .Values.db.postgres.service.name | default (printf "%s-db" (include "supabase.fullname" .)) }}{{- if .Values.db.postgres.service.namespace }}.{{ .Values.db.postgres.service.namespace }}{{- end }}
+            # Database URL
+            - name: DATABASE_URL
+              value: ecto://supabase_admin:$(POSTGRES_PASSWORD)@{{ .Values.db.postgres.service.name | default (printf "%s-db" (include "supabase.fullname" .)) }}{{- if .Values.db.postgres.service.namespace }}.{{ .Values.db.postgres.service.namespace }}{{- end }}:{{ .Values.db.postgres.service.port }}/_supabase
+            # Cluster configuration
+            - name: CLUSTER_POSTGRES
+              value: "true"
+            # Secret key base (from global secret)
+            - name: SECRET_KEY_BASE
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.global.supabase.existingSecret | default (printf "%s-secret" (include "supabase.fullname" .)) }}
+                  key: {{ .Values.global.supabase.secretKeys.secretKeyBase }}
+            # Vault encryption key (from global secret)
+            - name: VAULT_ENC_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.global.supabase.existingSecret | default (printf "%s-secret" (include "supabase.fullname" .)) }}
+                  key: {{ .Values.global.supabase.secretKeys.vaultEncKey }}
+            # JWT secrets (from global secret)
+            - name: API_JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.global.supabase.existingSecret | default (printf "%s-secret" (include "supabase.fullname" .)) }}
+                  key: {{ .Values.supavisor.secretKeys.jwtSecretKey | default "jwt-secret" }}
+            - name: METRICS_JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.global.supabase.existingSecret | default (printf "%s-secret" (include "supabase.fullname" .)) }}
+                  key: {{ .Values.supavisor.secretKeys.jwtSecretKey | default "jwt-secret" }}
+            # Region and ERL configuration
+            - name: REGION
+              value: {{ .Values.supavisor.env.region }}
+            - name: ERL_AFLAGS
+              value: {{ .Values.supavisor.env.erlAflags }}
+            # Pooler configuration
+            - name: POOLER_TENANT_ID
+              value: {{ .Values.supavisor.pooler.tenantId }}
+            - name: POOLER_DEFAULT_POOL_SIZE
+              value: {{ .Values.supavisor.pooler.defaultPoolSize | quote }}
+            - name: POOLER_MAX_CLIENT_CONN
+              value: {{ .Values.supavisor.pooler.maxClientConn | quote }}
+            - name: POOLER_POOL_MODE
+              value: {{ .Values.supavisor.env.poolMode }}
+            - name: DB_POOL_SIZE
+              value: {{ .Values.supavisor.pooler.dbPoolSize | quote }}
+            {{- with .Values.supavisor.extraEnvVars }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.supavisor.service.port }}
+              protocol: TCP
+            - name: pooler
+              containerPort: 5452
+              protocol: TCP
+            - name: metrics
+              containerPort: 6543
+              protocol: TCP
+          resources:
+            requests:
+              cpu: {{ .Values.supavisor.resources.requests.cpu }}
+              memory: {{ .Values.supavisor.resources.requests.memory }}
+            limits:
+              cpu: {{ .Values.supavisor.resources.limits.cpu }}
+              memory: {{ .Values.supavisor.resources.limits.memory }}
+{{- end }}

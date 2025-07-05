@@ -1,0 +1,74 @@
+repos:
+  # Commit message linting
+  - repo: https://github.com/commitizen-tools/commitizen
+    rev: v3.13.0
+    hooks:
+      - id: commitizen
+        stages: [commit-msg]
+
+  # YAML linting
+  - repo: https://github.com/adrienverge/yamllint
+    rev: v1.35.1
+    hooks:
+      - id: yamllint
+        args: [--strict]
+        files: \.(yaml|yml)$
+        exclude: |
+          (?x)^(
+              \.github/workflows/.*|
+              charts/.*/Chart\.lock|
+              .*\.example\.(yaml|yml)
+          )$
+
+  # Helm chart linting
+  - repo: local
+    hooks:
+      - id: helm-lint
+        name: Helm Chart Lint
+        entry: helm lint
+        language: system
+        files: ^charts/.*/Chart\.yaml$
+        pass_filenames: false
+        always_run: true
+        args: [charts/supabase]
+
+  # Trailing whitespace and end-of-file
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+      - id: check-merge-conflict
+      - id: check-case-conflict
+      - id: check-json
+      - id: debug-statements
+
+  # Markdown linting
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.38.0
+    hooks:
+      - id: markdownlint
+        args: [--fix]
+
+  # Shell script linting
+  - repo: https://github.com/koalaman/shellcheck-precommit
+    rev: v0.10.0
+    hooks:
+      - id: shellcheck
+        args: [--severity=warning]
+
+  # Secret detection
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.4.0
+    hooks:
+      - id: detect-secrets
+        args: [--baseline, .secrets.baseline]
+
+  # Spell checking
+  - repo: https://github.com/crate-ci/typos
+    rev: v1.19.0
+    hooks:
+      - id: typos
+        args: [--write-changes]

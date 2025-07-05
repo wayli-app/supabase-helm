@@ -1,0 +1,3 @@
+{{- if .Values.supavisor.enabled }}
+{{- include "supabase.service" (dict "component" "supavisor" "service" .Values.supavisor.service "ports" (list (dict "port" .Values.supavisor.service.port "targetPort" .Values.supavisor.service.port "protocol" "TCP" "name" "http") (dict "port" 5452 "targetPort" 5452 "protocol" "TCP" "name" "pooler") (dict "port" 6543 "targetPort" 6543 "protocol" "TCP" "name" "metrics")) "extraAnnotations" .Values.supavisor.extraAnnotations "Values" .Values "Release" .Release "Chart" .Chart) }}
+{{- end }}

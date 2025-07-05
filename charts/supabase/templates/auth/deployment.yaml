@@ -1,0 +1,162 @@
+{{- if .Values.auth.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "supabase.fullname" . }}-auth
+  namespace: {{ include "supabase.namespace" . }}
+  labels:
+    {{- include "supabase.labels" . | nindent 4 }}
+    app.kubernetes.io/component: auth
+    supabaseComponent: {{ include "supabase.fullname" . }}-auth
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "supabase.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: auth
+      supabaseComponent: {{ include "supabase.fullname" . }}-auth
+  template:
+    metadata:
+      labels:
+        {{- include "supabase.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: auth
+        supabaseComponent: {{ include "supabase.fullname" . }}-auth
+    spec:
+      {{- if .Values.auth.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml .Values.auth.imagePullSecrets | nindent 8 }}
+      {{- end }}
+      {{- if .Values.auth.serviceAccount.create }}
+      serviceAccountName: {{ .Values.auth.serviceAccount.name | default (printf "%s-auth" (include "supabase.fullname" .)) }}
+      {{- end }}
+      {{- with .Values.auth.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.auth.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.auth.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+      - name: auth
+        image: "{{ .Values.auth.image.repository }}:{{ .Values.auth.image.tag }}"
+        imagePullPolicy: {{ .Values.auth.image.pullPolicy }}
+        {{- with .Values.auth.livenessProbe }}
+        livenessProbe:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.auth.readinessProbe }}
+        readinessProbe:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        resources:
+          requests:
+            cpu: {{ .Values.auth.resources.requests.cpu }}
+            memory: {{ .Values.auth.resources.requests.memory }}
+          limits:
+            cpu: {{ .Values.auth.resources.limits.cpu }}
+            memory: {{ .Values.auth.resources.limits.memory }}
+        env:
+        - name: GOTRUE_API_HOST
+          value: "0.0.0.0"
+        - name: GOTRUE_API_PORT
+          value: {{ .Values.auth.service.port | quote }}
+        - name: API_EXTERNAL_URL
+          value: {{ .Values.global.supabase.publicUrl | quote }}
+        - name: GOTRUE_DB_DRIVER
+          value: "postgres"
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.db.postgres.existingSecret | default (printf "%s-db-secret" (include "supabase.fullname" .)) }}
+              key: {{ .Values.db.postgres.secretKeys.userPasswordKey | default "password" }}
+        - name: GOTRUE_DB_DATABASE_URL
+          value: "postgres://supabase_auth_admin:$(DB_PASSWORD)@{{ .Values.db.postgres.service.name | default (printf "%s-db" (include "supabase.fullname" .)) }}{{- if .Values.db.postgres.service.namespace }}.{{ .Values.db.postgres.service.namespace }}{{- end }}:{{ .Values.db.postgres.service.port }}/postgres"
+        - name: GOTRUE_SITE_URL
+          value: {{ .Values.global.supabase.publicUrl | quote }}
+        - name: GOTRUE_URI_ALLOW_LIST
+          value: {{ .Values.auth.config.auth.additionalRedirectUrls | quote }}
+        - name: GOTRUE_DISABLE_SIGNUP
+          value: {{ .Values.auth.config.auth.disableSignup | quote }}
+        - name: GOTRUE_JWT_ADMIN_ROLES
+          value: "service_role"
+        - name: GOTRUE_JWT_AUD
+          value: "authenticated"
+        - name: GOTRUE_JWT_DEFAULT_GROUP_NAME
+          value: "authenticated"
+        - name: GOTRUE_JWT_EXP
+          value: {{ .Values.global.supabase.jwtExpiry | quote }}
+        - name: GOTRUE_JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.global.supabase.existingSecret | default (printf "%s-secret" (include "supabase.fullname" .)) }}
+              key: {{ .Values.global.supabase.secretKeys.jwtSecret }}
+        - name: GOTRUE_EXTERNAL_EMAIL_ENABLED
+          value: {{ .Values.auth.config.auth.enableEmailSignup | quote }}
+        - name: GOTRUE_EXTERNAL_ANONYMOUS_USERS_ENABLED
+          value: {{ .Values.auth.config.auth.enableAnonymousUsers | quote }}
+        - name: GOTRUE_MAILER_AUTOCONFIRM
+          value: {{ .Values.auth.config.auth.enableEmailAutoconfirm | quote }}
+        - name: GOTRUE_EXTERNAL_PHONE_ENABLED
+          value: {{ .Values.auth.config.auth.enablePhoneSignup | quote }}
+        - name: GOTRUE_SMS_AUTOCONFIRM
+          value: {{ .Values.auth.config.auth.enablePhoneAutoconfirm | quote }}
+        - name: GOTRUE_SMTP_ADMIN_EMAIL
+          value: {{ .Values.auth.config.smtp.adminEmail | quote }}
+        - name: GOTRUE_SMTP_HOST
+          value: {{ .Values.auth.config.smtp.host | quote }}
+        - name: GOTRUE_SMTP_PORT
+          value: {{ .Values.auth.config.smtp.port | quote }}
+        - name: GOTRUE_SMTP_USER
+          {{- if .Values.auth.config.smtp.existingSecret }}
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.auth.config.smtp.existingSecret }}
+              key: {{ .Values.auth.config.smtp.secretKeys.userKey }}
+          {{- else }}
+          value: {{ .Values.auth.config.smtp.user | quote }}
+          {{- end }}
+        - name: GOTRUE_SMTP_PASS
+          {{- if .Values.auth.config.smtp.existingSecret }}
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.auth.config.smtp.existingSecret }}
+              key: {{ .Values.auth.config.smtp.secretKeys.passwordKey }}
+          {{- else }}
+          value: {{ .Values.auth.config.smtp.password | quote }}
+          {{- end }}
+        - name: GOTRUE_SMTP_SENDER_NAME
+          value: {{ .Values.auth.config.smtp.senderName | quote }}
+        - name: GOTRUE_MAILER_URLPATHS_INVITE
+          value: {{ .Values.auth.config.mailer.urlpathsInvite | quote }}
+        - name: GOTRUE_MAILER_URLPATHS_CONFIRMATION
+          value: {{ .Values.auth.config.mailer.urlpathsConfirmation | quote }}
+        - name: GOTRUE_MAILER_URLPATHS_RECOVERY
+          value: {{ .Values.auth.config.mailer.urlpathsRecovery | quote }}
+        - name: GOTRUE_MAILER_URLPATHS_EMAIL_CHANGE
+          value: {{ .Values.auth.config.mailer.urlpathsEmailChange | quote }}
+        {{- with .Values.auth.extraEnvVars }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        ports:
+        - containerPort: 9999
+          name: http
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: http
+          timeoutSeconds: 5
+          periodSeconds: 5
+          failureThreshold: 3
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: http
+          timeoutSeconds: 5
+          periodSeconds: 5
+          failureThreshold: 3
+{{- end }}

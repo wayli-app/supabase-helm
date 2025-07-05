@@ -1,0 +1,18 @@
+{{- if .Values.storage.enabled }}
+{{- if .Values.storage.persistence.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "supabase.fullname" . }}-storage
+  namespace: {{ include "supabase.namespace" . }}
+  labels:
+    {{- include "supabase.labels" . | nindent 4 }}
+    app.kubernetes.io/component: storage
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.storage.persistence.size }}
+{{- end }}
+{{- end }}

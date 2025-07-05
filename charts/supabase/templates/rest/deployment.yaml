@@ -1,0 +1,96 @@
+{{- if .Values.rest.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "supabase.fullname" . }}-rest
+  namespace: {{ include "supabase.namespace" . }}
+  labels:
+    {{- include "supabase.labels" . | nindent 4 }}
+    app.kubernetes.io/component: rest
+    supabaseComponent: {{ include "supabase.fullname" . }}-rest
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "supabase.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: rest
+      supabaseComponent: {{ include "supabase.fullname" . }}-rest
+  template:
+    metadata:
+      labels:
+        {{- include "supabase.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: rest
+        supabaseComponent: {{ include "supabase.fullname" . }}-rest
+    spec:
+      {{- if .Values.rest.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml .Values.rest.imagePullSecrets | nindent 8 }}
+      {{- end }}
+      {{- if .Values.rest.serviceAccount.create }}
+      serviceAccountName: {{ .Values.rest.serviceAccount.name | default (printf "%s-rest" (include "supabase.fullname" .)) }}
+      {{- end }}
+      {{- with .Values.rest.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.rest.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.rest.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+      - name: rest
+        image: "{{ .Values.rest.image.repository }}:{{ .Values.rest.image.tag }}"
+        imagePullPolicy: {{ .Values.rest.image.pullPolicy }}
+        command: ["postgrest"]
+        {{- with .Values.rest.livenessProbe }}
+        livenessProbe:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.rest.readinessProbe }}
+        readinessProbe:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        resources:
+          requests:
+            cpu: {{ .Values.rest.resources.requests.cpu }}
+            memory: {{ .Values.rest.resources.requests.memory }}
+          limits:
+            cpu: {{ .Values.rest.resources.limits.cpu }}
+            memory: {{ .Values.rest.resources.limits.memory }}
+        env:
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.db.postgres.existingSecret | default (printf "%s-db-secret" (include "supabase.fullname" .)) }}
+              key: {{ .Values.db.postgres.secretKeys.userPasswordKey | default "password" }}
+        - name: PGRST_DB_URI
+          value: "postgres://authenticator:$(DB_PASSWORD)@{{ .Values.db.postgres.service.name | default (printf "%s-db" (include "supabase.fullname" .)) }}{{- if .Values.db.postgres.service.namespace }}.{{ .Values.db.postgres.service.namespace }}{{- end }}:{{ .Values.db.postgres.service.port }}/postgres"
+        - name: PGRST_DB_SCHEMAS
+          value: {{ .Values.rest.config.dbSchemas | quote }}
+        - name: PGRST_DB_ANON_ROLE
+          value: {{ .Values.rest.config.anonRole | quote }}
+        - name: PGRST_JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.global.supabase.existingSecret | default (printf "%s-secret" (include "supabase.fullname" .)) }}
+              key: {{ .Values.global.supabase.secretKeys.jwtSecret }}
+        - name: PGRST_DB_USE_LEGACY_GUCS
+          value: {{ .Values.rest.config.useLegacyGucs | quote }}
+        - name: PGRST_APP_SETTINGS_JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.global.supabase.existingSecret | default (printf "%s-secret" (include "supabase.fullname" .)) }}
+              key: {{ .Values.global.supabase.secretKeys.jwtSecret }}
+        - name: PGRST_APP_SETTINGS_JWT_EXP
+          value: {{ .Values.global.supabase.jwtExpiry | quote }}
+        {{- with .Values.rest.extraEnvVars }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        ports:
+        - containerPort: 3000
+          name: http
+{{- end }}

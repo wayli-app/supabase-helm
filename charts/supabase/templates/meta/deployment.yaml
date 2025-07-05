@@ -1,0 +1,88 @@
+{{- if .Values.meta.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "supabase.fullname" . }}-meta
+  namespace: {{ include "supabase.namespace" . }}
+  labels:
+    {{- include "supabase.labels" . | nindent 4 }}
+    app.kubernetes.io/component: meta
+    supabaseComponent: {{ include "supabase.fullname" . }}-meta
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "supabase.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: meta
+      supabaseComponent: {{ include "supabase.fullname" . }}-meta
+  template:
+    metadata:
+      labels:
+        {{- include "supabase.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: meta
+        supabaseComponent: {{ include "supabase.fullname" . }}-meta
+    spec:
+      {{- if .Values.meta.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml .Values.meta.imagePullSecrets | nindent 8 }}
+      {{- end }}
+      {{- if .Values.meta.serviceAccount.create }}
+      serviceAccountName: {{ .Values.meta.serviceAccount.name | default (printf "%s-meta" (include "supabase.fullname" .)) }}
+      {{- end }}
+      {{- with .Values.meta.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.meta.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.meta.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.meta.image.repository }}:{{ .Values.meta.image.tag }}"
+          imagePullPolicy: {{ .Values.meta.image.pullPolicy }}
+          {{- with .Values.meta.livenessProbe }}
+          livenessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.meta.readinessProbe }}
+          readinessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          env:
+            - name: PG_META_PORT
+              value: {{ .Values.meta.service.port | quote }}
+            - name: PG_META_DB_HOST
+              value: {{ .Values.db.postgres.service.name | default (printf "%s-db" (include "supabase.fullname" .)) }}{{- if .Values.db.postgres.service.namespace }}.{{ .Values.db.postgres.service.namespace }}{{- end }}
+            - name: PG_META_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.db.postgres.existingSecret | default (printf "%s-db-secret" (include "supabase.fullname" .)) }}
+                  key: {{ .Values.db.postgres.secretKeys.userPasswordKey | default "password" }}
+            - name: PG_META_DB_NAME
+              value: postgres
+            - name: PG_META_DB_USER
+              value: {{ .Values.meta.config.dbUser | quote }}
+            - name: PG_META_DB_SCHEMA
+              value: {{ .Values.meta.config.dbSchema | quote }}
+            - name: PG_META_DB_SSL
+              value: {{ .Values.meta.config.dbSsl | quote }}
+            {{- with .Values.meta.extraEnvVars }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.meta.service.port }}
+              protocol: TCP
+          resources:
+            requests:
+              cpu: {{ .Values.meta.resources.requests.cpu }}
+              memory: {{ .Values.meta.resources.requests.memory }}
+            limits:
+              cpu: {{ .Values.meta.resources.limits.cpu }}
+              memory: {{ .Values.meta.resources.limits.memory }}
+{{- end }}

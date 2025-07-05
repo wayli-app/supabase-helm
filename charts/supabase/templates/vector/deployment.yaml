@@ -1,0 +1,81 @@
+{{- if .Values.vector.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "supabase.fullname" . }}-vector
+  namespace: {{ include "supabase.namespace" . }}
+  labels:
+    {{- include "supabase.labels" . | nindent 4 }}
+    app.kubernetes.io/component: vector
+    supabaseComponent: {{ include "supabase.fullname" . }}-vector
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "supabase.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: vector
+      supabaseComponent: {{ include "supabase.fullname" . }}-vector
+  template:
+    metadata:
+      labels:
+        {{- include "supabase.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: vector
+        supabaseComponent: {{ include "supabase.fullname" . }}-vector
+    spec:
+      {{- if .Values.vector.serviceAccount.create }}
+      serviceAccountName: {{ .Values.vector.serviceAccount.name | default "default" }}
+      {{- end }}
+      containers:
+        - name: vector
+          image: "{{ .Values.vector.image.repository }}:{{ .Values.vector.image.tag }}"
+          imagePullPolicy: {{ .Values.vector.image.pullPolicy }}
+          env:
+            - name: VECTOR_CONFIG
+              value: /etc/vector/vector.yaml
+            {{- range $key, $value := .Values.vector.environment }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
+            - name: VECTOR_SELF_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+          {{- if .Values.analytics.enabled }}
+            - name: LOGFLARE_PUBLIC_ACCESS_TOKEN
+              {{- if .Values.analytics.existingSecret }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.analytics.existingSecret }}
+                  key: {{ .Values.analytics.secretKeys.logflarePublicAccessToken }}
+              {{- else if .Values.analytics.logflarePublicAccessToken }}
+              value: {{ .Values.analytics.logflarePublicAccessToken | quote }}
+              {{- else }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.global.supabase.existingSecret | default (printf "%s-secret" (include "supabase.fullname" .)) }}
+                  key: {{ .Values.global.supabase.secretKeys.serviceRoleKey }}
+              {{- end }}
+          {{- end }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.vector.service.port }}
+              protocol: TCP
+          volumeMounts:
+            - name: config
+              mountPath: /etc/vector/vector.yaml
+              subPath: vector.yaml
+            - mountPath: /etc/vector/secret.sh
+              name: config
+              subPath: secret.sh
+          resources:
+            requests:
+              cpu: {{ .Values.vector.resources.requests.cpu }}
+              memory: {{ .Values.vector.resources.requests.memory }}
+            limits:
+              cpu: {{ .Values.vector.resources.limits.cpu }}
+              memory: {{ .Values.vector.resources.limits.memory }}
+      volumes:
+        - name: config
+          configMap:
+            name: {{ include "supabase.fullname" . }}-vector-config
+{{- end }}

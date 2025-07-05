@@ -1,0 +1,3 @@
+{{- if .Values.kong.enabled }}
+{{- include "supabase.service" (dict "component" "kong" "service" .Values.kong.service "ports" (list (dict "port" .Values.kong.service.httpPort "targetPort" .Values.kong.service.httpPort "protocol" "TCP" "name" "http") (dict "port" .Values.kong.service.httpsPort "targetPort" .Values.kong.service.httpsPort "protocol" "TCP" "name" "https")) "extraAnnotations" .Values.kong.extraAnnotations "Values" .Values "Release" .Release "Chart" .Chart) }}
+{{- end }}

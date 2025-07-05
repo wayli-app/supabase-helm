@@ -1,0 +1,158 @@
+{{- if .Values.realtime.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "supabase.fullname" . }}-realtime
+  namespace: {{ include "supabase.namespace" . }}
+  labels:
+    {{- include "supabase.labels" . | nindent 4 }}
+    app.kubernetes.io/component: realtime
+    supabaseComponent: {{ include "supabase.fullname" . }}-realtime
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "supabase.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: realtime
+      supabaseComponent: {{ include "supabase.fullname" . }}-realtime
+  template:
+    metadata:
+      labels:
+        {{- include "supabase.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: realtime
+        supabaseComponent: {{ include "supabase.fullname" . }}-realtime
+    spec:
+      {{- if .Values.realtime.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml .Values.realtime.imagePullSecrets | nindent 8 }}
+      {{- end }}
+      {{- if .Values.realtime.serviceAccount.create }}
+      serviceAccountName: {{ .Values.realtime.serviceAccount.name | default (printf "%s-realtime" (include "supabase.fullname" .)) }}
+      {{- end }}
+      {{- with .Values.realtime.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.realtime.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.realtime.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+      - name: realtime
+        command: ["/bin/sh", "-c", "/app/bin/server"]
+        image: "{{ .Values.realtime.image.repository }}:{{ .Values.realtime.image.tag }}"
+        imagePullPolicy: {{ .Values.realtime.image.pullPolicy }}
+        {{- if .Values.realtime.livenessProbe }}
+        livenessProbe:
+          {{- if .Values.realtime.livenessProbe.httpGet }}
+          httpGet:
+            path: {{ .Values.realtime.livenessProbe.httpGet.path | default "/api/tenants/realtime-dev/health" }}
+            port: {{ .Values.realtime.livenessProbe.httpGet.port | default "http" }}
+            httpHeaders:
+            - name: Authorization
+              value: "Bearer $(ANON_KEY)"
+          {{- end }}
+          {{- if .Values.realtime.livenessProbe.timeoutSeconds }}
+          timeoutSeconds: {{ .Values.realtime.livenessProbe.timeoutSeconds }}
+          {{- end }}
+          {{- if .Values.realtime.livenessProbe.initialDelaySeconds }}
+          initialDelaySeconds: {{ .Values.realtime.livenessProbe.initialDelaySeconds }}
+          {{- end }}
+          {{- if .Values.realtime.livenessProbe.periodSeconds }}
+          periodSeconds: {{ .Values.realtime.livenessProbe.periodSeconds }}
+          {{- end }}
+          {{- if .Values.realtime.livenessProbe.failureThreshold }}
+          failureThreshold: {{ .Values.realtime.livenessProbe.failureThreshold }}
+          {{- end }}
+        {{- end }}
+        {{- if .Values.realtime.readinessProbe }}
+        readinessProbe:
+          {{- if .Values.realtime.readinessProbe.httpGet }}
+          httpGet:
+            path: {{ .Values.realtime.readinessProbe.httpGet.path | default "/api/tenants/realtime-dev/health" }}
+            port: {{ .Values.realtime.readinessProbe.httpGet.port | default "http" }}
+            httpHeaders:
+            - name: Authorization
+              value: "Bearer $(ANON_KEY)"
+          {{- end }}
+          {{- if .Values.realtime.readinessProbe.timeoutSeconds }}
+          timeoutSeconds: {{ .Values.realtime.readinessProbe.timeoutSeconds }}
+          {{- end }}
+          {{- if .Values.realtime.readinessProbe.initialDelaySeconds }}
+          initialDelaySeconds: {{ .Values.realtime.readinessProbe.initialDelaySeconds }}
+          {{- end }}
+          {{- if .Values.realtime.readinessProbe.periodSeconds }}
+          periodSeconds: {{ .Values.realtime.readinessProbe.periodSeconds }}
+          {{- end }}
+          {{- if .Values.realtime.readinessProbe.failureThreshold }}
+          failureThreshold: {{ .Values.realtime.readinessProbe.failureThreshold }}
+          {{- end }}
+        {{- end }}
+        resources:
+          requests:
+            cpu: {{ .Values.realtime.resources.requests.cpu }}
+            memory: {{ .Values.realtime.resources.requests.memory }}
+          limits:
+            cpu: {{ .Values.realtime.resources.limits.cpu }}
+            memory: {{ .Values.realtime.resources.limits.memory }}
+        env:
+        - name: PORT
+          value: "4000"
+        - name: DB_HOST
+          value: {{ .Values.db.postgres.service.name | default (printf "%s-db" (include "supabase.fullname" .)) }}{{- if .Values.db.postgres.service.namespace }}.{{ .Values.db.postgres.service.namespace }}{{- end }}
+        - name: DB_PORT
+          value: {{ .Values.db.postgres.service.port | quote }}
+        - name: DB_USER
+          value: {{ .Values.realtime.config.dbUser | quote }}
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.db.postgres.existingSecret | default (printf "%s-db-secret" (include "supabase.fullname" .)) }}
+              key: {{ .Values.db.postgres.secretKeys.userPasswordKey }}
+        - name: DB_NAME
+          value: "postgres"
+        - name: DB_AFTER_CONNECT_QUERY
+          value: {{ .Values.realtime.config.afterConnectQuery | quote }}
+        - name: DB_ENC_KEY
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.global.supabase.existingSecret | default (printf "%s-secret" (include "supabase.fullname" .)) }}
+              key: {{ .Values.global.supabase.secretKeys.dbEncKey }}
+        - name: API_JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.global.supabase.existingSecret | default (printf "%s-secret" (include "supabase.fullname" .)) }}
+              key: {{ .Values.global.supabase.secretKeys.jwtSecret }}
+        - name: SECRET_KEY_BASE
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.global.supabase.existingSecret | default (printf "%s-secret" (include "supabase.fullname" .)) }}
+              key: {{ .Values.global.supabase.secretKeys.secretKeyBase }}
+        - name: ERL_AFLAGS
+          value: {{ .Values.realtime.config.erlAflags | quote }}
+        - name: DNS_NODES
+          value: {{ .Values.realtime.config.dnsNodes | quote }}
+        - name: RLIMIT_NOFILE
+          value: {{ .Values.realtime.config.rlimitNofile | quote }}
+        - name: APP_NAME
+          value: {{ .Values.realtime.config.appName | quote }}
+        - name: SEED_SELF_HOST
+          value: {{ .Values.realtime.config.seedSelfHost | quote }}
+        - name: RUN_JANITOR
+          value: {{ .Values.realtime.config.runJanitor | quote }}
+        - name: ANON_KEY
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.global.supabase.existingSecret | default (printf "%s-secret" (include "supabase.fullname" .)) }}
+              key: {{ .Values.global.supabase.secretKeys.anonKey }}
+        {{- with .Values.realtime.extraEnvVars }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        ports:
+        - containerPort: 4000
+          name: http
+{{- end }}

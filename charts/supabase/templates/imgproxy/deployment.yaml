@@ -1,0 +1,90 @@
+{{- if .Values.imgproxy.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "supabase.fullname" . }}-imgproxy
+  namespace: {{ include "supabase.namespace" . }}
+  labels:
+    {{- include "supabase.labels" . | nindent 4 }}
+    app.kubernetes.io/component: imgproxy
+    supabaseComponent: {{ include "supabase.fullname" . }}-imgproxy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "supabase.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: imgproxy
+      supabaseComponent: {{ include "supabase.fullname" . }}-imgproxy
+  template:
+    metadata:
+      labels:
+        {{- include "supabase.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: imgproxy
+        supabaseComponent: {{ include "supabase.fullname" . }}-imgproxy
+    spec:
+      {{- if .Values.imgproxy.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml .Values.imgproxy.imagePullSecrets | nindent 8 }}
+      {{- end }}
+      {{- if .Values.imgproxy.serviceAccount.create }}
+      serviceAccountName: {{ .Values.imgproxy.serviceAccount.name | default (printf "%s-imgproxy" (include "supabase.fullname" .)) }}
+      {{- end }}
+      {{- with .Values.imgproxy.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.imgproxy.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.imgproxy.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+      - name: imgproxy
+        image: "{{ .Values.imgproxy.image.repository }}:{{ .Values.imgproxy.image.tag }}"
+        imagePullPolicy: {{ .Values.imgproxy.image.pullPolicy }}
+        {{- with .Values.imgproxy.livenessProbe }}
+        livenessProbe:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.imgproxy.readinessProbe }}
+        readinessProbe:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        resources:
+          requests:
+            cpu: {{ .Values.imgproxy.resources.requests.cpu }}
+            memory: {{ .Values.imgproxy.resources.requests.memory }}
+          limits:
+            cpu: {{ .Values.imgproxy.resources.limits.cpu }}
+            memory: {{ .Values.imgproxy.resources.limits.memory }}
+        env:
+        - name: IMGPROXY_BIND
+          value: {{ .Values.imgproxy.config.bind | quote }}
+        - name: IMGPROXY_LOCAL_FILESYSTEM_ROOT
+          value: {{ .Values.imgproxy.config.localFilesystemRoot | quote }}
+        - name: IMGPROXY_USE_ETAG
+          value: {{ .Values.imgproxy.config.useEtag | quote }}
+        - name: IMGPROXY_ENABLE_WEBP_DETECTION
+          value: {{ .Values.imgproxy.config.enableWebpDetection | quote }}
+        {{- with .Values.imgproxy.extraEnvVars }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        ports:
+        - containerPort: 5001
+          name: http
+        volumeMounts:
+        - name: storage-data
+          mountPath: /var/lib/storage
+          readOnly: true
+      volumes:
+      - name: storage-data
+        {{- if .Values.storage.persistence.enabled }}
+        persistentVolumeClaim:
+          claimName: {{ include "supabase.fullname" . }}-storage
+        {{- else }}
+        emptyDir: {}
+        {{- end }}
+{{- end }}

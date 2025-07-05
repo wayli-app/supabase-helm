@@ -1,0 +1,172 @@
+# Global configuration shared across all services
+global:
+  # Supabase global configuration
+  supabase:
+    # Organization name displayed in Studio
+    organizationName: "Supabase Example Org"
+    # Project name displayed in Studio
+    projectName: "Supabase Example Project"
+    # Public URL of the Supabase instance
+    publicUrl: "https://supabase.example.org"
+    # Existing secret containing Supabase keys
+    existingSecret: "supabase-secret"
+    # JWT token expiry in seconds
+    jwtExpiry: 3600
+    jwtSecret: "supabase-secret"
+    secretKeyBaseKey: "secret-key-base"
+    vaultEncKeyKey: "vault-enc-key"
+
+# Database configuration
+db:
+  postgres:
+    # Enable PostgreSQL StatefulSet
+    enabled: true
+    # Existing secret containing PostgreSQL credentials
+    existingSecret: "postgres-secret"
+    # PostgreSQL resource configuration
+    resources:
+      # Resource requests
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      # Resource limits
+      limits:
+        cpu: 1000m
+        memory: 1Gi
+    # PostgreSQL persistence configuration
+    persistence:
+      # Storage size
+      size: 10Gi
+      # Storage class name
+      storageClass: "standard"
+
+# Studio configuration
+studio:
+  enabled: true
+  replicaCount: 1
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+# Kong configuration
+kong:
+  enabled: true
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+# Auth configuration
+auth:
+  enabled: true
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+# REST configuration
+rest:
+  enabled: true
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+# Realtime configuration
+realtime:
+  enabled: true
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+# Storage configuration
+storage:
+  enabled: true
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  persistence:
+    enabled: true
+    size: 10Gi
+    storageClass: standard
+
+# Imgproxy configuration
+imgproxy:
+  enabled: true
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+# Meta configuration
+meta:
+  enabled: true
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+# Functions configuration
+functions:
+  enabled: true
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  persistence:
+    enabled: true
+    size: 1Gi
+    storageClass: standard
+
+# Analytics configuration
+analytics:
+  enabled: true
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  persistence:
+    enabled: true
+    size: 1Gi
+    storageClass: standard
+
+# Vector configuration
+vector:
+  enabled: true
+
+# Supavisor configuration
+supavisor:
+  enabled: true

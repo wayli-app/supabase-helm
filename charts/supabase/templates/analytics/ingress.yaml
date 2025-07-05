@@ -1,0 +1,3 @@
+{{- if and .Values.analytics.enabled .Values.analytics.ingress.enabled }}
+{{- include "supabase.ingress" (dict "component" "analytics" "ingress" .Values.analytics.ingress "Values" .Values "Release" .Release "Chart" .Chart) }}
+{{- end }}

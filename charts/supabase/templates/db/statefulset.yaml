@@ -1,0 +1,162 @@
+{{- if .Values.db.enabled }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "supabase.fullname" . }}-db
+  namespace: {{ include "supabase.namespace" . }}
+  labels:
+    {{- include "supabase.labels" . | nindent 4 }}
+    app.kubernetes.io/component: postgres
+  {{- with .Values.db.postgres.extraAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  serviceName: {{ .Values.db.postgres.service.name }}
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "supabase.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: db
+      supabaseComponent: {{ include "supabase.fullname" . }}-db
+  template:
+    metadata:
+      labels:
+        {{- include "supabase.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: db
+        supabaseComponent: {{ include "supabase.fullname" . }}-db
+      {{- with .Values.db.postgres.extraAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      {{- if .Values.db.postgres.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml .Values.db.postgres.imagePullSecrets | nindent 8 }}
+      {{- end }}
+      {{- if .Values.db.postgres.serviceAccount.create }}
+      serviceAccountName: {{ .Values.db.postgres.serviceAccount.name | default (printf "%s-db" (include "supabase.fullname" .)) }}
+      {{- end }}
+      {{- with .Values.db.postgres.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.db.postgres.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.db.postgres.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.db.postgres.securityContext.pod }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      initContainers:
+        - name: init-db
+          image: "{{ .Values.db.postgres.image.repository }}:{{ .Values.db.postgres.image.tag }}"
+          imagePullPolicy: {{ .Values.db.postgres.image.pullPolicy }}
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              echo "Copying init scripts into existing image script directory..."
+              cp -r /docker-entrypoint-initdb.d/* /initdb.d/
+
+              echo "Copying SQL files from ConfigMap..."
+              cp /custom-init-scripts/* /initdb.d/init-scripts/
+              echo "SQL files copied: $(ls /custom-init-scripts/)"
+
+              echo "Checking for user-defined migration scripts..."
+              if [ -d /custom-migrations ] && [ "$(ls -A /custom-migrations 2>/dev/null)" ]; then
+                echo "Copying user-defined migration scripts..."
+                cp /custom-migrations/* /initdb.d/
+              else
+                echo "No user-defined migrations found, skipping..."
+              fi
+              echo "Initialization scripts are ready"
+          volumeMounts:
+            - mountPath: /custom-init-scripts
+              name: db-init-sql
+            - mountPath: /custom-migrations
+              name: custom-migrations
+            - mountPath: /initdb.d
+              name: initdb-scripts-data
+      containers:
+        - name: postgres
+          image: "{{ .Values.db.postgres.image.repository }}:{{ .Values.db.postgres.image.tag }}"
+          imagePullPolicy: {{ .Values.db.postgres.image.pullPolicy }}
+          {{- with .Values.db.postgres.securityContext.container }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+        {{- with .Values.db.postgres.livenessProbe }}
+        livenessProbe:
+          {{- toYaml . | nindent 12 }}
+        {{- end }}
+        {{- with .Values.db.postgres.readinessProbe }}
+        readinessProbe:
+          {{- toYaml . | nindent 12 }}
+        {{- end }}
+          env:
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.db.postgres.existingSecret | default (printf "%s-db-secret" (include "supabase.fullname" .)) }}
+                  key: {{ .Values.db.postgres.secretKeys.userPasswordKey | default "password" }}
+            - name: POSTGRES_USER
+              value: supabase_admin
+            - name: POSTGRES_DB
+              value: postgres
+            - name: SUPABASE_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.db.postgres.existingSecret | default (printf "%s-db-secret" (include "supabase.fullname" .)) }}
+                  key: {{ .Values.db.postgres.secretKeys.userPasswordKey | default "password" }}
+          ports:
+            - name: postgresql
+              containerPort: 5432
+              protocol: TCP
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+              subPath: postgres
+            - name: initdb-scripts-data
+              mountPath: /docker-entrypoint-initdb.d
+          resources:
+            {{- toYaml .Values.db.postgres.resources | nindent 12 }}
+      {{- if .Values.db.postgres.persistence.existingClaim }}
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ .Values.db.postgres.persistence.existingClaim }}
+        - name: db-init-sql
+          configMap:
+            name: {{ include "supabase.fullname" . }}-db-init
+        - name: initdb-scripts-data
+          emptyDir: {}
+        - name: custom-migrations
+          emptyDir: {}
+      {{- else }}
+      volumes:
+        - name: db-init-sql
+          configMap:
+            name: {{ include "supabase.fullname" . }}-db-init
+        - name: initdb-scripts-data
+          emptyDir: {}
+        - name: custom-migrations
+          emptyDir: {}
+      {{- end }}
+  {{- if not .Values.db.postgres.persistence.existingClaim }}
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        storageClassName: {{ .Values.db.postgres.persistence.storageClass | quote }}
+        resources:
+          requests:
+            storage: {{ .Values.db.postgres.persistence.size }}
+
+  {{- end }}
+{{- end }}

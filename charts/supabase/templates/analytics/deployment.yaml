@@ -1,0 +1,186 @@
+{{- if .Values.analytics.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "supabase.fullname" . }}-analytics
+  namespace: {{ include "supabase.namespace" . }}
+  labels:
+    {{- include "supabase.labels" . | nindent 4 }}
+    app.kubernetes.io/component: analytics
+    supabaseComponent: {{ include "supabase.fullname" . }}-analytics
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "supabase.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: analytics
+      supabaseComponent: {{ include "supabase.fullname" . }}-analytics
+  template:
+    metadata:
+      labels:
+        {{- include "supabase.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: analytics
+        supabaseComponent: {{ include "supabase.fullname" . }}-analytics
+    spec:
+      {{- if .Values.analytics.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml .Values.analytics.imagePullSecrets | nindent 8 }}
+      {{- end }}
+      {{- if .Values.analytics.serviceAccount.create }}
+      serviceAccountName: {{ .Values.analytics.serviceAccount.name | default (printf "%s-analytics" (include "supabase.fullname" .)) }}
+      {{- end }}
+      {{- with .Values.analytics.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.analytics.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.analytics.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      initContainers:
+        - name: init-db
+          image: postgres:15-alpine
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: DB_HOST
+              {{- if .Values.db.enabled }}
+              value: {{ .Values.db.postgres.service.name | default (printf "%s-db" (include "supabase.fullname" .)) }}{{- if .Values.db.postgres.service.namespace }}.{{ .Values.db.postgres.service.namespace }}{{- end }}
+              {{- else }}
+              value: {{ .Values.analytics.config.dbHost | default "localhost" | quote }}
+              {{- end }}
+            - name: DB_USER
+              value: {{ .Values.analytics.config.dbUser | quote }}
+            - name: DB_PORT
+              value: {{ .Values.db.postgres.service.port | quote }}
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.db.postgres.existingSecret | default (printf "%s-db-secret" (include "supabase.fullname" .)) }}
+                  key: {{ .Values.db.postgres.secretKeys.userPasswordKey }}
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              until pg_isready -h $(DB_HOST) -p $(DB_PORT) -U $(DB_USER); do
+                echo "Waiting for database to start..."
+                sleep 2
+              done
+              echo "Database is ready"
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              cpu: 100m
+              memory: 128Mi
+      containers:
+      - name: analytics
+        image: "{{ .Values.analytics.image.repository }}:{{ .Values.analytics.image.tag }}"
+        imagePullPolicy: {{ .Values.analytics.image.pullPolicy }}
+        {{- with .Values.analytics.livenessProbe }}
+        livenessProbe:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.analytics.readinessProbe }}
+        readinessProbe:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        resources:
+          requests:
+            cpu: {{ .Values.analytics.resources.requests.cpu }}
+            memory: {{ .Values.analytics.resources.requests.memory }}
+          limits:
+            cpu: {{ .Values.analytics.resources.limits.cpu }}
+            memory: {{ .Values.analytics.resources.limits.memory }}
+        env:
+        - name: LOGFLARE_NODE_HOST
+          value: "0.0.0.0"
+        - name: DB_DRIVER
+          value: postgres
+        - name: DB_USERNAME
+          value: {{ .Values.analytics.config.dbUser | quote }}
+        - name: DB_DATABASE
+          value: {{ .Values.analytics.config.dbDatabase | quote }}
+        - name: DB_HOSTNAME
+          value: {{ .Values.db.postgres.service.name | default (printf "%s-db" (include "supabase.fullname" .)) }}{{- if .Values.db.postgres.service.namespace }}.{{ .Values.db.postgres.service.namespace }}{{- end }}
+        - name: DB_PORT
+          value: {{ .Values.db.postgres.service.port | quote }}
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.db.postgres.existingSecret | default (printf "%s-db-secret" (include "supabase.fullname" .)) }}
+              key: {{ .Values.db.postgres.secretKeys.userPasswordKey }}
+        - name: DB_SCHEMA
+          value: {{ .Values.analytics.config.dbSchema | quote }}
+        - name: LOGFLARE_PUBLIC_ACCESS_TOKEN
+          {{- if .Values.analytics.existingSecret }}
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.analytics.existingSecret }}
+              key: {{ .Values.analytics.secretKeys.logflarePublicAccessToken }}
+          {{- else if .Values.analytics.logflarePublicAccessToken }}
+          value: {{ .Values.analytics.logflarePublicAccessToken | quote }}
+          {{- else }}
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.global.supabase.existingSecret | default (printf "%s-secret" (include "supabase.fullname" .)) }}
+              key: {{ .Values.global.supabase.secretKeys.anonKey }}
+          {{- end }}
+        - name: LOGFLARE_PRIVATE_ACCESS_TOKEN
+          {{- if .Values.analytics.existingSecret }}
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.analytics.existingSecret }}
+              key: {{ .Values.analytics.secretKeys.logflarePrivateAccessToken }}
+          {{- else if .Values.analytics.logflarePrivateAccessToken }}
+          value: {{ .Values.analytics.logflarePrivateAccessToken | quote }}
+          {{- else }}
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.global.supabase.existingSecret | default (printf "%s-secret" (include "supabase.fullname" .)) }}
+              key: {{ .Values.global.supabase.secretKeys.serviceRoleKey }}
+          {{- end }}
+        - name: LOGFLARE_SINGLE_TENANT
+          value: {{ .Values.analytics.config.singleTenant | quote }}
+        - name: LOGFLARE_SUPABASE_MODE
+          value: {{ .Values.analytics.config.supabaseMode | quote }}
+        - name: LOGFLARE_MIN_CLUSTER_SIZE
+          value: {{ .Values.analytics.config.minClusterSize | quote }}
+        - name: POSTGRES_BACKEND_URL
+          value: "postgresql://{{ .Values.analytics.config.dbUser }}:$(DB_PASSWORD)@{{ .Values.db.postgres.service.name | default (printf "%s-db" (include "supabase.fullname" .)) }}{{- if .Values.db.postgres.service.namespace }}.{{ .Values.db.postgres.service.namespace }}{{- end }}:{{ .Values.db.postgres.service.port }}/{{ .Values.analytics.config.dbDatabase }}"
+        - name: POSTGRES_BACKEND_SCHEMA
+          value: {{ .Values.analytics.config.dbSchema | quote }}
+        - name: LOGFLARE_FEATURE_FLAG_OVERRIDE
+          value: {{ .Values.analytics.config.featureFlagOverride | quote }}
+        - name: PORT
+          value: "4000"
+        - name: LOGFLARE_URL
+          value: "http://{{ .Values.analytics.service.name | default (printf "%s-analytics" (include "supabase.fullname" .)) }}{{- if .Values.analytics.service.namespace }}.{{ .Values.analytics.service.namespace }}{{- end }}:{{ .Values.analytics.service.port }}"
+        - name: LOGFLARE_PORT
+          value: "4000"
+        {{- with .Values.analytics.extraEnvVars }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        ports:
+        - containerPort: 4000
+          name: http
+        volumeMounts:
+        - name: analytics-data
+          mountPath: /var/lib/analytics
+      volumes:
+      - name: analytics-data
+        {{- if .Values.analytics.persistence.enabled }}
+        {{- if .Values.analytics.persistence.existingClaim }}
+        persistentVolumeClaim:
+          claimName: {{ .Values.analytics.persistence.existingClaim }}
+        {{- else }}
+        persistentVolumeClaim:
+          claimName: {{ include "supabase.fullname" . }}-analytics
+        {{- end }}
+        {{- else }}
+        emptyDir: {}
+        {{- end }}
+{{- end }}

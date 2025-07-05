@@ -1,0 +1,157 @@
+{{- if .Values.studio.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "supabase.fullname" . }}-studio
+  namespace: {{ include "supabase.namespace" . }}
+  labels:
+    {{- include "supabase.labels" . | nindent 4 }}
+    app.kubernetes.io/component: studio
+    supabaseComponent: {{ include "supabase.fullname" . }}-studio
+spec:
+  replicas: {{ .Values.studio.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "supabase.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: studio
+      supabaseComponent: {{ include "supabase.fullname" . }}-studio
+  template:
+    metadata:
+      annotations:
+        {{- with .Values.studio.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      labels:
+        {{- include "supabase.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: studio
+        supabaseComponent: {{ include "supabase.fullname" . }}-studio
+    spec:
+      {{- if .Values.studio.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml .Values.studio.imagePullSecrets | nindent 8 }}
+      {{- end }}
+      {{- if .Values.studio.serviceAccount.create }}
+      serviceAccountName: {{ .Values.studio.serviceAccount.name | default (printf "%s-studio" (include "supabase.fullname" .)) }}
+      {{- end }}
+      {{- with .Values.studio.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.studio.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.studio.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: studio
+          image: {{ .Values.studio.image.repository }}:{{ .Values.studio.image.tag }}
+          imagePullPolicy: {{ .Values.studio.image.pullPolicy }}
+          {{- with .Values.studio.livenessProbe }}
+          livenessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.studio.readinessProbe }}
+          readinessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          resources:
+            requests:
+              cpu: {{ .Values.studio.resources.requests.cpu }}
+              memory: {{ .Values.studio.resources.requests.memory }}
+            limits:
+              cpu: {{ .Values.studio.resources.limits.cpu }}
+              memory: {{ .Values.studio.resources.limits.memory }}
+          env:
+            - name: STUDIO_PG_META_URL
+              value: "http://{{ include "supabase.fullname" . }}-meta:8080"
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.db.postgres.existingSecret | default (printf "%s-db-secret" (include "supabase.fullname" .)) }}
+                  key: {{ .Values.db.postgres.secretKeys.userPasswordKey }}
+            - name: DEFAULT_ORGANIZATION_NAME
+              value: {{ .Values.global.supabase.organizationName | quote }}
+            - name: DEFAULT_PROJECT_NAME
+              value: {{ .Values.global.supabase.projectName | quote }}
+            - name: OPENAI_API_KEY
+              {{- if .Values.global.openApi.existingSecret }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.global.openApi.existingSecret }}
+                  key: {{ .Values.global.openApi.secretKey }}
+              {{- else }}
+              value: {{ .Values.global.openApi.key | default "" | quote }}
+              {{- end }}
+            - name: SUPABASE_URL
+              value: "http://{{ include "supabase.fullname" . }}-kong:8000"
+            - name: SUPABASE_PUBLIC_URL
+              value: {{ .Values.global.supabase.publicUrl | quote }}
+            - name: SUPABASE_ANON_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.global.supabase.existingSecret | default (printf "%s-secret" (include "supabase.fullname" .)) }}
+                  key: {{ .Values.global.supabase.secretKeys.anonKey }}
+            - name: SUPABASE_SERVICE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.global.supabase.existingSecret | default (printf "%s-secret" (include "supabase.fullname" .)) }}
+                  key: {{ .Values.global.supabase.secretKeys.serviceRoleKey }}
+            - name: AUTH_JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.global.supabase.existingSecret | default (printf "%s-secret" (include "supabase.fullname" .)) }}
+                  key: {{ .Values.global.supabase.secretKeys.jwtSecret }}
+          {{- if .Values.analytics.enabled }}
+            - name: LOGFLARE_PRIVATE_ACCESS_TOKEN
+              {{- if .Values.analytics.existingSecret }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.analytics.existingSecret }}
+                  key: {{ .Values.analytics.secretKeys.logflarePrivateAccessToken }}
+              {{- else if .Values.analytics.logflarePrivateAccessToken }}
+              value: {{ .Values.analytics.logflarePrivateAccessToken | quote }}
+              {{- else }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.global.supabase.existingSecret | default (printf "%s-secret" (include "supabase.fullname" .)) }}
+                  key: {{ .Values.global.supabase.secretKeys.serviceRoleKey }}
+              {{- end }}
+          {{- end }}
+            - name: LOGFLARE_URL
+              value: "http://{{ include "supabase.fullname" . }}-analytics:4000"
+            - name: NEXT_PUBLIC_ENABLE_LOGS
+              value: {{ .Values.studio.config.enableLogs | quote }}
+            - name: NEXT_ANALYTICS_BACKEND_PROVIDER
+              value: {{ .Values.studio.config.analyticsBackendProvider | quote }}
+            {{- with .Values.studio.extraEnvVars }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          ports:
+            - containerPort: 3000
+              name: http
+          readinessProbe:
+            httpGet:
+              path: /api/platform/profile
+              port: 3000
+            timeoutSeconds: 10
+            periodSeconds: 5
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /api/platform/profile
+              port: 3000
+            timeoutSeconds: 10
+            periodSeconds: 5
+            failureThreshold: 3
+          volumeMounts:
+            {{- with .Values.studio.volumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+      volumes:
+        {{- with .Values.studio.volumes }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+{{- end }}

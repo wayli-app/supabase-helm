@@ -1,0 +1,112 @@
+# Automated Versioning Configuration
+# This file configures how the automated versioning workflow determines version bumps
+
+# Commit types that trigger version bumps
+commit_types:
+  major:
+    - "BREAKING CHANGE"
+    - "breaking"
+  minor:
+    - "feat"
+    - "feature"
+  patch:
+    - "fix"
+    - "docs"
+    - "style"
+    - "refactor"
+    - "test"
+    - "chore"
+    - "perf"
+    - "ci"
+    - "build"
+
+# PR labels that override commit analysis
+pr_labels:
+  major:
+    - "major"
+    - "breaking"
+    - "breaking-change"
+  minor:
+    - "minor"
+    - "feature"
+    - "enhancement"
+  patch:
+    - "patch"
+    - "bugfix"
+    - "fix"
+    - "documentation"
+
+# Default bump type when no specific indicators are found
+default_bump: "patch"
+
+# Files that should trigger versioning when changed
+version_trigger_files:
+  - "charts/**/*.yaml"
+  - "charts/**/*.yml"
+  - "templates/**/*.yaml"
+  - "templates/**/*.yml"
+  - "values.yaml"
+  - "values.yml"
+
+# Files that should NOT trigger versioning
+version_ignore_files:
+  - "**.md"
+  - ".github/ISSUE_TEMPLATE/**"
+  - "CONTRIBUTING.md"
+  - "SECURITY.md"
+  - "CODE_OF_CONDUCT.md"
+  - "CHANGELOG.md"
+  - "README.md"
+
+# Changelog configuration
+changelog:
+  # Number of recent commits to include in changelog
+  commit_count: 10
+
+  # Sections to include in changelog
+  sections:
+    - "What Changed"
+    - "Recent Changes"
+    - "Breaking Changes"
+    - "Migration Guide"
+
+  # Default values for sections
+  defaults:
+    breaking_changes: "None"
+    migration_guide: "No migration required"
+
+# Release configuration
+release:
+  # Whether to create draft releases
+  draft: false
+
+  # Whether to create prereleases
+  prerelease: false
+
+  # Release name template
+  name_template: "Release v{version}"
+
+  # Release body template
+  body_template: |
+    ## What's Changed
+
+    This is an automated release with version bump to {version}.
+
+    **Bump Type:** {bump_type}
+    **Reason:** {reason}
+
+    ## Installation
+
+    ```bash
+    helm repo add supabase-helm https://wayli-app.github.io/supabase-helm
+    helm repo update
+    helm install my-supabase supabase-helm/supabase
+    ```
+
+    ## Breaking Changes
+
+    {breaking_changes}
+
+    ## Migration Guide
+
+    {migration_guide}

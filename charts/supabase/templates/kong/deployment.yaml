@@ -1,0 +1,146 @@
+{{- if .Values.kong.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "supabase.fullname" . }}-kong
+  namespace: {{ include "supabase.namespace" . }}
+  labels:
+    {{- include "supabase.labels" . | nindent 4 }}
+    app.kubernetes.io/component: kong
+    supabaseComponent: {{ include "supabase.fullname" . }}-kong
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "supabase.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: kong
+      supabaseComponent: {{ include "supabase.fullname" . }}-kong
+  template:
+    metadata:
+      labels:
+        {{- include "supabase.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: kong
+        supabaseComponent: {{ include "supabase.fullname" . }}-kong
+    spec:
+      {{- if .Values.kong.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml .Values.kong.imagePullSecrets | nindent 8 }}
+      {{- end }}
+      {{- if .Values.kong.serviceAccount.create }}
+      serviceAccountName: {{ .Values.kong.serviceAccount.name | default (printf "%s-kong" (include "supabase.fullname" .)) }}
+      {{- end }}
+      {{- with .Values.kong.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.kong.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.kong.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+      - name: kong
+        image: "{{ .Values.kong.image.repository }}:{{ .Values.kong.image.tag }}"
+        imagePullPolicy: {{ .Values.kong.image.pullPolicy }}
+        command: ["/bin/bash", "/etc/kong/wrapper.sh"]
+        {{- with .Values.kong.livenessProbe }}
+        livenessProbe:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.kong.readinessProbe }}
+        readinessProbe:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        env:
+        - name: KONG_DATABASE
+          value: "off"
+        - name: KONG_DECLARATIVE_CONFIG
+          value: "/usr/local/kong/kong.yml"
+        - name: KONG_DNS_ORDER
+          value: "LAST,A,CNAME"
+        - name: KONG_PLUGINS
+          value: "request-transformer,cors,key-auth,http-log,acl"
+        - name: KONG_LOG_LEVEL
+          value: "info"
+        - name: KONG_PROXY_ACCESS_LOG
+          value: "/dev/stdout"
+        - name: KONG_ADMIN_ACCESS_LOG
+          value: "/dev/stdout"
+        - name: KONG_PROXY_ERROR_LOG
+          value: "/dev/stderr"
+        - name: KONG_ADMIN_ERROR_LOG
+          value: "/dev/stderr"
+        - name: KONG_ADMIN_LISTEN
+          value: "0.0.0.0:8001"
+        - name: KONG_PROXY_LISTEN
+          value: "0.0.0.0:{{ .Values.kong.service.httpPort }}, 0.0.0.0:{{ .Values.kong.service.httpsPort }} ssl"
+        - name: SUPABASE_ANON_KEY
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.global.supabase.existingSecret | default (printf "%s-secret" (include "supabase.fullname" .)) }}
+              key: {{ .Values.global.supabase.secretKeys.anonKey }}
+        - name: SUPABASE_SERVICE_KEY
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.global.supabase.existingSecret | default (printf "%s-secret" (include "supabase.fullname" .)) }}
+              key: {{ .Values.global.supabase.secretKeys.serviceRoleKey }}
+        - name: DASHBOARD_USERNAME
+          value: {{ .Values.studio.config.auth.username | default "supabase" | quote }}
+        - name: DASHBOARD_PASSWORD
+          {{- if .Values.studio.config.auth.existingSecret }}
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.studio.config.auth.existingSecret }}
+              key: {{ .Values.studio.config.auth.secretKeys.passwordKey }}
+          {{- else if .Values.studio.config.auth.password }}
+          value: {{ .Values.studio.config.auth.password | quote }}
+          {{- else }}
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.global.supabase.existingSecret | default (printf "%s-secret" (include "supabase.fullname" .)) }}
+              key: {{ .Values.studio.config.auth.secretKeys.passwordKey | default "password" }}
+          {{- end }}
+        {{- with .Values.kong.extraEnvVars }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        ports:
+        - containerPort: 8000
+          name: http
+        - containerPort: 8443
+          name: https
+        - containerPort: 8001
+          name: admin
+        volumeMounts:
+        - mountPath: /usr/local/kong/template.yml
+          name: kong-config
+          subPath: template.yml
+        - mountPath: /etc/kong/wrapper.sh
+          name: kong-config
+          subPath: wrapper.sh
+        readinessProbe:
+          httpGet:
+            path: /status
+            port: admin
+          timeoutSeconds: 5
+          periodSeconds: 5
+          failureThreshold: 10
+        livenessProbe:
+          httpGet:
+            path: /status
+            port: admin
+          timeoutSeconds: 5
+          periodSeconds: 5
+          failureThreshold: 10
+      volumes:
+      - name: kong-config
+        {{- if .Values.kong.existingConfigMap }}
+        configMap:
+          name: {{ .Values.kong.existingConfigMap }}
+        {{- else }}
+        configMap:
+          name: {{ include "supabase.fullname" . }}-kong-config
+        {{- end }}
+{{- end }}

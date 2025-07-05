@@ -1,0 +1,21 @@
+{{- if .Values.analytics.enabled }}
+{{- if and .Values.analytics.persistence.enabled (not .Values.analytics.persistence.existingClaim) }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "supabase.fullname" . }}-analytics
+  namespace: {{ include "supabase.namespace" . }}
+  labels:
+    {{- include "supabase.labels" . | nindent 4 }}
+    app.kubernetes.io/component: analytics
+spec:
+  accessModes:
+    - {{ .Values.analytics.persistence.accessMode }}
+  {{- if .Values.analytics.persistence.storageClass }}
+  storageClassName: {{ .Values.analytics.persistence.storageClass }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ .Values.analytics.persistence.size }}
+{{- end }}
+{{- end }}

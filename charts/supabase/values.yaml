@@ -1,0 +1,1261 @@
+# Supabase Helm Chart - Implemented Services
+#
+# This chart implements the following Supabase services:
+# 1. Database (PostgreSQL) - Core database with connection pooling via Supavisor
+# 2. Studio - Web-based management interface for Supabase
+# 3. Kong - API Gateway for routing and authentication
+# 4. Auth - Authentication and authorization service
+# 5. REST - REST API service for database operations
+# 6. Realtime - Real-time subscriptions and broadcasting
+# 7. Storage - File storage and management service
+# 8. Imgproxy - Image processing and optimization service
+# 9. Meta - Metadata and schema management service
+# 10. Functions - Edge functions for serverless compute
+# 11. Analytics - Analytics and monitoring service
+# 12. Vector - Vector search and similarity service
+# 13. Supavisor - Database connection pooling service
+#
+# Global configuration shared across all services
+global:
+  # Global image registry
+  imageRegistry: ""
+  # Global image pull secrets
+  imagePullSecrets: []
+  # Global default storage class
+  defaultStorageClass: ""
+  # Global storage class
+  storageClass: ""
+  # Security configuration
+  security:
+    # Allow insecure images
+    allowInsecureImages: false
+  # OpenAI API configuration
+  openApi:
+    # OpenAI API key
+    key: ""
+    # Existing secret containing OpenAI API key
+    existingSecret: ""
+    # Secret key for OpenAI API key in the secret
+    secretKey: openai-api-key
+  # Supabase global configuration
+  supabase:
+    # Organization name displayed in Studio
+    organizationName: Supabase Demo
+    # Project name displayed in Studio
+    projectName: Example project
+    # Public URL of the Supabase instance
+    publicUrl: https://supabase.example.com
+    # Existing secret containing Supabase keys
+    existingSecret: supabase-secret
+    # Secret keys configuration for existing secret
+    secretKeys:
+      # JWT secret key in the secret
+      jwtSecret: jwt-secret
+      # Anonymous key in the secret
+      anonKey: anon-key
+      # Service role key in the secret
+      serviceRoleKey: service-role-key
+      # Secret key base in the secret
+      secretKeyBase: secret-key-base
+      # Vault encryption key in the secret
+      vaultEncKey: vault-enc-key
+      # Database encryption key in the secret
+      dbEncKey: db-enc-key
+    # JWT secret for authentication
+    jwtSecret: ""
+    # JWT token expiry in seconds
+    jwtExpiry: 3600
+    # Anonymous key for public access
+    anonKey: ""
+    # Service role key for admin access
+    serviceRoleKey: ""
+    # Secret key base for encryption
+    secretKeyBase: ""
+    # Vault encryption key
+    vaultEncKey: ""
+
+# Common labels to add to all resources
+commonLabels: {}
+# Common annotations to add to all resources
+commonAnnotations: {}
+# Annotations to add to all secrets
+secretAnnotations: {}
+
+# ServiceAccount configuration
+serviceAccount:
+  # Create a service account
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use
+  name: ""
+  # Automount API credentials for the Service Account
+  automountServiceAccountToken: true
+
+# Database configuration
+db:
+  enabled: true
+  postgres:
+    # PostgreSQL image configuration
+    image:
+      # PostgreSQL image repository
+      repository: supabase/postgres
+      # PostgreSQL image tag
+      tag: 17.4.1.049
+      # PostgreSQL image pull policy
+      pullPolicy: IfNotPresent
+    # PostgreSQL image pull secrets
+    imagePullSecrets: ""
+    # PostgreSQL liveness probe
+    livenessProbe: {}
+    # PostgreSQL readiness probe
+    readinessProbe: {}
+    # PostgreSQL service account configuration
+    serviceAccount:
+      # Create a service account
+      create: true
+      # Annotations to add to the service account
+      annotations: {}
+      # The name of the service account to use
+      name: ""
+    # PostgreSQL service configuration
+    service:
+      # Service name
+      name: ""
+      # Service namespace (if different from release namespace)
+      namespace: ""
+      # Service port
+      port: 5432
+    # PostgreSQL password
+    password: ""
+    # Password key in the secret
+    passwordKey: password
+    # Existing secret containing PostgreSQL credentials
+    existingSecret: ""
+    # Secret keys configuration for existing secret
+    secretKeys:
+      # Admin password key in the secret
+      adminPasswordKey: postgres-password
+      # User password key in the secret
+      userPasswordKey: password
+    # PostgreSQL resource configuration
+    resources:
+      # Resource requests
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      # Resource limits
+      limits:
+        cpu: 1000m
+        memory: 1Gi
+    # PostgreSQL persistence configuration
+    persistence:
+      # Enable persistence
+      enabled: true
+      # Volume name
+      volumeName: "data"
+      # Storage size
+      size: 10Gi
+      # Storage class name
+      storageClass: ""
+      # Existing PVC claim name
+      existingClaim: ""
+      # Mount path
+      mountPath: /var/lib/postgresql/data
+
+    # Additional pod annotations
+    extraAnnotations: {}
+    # PostgreSQL node selector
+    nodeSelector: {}
+    # PostgreSQL affinity
+    affinity: {}
+    # PostgreSQL tolerations
+    tolerations: []
+    # PostgreSQL security context configuration
+    securityContext:
+      # Pod security context
+      pod: {}
+      # Container security context
+      container: {}
+
+# Override the full name of the release
+fullnameOverride: ""
+# Override the name of the chart
+nameOverride: ""
+# Override the namespace
+namespaceOverride: ""
+
+# Studio configuration
+studio:
+  # Enable Studio deployment
+  enabled: true
+  # Number of Studio replicas
+  replicaCount: 1
+  # Studio image configuration
+  image:
+    # Studio image repository
+    repository: supabase/studio
+    # Studio image tag
+    tag: 2025.06.30-sha-6f5982d
+    # Studio image pull policy
+    pullPolicy: IfNotPresent
+  # Studio image pull secrets
+  imagePullSecrets: ""
+  # Studio liveness probe
+  livenessProbe: {}
+  # Studio readiness probe
+  readinessProbe: {}
+  # Studio service account configuration
+  serviceAccount:
+    # Create a service account
+    create: true
+    # Annotations to add to the service account
+    annotations: {}
+    # The name of the service account to use
+    name: ""
+  # Studio service configuration
+  service:
+    # Studio service type
+    type: ClusterIP
+    # Studio service port
+    port: 3000
+  # Studio resource configuration
+  resources:
+    # Resource requests
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    # Resource limits
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  # Additional pod annotations
+  podAnnotations: {}
+  # Additional volume mounts
+  volumeMounts: []
+  # Additional volumes
+  volumes: []
+  # Studio-specific configuration
+  config:
+    # Enable logs in Studio
+    enableLogs: true
+    # Analytics backend provider (postgres or bigquery)
+    analyticsBackendProvider: postgres
+    # Studio authentication configuration
+    auth:
+      # Studio username
+      username: supabase
+      # Studio password
+      password: ""
+      # Existing secret containing studio password
+      existingSecret: ""
+      # Secret keys configuration for existing secret
+      secretKeys:
+        # Password key in the secret
+        passwordKey: password
+  # Additional environment variables
+  extraEnvVars: []
+  # Additional pod annotations
+  extraAnnotations: {}
+  # Studio node selector
+  nodeSelector: {}
+  # Studio affinity
+  affinity: {}
+  # Studio tolerations
+  tolerations: []
+
+# Kong configuration
+kong:
+  # Enable Kong deployment
+  enabled: true
+  # Kong image configuration
+  image:
+    # Kong image repository
+    repository: kong
+    # Kong image tag
+    tag: 2.8.1
+    # Kong image pull policy
+    pullPolicy: IfNotPresent
+  # Kong image pull secrets
+  imagePullSecrets: ""
+  # Kong liveness probe
+  livenessProbe: {}
+  # Kong readiness probe
+  readinessProbe: {}
+  # Kong service account configuration
+  serviceAccount:
+    # Create a service account
+    create: true
+    # Annotations to add to the service account
+    annotations: {}
+    # The name of the service account to use
+    name: ""
+  # Kong service configuration
+  service:
+    # Kong service type
+    type: ClusterIP
+    # Kong HTTP port
+    httpPort: 8000
+    # Kong HTTPS port
+    httpsPort: 8443
+    # Kong service port (for backward compatibility)
+    port: 8000
+  # Kong resource configuration
+  resources:
+    # Resource requests
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    # Resource limits
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  # Kong ingress configuration
+  ingress:
+    # Enable Kong ingress
+    enabled: false
+    # Ingress class name
+    ingressClassName: ""
+    # Additional ingress labels
+    labels: {}
+    # Additional ingress annotations
+    annotations: {}
+    # Kong hostname
+    hostname: api.example.com
+    # Kong path
+    path: /
+    # Kong path type
+    pathType: Prefix
+    # Kong TLS configuration
+    tls:
+      - hosts:
+          - api.example.com
+        secretName: kong-tls
+    # Additional ingress hosts
+    extraHosts: []
+    # Additional ingress paths
+    extraPaths: []
+    # Additional ingress rules
+    extraRules: []
+    # Additional TLS configurations
+    extraTls: []
+  # Existing ConfigMap for Kong configuration
+  existingConfigMap: ""
+  # Additional environment variables
+  extraEnvVars: []
+  # Additional pod annotations
+  extraAnnotations: {}
+  # Kong node selector
+  nodeSelector: {}
+  # Kong affinity
+  affinity: {}
+  # Kong tolerations
+  tolerations: []
+
+# Auth configuration
+auth:
+  # Enable Auth deployment
+  enabled: true
+  # Auth image configuration
+  image:
+    # Auth image repository
+    repository: supabase/gotrue
+    # Auth image tag
+    tag: v2.176.1
+    # Auth image pull policy
+    pullPolicy: IfNotPresent
+  # Auth image pull secrets
+  imagePullSecrets: ""
+  # Auth liveness probe
+  livenessProbe: {}
+  # Auth readiness probe
+  readinessProbe: {}
+  # Auth service account configuration
+  serviceAccount:
+    # Create a service account
+    create: true
+    # Annotations to add to the service account
+    annotations: {}
+    # The name of the service account to use
+    name: ""
+  # Auth service configuration
+  service:
+    # Auth service type
+    type: ClusterIP
+    # Auth service port
+    port: 9999
+  # Auth resource configuration
+  resources:
+    # Resource requests
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    # Resource limits
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  # Auth-specific configuration
+  config:
+    # Authentication settings
+    auth:
+      # Disable signup
+      disableSignup: false
+      # Enable email signup
+      enableEmailSignup: true
+      # Enable anonymous users
+      enableAnonymousUsers: false
+      # Enable email autoconfirm
+      enableEmailAutoconfirm: false
+      # Enable phone signup
+      enablePhoneSignup: false
+      # Enable phone autoconfirm
+      enablePhoneAutoconfirm: false
+      # Additional redirect URLs
+      additionalRedirectUrls: ""
+    # SMTP configuration
+    smtp:
+      # SMTP admin email
+      adminEmail: ""
+      # SMTP host
+      host: ""
+      # SMTP port
+      port: 587
+      # SMTP user
+      user: ""
+      # SMTP password
+      password: ""
+      # SMTP sender name
+      senderName: ""
+      # Existing secret containing SMTP credentials
+      existingSecret: ""
+      # Secret keys configuration for existing secret
+      secretKeys:
+        # SMTP user key in the secret
+        userKey: smtp-user
+        # SMTP password key in the secret
+        passwordKey: smtp-password
+    # Mailer URL paths
+    mailer:
+      # Invite URL path
+      urlpathsInvite: /auth/v1/verify
+      # Confirmation URL path
+      urlpathsConfirmation: /auth/v1/verify
+      # Recovery URL path
+      urlpathsRecovery: /auth/v1/verify
+      # Email change URL path
+      urlpathsEmailChange: /auth/v1/verify
+  # Additional environment variables
+  extraEnvVars: []
+  # Additional pod annotations
+  extraAnnotations: {}
+  # Auth node selector
+  nodeSelector: {}
+  # Auth affinity
+  affinity: {}
+  # Auth tolerations
+  tolerations: []
+
+# REST configuration
+rest:
+  # Enable REST deployment
+  enabled: true
+  # REST image configuration
+  image:
+    # REST image repository
+    repository: postgrest/postgrest
+    # REST image tag
+    tag: v12.2.12
+    # REST image pull policy
+    pullPolicy: IfNotPresent
+  # REST image pull secrets
+  imagePullSecrets: ""
+  # REST liveness probe
+  livenessProbe:
+    httpGet:
+      path: /
+      port: http
+    timeoutSeconds: 5
+    periodSeconds: 5
+    failureThreshold: 3
+  # REST readiness probe
+  readinessProbe:
+    httpGet:
+      path: /
+      port: http
+    timeoutSeconds: 5
+    periodSeconds: 5
+    failureThreshold: 3
+  # REST service account configuration
+  serviceAccount:
+    # Create a service account
+    create: true
+    # Annotations to add to the service account
+    annotations: {}
+    # The name of the service account to use
+    name: ""
+  # REST service configuration
+  service:
+    # REST service type
+    type: ClusterIP
+    # REST service port
+    port: 3000
+  # REST resource configuration
+  resources:
+    # Resource requests
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    # Resource limits
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  # REST-specific configuration
+  config:
+    # Database schemas to expose
+    dbSchemas: "public,storage,graphql_public"
+    # Anonymous role
+    anonRole: "anon"
+    # Use legacy GUCs
+    useLegacyGucs: false
+  # Additional environment variables
+  extraEnvVars: []
+  # Additional pod annotations
+  extraAnnotations: {}
+  # REST node selector
+  nodeSelector: {}
+  # REST affinity
+  affinity: {}
+  # REST tolerations
+  tolerations: []
+
+# Realtime configuration
+realtime:
+  # Enable Realtime deployment
+  enabled: true
+  # Realtime image configuration
+  image:
+    # Realtime image repository
+    repository: supabase/realtime
+    # Realtime image tag
+    tag: v2.40.0
+    # Realtime image pull policy
+    pullPolicy: IfNotPresent
+  # Realtime image pull secrets
+  imagePullSecrets: ""
+  # Realtime liveness probe
+  livenessProbe: {}
+    # httpGet:
+    #   path: /api/tenants/realtime-dev/health
+    #   port: http
+    # timeoutSeconds: 5
+    # periodSeconds: 5
+    # failureThreshold: 3
+  # Realtime readiness probe
+  readinessProbe: {}
+    # httpGet:
+    #   path: /api/tenants/realtime-dev/health
+    #   port: http
+    # timeoutSeconds: 5
+    # periodSeconds: 5
+    # failureThreshold: 3
+  # Realtime service account configuration
+  serviceAccount:
+    # Create a service account
+    create: true
+    # Annotations to add to the service account
+    annotations: {}
+    # The name of the service account to use
+    name: ""
+  # Realtime service configuration
+  service:
+    # Realtime service type
+    type: ClusterIP
+    # Realtime service port
+    port: 4000
+  # Realtime resource configuration
+  resources:
+    # Resource requests
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    # Resource limits
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  # Realtime-specific configuration
+  config:
+    # Database user
+    dbUser: "supabase_admin"
+    # Database after connect query
+    afterConnectQuery: "SET search_path TO _realtime"
+    # Erlang flags
+    erlAflags: "-proto_dist inet_tcp"
+    # DNS nodes
+    dnsNodes: "''"
+    # File descriptor limit
+    rlimitNofile: "10000"
+    # Application name
+    appName: "realtime"
+    # Seed self host
+    seedSelfHost: true
+    # Run janitor
+    runJanitor: true
+  # Additional environment variables
+  extraEnvVars: []
+  # Additional pod annotations
+  extraAnnotations: {}
+  # Realtime node selector
+  nodeSelector: {}
+  # Realtime affinity
+  affinity: {}
+  # Realtime tolerations
+  tolerations: []
+
+# Storage configuration
+storage:
+  # Enable Storage deployment
+  enabled: true
+  # Storage image configuration
+  image:
+    # Storage image repository
+    repository: supabase/storage-api
+    # Storage image tag
+    tag: v1.25.3
+    # Storage image pull policy
+    pullPolicy: IfNotPresent
+  # Storage image pull secrets
+  imagePullSecrets: ""
+  # Storage liveness probe
+  livenessProbe:
+    httpGet:
+      path: /status
+      port: http
+    timeoutSeconds: 5
+    periodSeconds: 5
+    failureThreshold: 3
+  # Storage readiness probe
+  readinessProbe:
+    httpGet:
+      path: /status
+      port: http
+    timeoutSeconds: 5
+    periodSeconds: 5
+    failureThreshold: 3
+  # Storage service account configuration
+  serviceAccount:
+    # Create a service account
+    create: true
+    # Annotations to add to the service account
+    annotations: {}
+    # The name of the service account to use
+    name: ""
+  # Storage service configuration
+  service:
+    # Storage service type
+    type: ClusterIP
+    # Storage service port
+    port: 5000
+  # Storage resource configuration
+  resources:
+    # Resource requests
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    # Resource limits
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  # Storage-specific configuration
+  config:
+    # File size limit in bytes
+    fileSizeLimit: 52428800
+    # Storage backend type
+    storageBackend: "file"
+    # File storage backend path
+    fileStorageBackendPath: "/var/lib/storage"
+    # Tenant ID
+    tenantId: "stub"
+    # Region
+    region: "stub"
+    # Global S3 bucket
+    globalS3Bucket: "stub"
+    # Enable image transformation
+    enableImageTransformation: true
+  # Storage persistence configuration
+  persistence:
+    # Enable persistence
+    enabled: true
+    # Volume name
+    volumeName: "data"
+    # Storage size
+    size: 10Gi
+    # Existing PVC claim name
+    existingClaim: ""
+    # Storage class name
+    storageClass: ""
+    # Access mode
+    accessMode: ReadWriteOnce
+    # Mount path
+    mountPath: /var/lib/storage
+  # Additional environment variables
+  extraEnvVars: []
+  # Additional pod annotations
+  extraAnnotations: {}
+  # Storage node selector
+  nodeSelector: {}
+  # Storage affinity
+  affinity: {}
+  # Storage tolerations
+  tolerations: []
+
+# Imgproxy configuration
+imgproxy:
+  # Enable Imgproxy deployment
+  enabled: true
+  # Imgproxy image configuration
+  image:
+    # Imgproxy image repository
+    repository: darthsim/imgproxy
+    # Imgproxy image tag
+    tag: v3.28.0
+    # Imgproxy image pull policy
+    pullPolicy: IfNotPresent
+  # Imgproxy image pull secrets
+  imagePullSecrets: ""
+  # Imgproxy liveness probe
+  livenessProbe:
+    httpGet:
+      path: /health
+      port: 5001
+    timeoutSeconds: 5
+    periodSeconds: 5
+    failureThreshold: 3
+  # Imgproxy readiness probe
+  readinessProbe:
+    httpGet:
+      path: /health
+      port: 5001
+    timeoutSeconds: 5
+    periodSeconds: 5
+    failureThreshold: 3
+  # Imgproxy service account configuration
+  serviceAccount:
+    # Create a service account
+    create: true
+    # Annotations to add to the service account
+    annotations: {}
+    # The name of the service account to use
+    name: ""
+  # Imgproxy service configuration
+  service:
+    # Imgproxy service type
+    type: ClusterIP
+    # Imgproxy service port
+    port: 5001
+  # Imgproxy resource configuration
+  resources:
+    # Resource requests
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    # Resource limits
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  # Imgproxy-specific configuration
+  config:
+    # Bind address and port
+    bind: ":5001"
+    # Local filesystem root
+    localFilesystemRoot: "/"
+    # Use ETag
+    useEtag: true
+    # Enable WebP detection
+    enableWebpDetection: true
+  # Additional environment variables
+  extraEnvVars: []
+  # Additional pod annotations
+  extraAnnotations: {}
+  # Imgproxy node selector
+  nodeSelector: {}
+  # Imgproxy affinity
+  affinity: {}
+  # Imgproxy tolerations
+  tolerations: []
+
+# Meta configuration
+meta:
+  # Enable Meta deployment
+  enabled: true
+  # Meta image configuration
+  image:
+    # Meta image repository
+    repository: supabase/postgres-meta
+    # Meta image tag
+    tag: v0.91.0
+    # Meta image pull policy
+    pullPolicy: IfNotPresent
+  # Meta image pull secrets
+  imagePullSecrets: ""
+  # Meta liveness probe
+  livenessProbe:
+    httpGet:
+      path: /health
+      port: http
+    timeoutSeconds: 5
+    periodSeconds: 5
+    failureThreshold: 3
+  # Meta readiness probe
+  readinessProbe:
+    httpGet:
+      path: /health
+      port: http
+    timeoutSeconds: 5
+    periodSeconds: 5
+    failureThreshold: 3
+  # Meta service account configuration
+  serviceAccount:
+    # Create a service account
+    create: true
+    # Annotations to add to the service account
+    annotations: {}
+    # The name of the service account to use
+    name: ""
+  # Meta service configuration
+  service:
+    # Meta service type
+    type: ClusterIP
+    # Meta service port
+    port: 8080
+  # Meta resource configuration
+  resources:
+    # Resource requests
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    # Resource limits
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  # Meta-specific configuration
+  config:
+    # Database user
+    dbUser: "supabase_admin"
+    # Database schema
+    dbSchema: "public"
+    # Database SSL
+    dbSsl: false
+  # Additional environment variables
+  extraEnvVars: []
+  # Additional pod annotations
+  extraAnnotations: {}
+  # Meta node selector
+  nodeSelector: {}
+  # Meta affinity
+  affinity: {}
+  # Meta tolerations
+  tolerations: []
+
+# Functions configuration
+functions:
+  # Enable Functions deployment
+  enabled: true
+  # Functions image configuration
+  image:
+    # Functions image repository
+    repository: supabase/edge-runtime
+    # Functions image tag
+    tag: v1.67.4
+    # Functions image pull policy
+    pullPolicy: IfNotPresent
+  # Functions image pull secrets
+  imagePullSecrets: ""
+  # Functions liveness probe
+  livenessProbe: {}
+    # httpGet:
+    #   path: /health
+    #   port: http
+    # timeoutSeconds: 5
+    # periodSeconds: 5
+    # failureThreshold: 3
+  # Functions readiness probe
+  readinessProbe: {}
+    # httpGet:
+    #   path: /health
+    #   port: http
+    # timeoutSeconds: 5
+    # periodSeconds: 5
+    # failureThreshold: 3
+  # Functions service account configuration
+  serviceAccount:
+    # Create a service account
+    create: true
+    # Annotations to add to the service account
+    annotations: {}
+    # The name of the service account to use
+    name: ""
+  # Functions service configuration
+  service:
+    # Functions service type
+    type: ClusterIP
+    # Functions service port
+    port: 54321
+  # Functions resource configuration
+  resources:
+    # Resource requests
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    # Resource limits
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  # Functions-specific configuration
+  config:
+    # Database user
+    dbUser: "postgres"
+    # Database schema
+    dbSchema: "public"
+    # Database SSL
+    dbSsl: false
+    # Verify JWT
+    verifyJwt: true
+  # Functions persistence configuration
+  persistence:
+    # Enable persistence
+    enabled: true
+    # Volume name
+    volumeName: "data"
+    # Storage size
+    size: 1Gi
+    # Existing PVC claim name
+    existingClaim: ""
+    # Storage class name
+    storageClass: ""
+    # Access mode
+    accessMode: ReadWriteOnce
+    # Mount path
+    mountPath: /var/lib/functions
+  # Additional environment variables
+  extraEnvVars: []
+  # Additional pod annotations
+  extraAnnotations: {}
+  # Functions node selector
+  nodeSelector: {}
+  # Functions affinity
+  affinity: {}
+  # Functions tolerations
+  tolerations: []
+  # Additional volume mounts
+  extraVolumeMounts: []
+  # Additional volumes
+  extraVolumes: []
+
+# Analytics configuration
+analytics:
+  # Enable Analytics deployment
+  enabled: true
+  # Analytics image configuration
+  image:
+    # Analytics image repository
+    repository: supabase/logflare
+    # Analytics image tag
+    tag: 1.15.4
+    # Analytics image pull policy
+    pullPolicy: IfNotPresent
+  # Analytics image pull secrets
+  imagePullSecrets: ""
+  # Analytics liveness probe
+  livenessProbe: {}
+    # httpGet:
+    #   path: /health
+    #   port: http
+    # timeoutSeconds: 5
+    # periodSeconds: 5
+    # failureThreshold: 10
+  # Analytics readiness probe
+  readinessProbe: {}
+    # httpGet:
+    #   path: /health
+    #   port: http
+    # timeoutSeconds: 5
+    # periodSeconds: 5
+    # failureThreshold: 10
+  # Analytics service account configuration
+  serviceAccount:
+    # Create a service account
+    create: true
+    # Annotations to add to the service account
+    annotations: {}
+    # The name of the service account to use
+    name: ""
+  # Analytics service configuration
+  service:
+    # Analytics service type
+    type: ClusterIP
+    # Analytics service port
+    port: 4000
+    # Analytics service name (optional, defaults to release-name-analytics)
+    name: ""
+    # Analytics service namespace (optional, for cross-namespace communication)
+    namespace: ""
+  # Analytics resource configuration
+  resources:
+    # Resource requests
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    # Resource limits
+    limits:
+      cpu: 500m
+      memory: 1024Mi
+  # Analytics-specific configuration
+  config:
+    # Database user
+    dbUser: "supabase_admin"
+    # Database name
+    dbDatabase: "_supabase"
+    # Database schema
+    dbSchema: "_analytics"
+    # Single tenant mode
+    singleTenant: true
+    # Supabase mode
+    supabaseMode: true
+    # Minimum cluster size
+    minClusterSize: 1
+    # Feature flag override
+    featureFlagOverride: "multibackend=true"
+  # Logflare public access token configuration
+  logflarePublicAccessToken: ""
+  # Logflare private access token
+  logflarePrivateAccessToken: ""
+  # Existing secret containing Logflare tokens
+  existingSecret: ""
+  # Secret keys configuration for existing secret
+  secretKeys:
+    # Logflare public access token in the secret
+    logflarePublicAccessToken: logflare-public-access-token
+    # Logflare private access token in the secret
+    logflarePrivateAccessToken: logflare-private-access-token
+  # Analytics ingress configuration
+  ingress:
+    # Enable Analytics ingress
+    enabled: false
+    # Ingress class name
+    ingressClassName: ""
+    # Additional ingress labels
+    labels: {}
+    # Additional ingress annotations
+    annotations: {}
+    # Analytics hostname
+    hostname: analytics.example.com
+    # Analytics path
+    path: /
+    # Analytics path type
+    pathType: Prefix
+    # Analytics TLS configuration
+    tls:
+      - hosts:
+          - analytics.example.com
+        secretName: analytics-tls
+    # Additional ingress hosts
+    extraHosts: []
+    # Additional ingress paths
+    extraPaths: []
+    # Additional ingress rules
+    extraRules: []
+    # Additional TLS configurations
+    extraTls: []
+  # Analytics persistence configuration
+  persistence:
+    # Enable persistence
+    enabled: true
+    # Volume name
+    volumeName: "data"
+    # Storage size
+    size: 1Gi
+    # Existing PVC claim name
+    existingClaim: ""
+    # Storage class name
+    storageClass: ""
+    # Access mode
+    accessMode: ReadWriteOnce
+    # Mount path
+    mountPath: /var/lib/analytics
+  # Additional environment variables
+  extraEnvVars: []
+  # Additional pod annotations
+  extraAnnotations: {}
+  # Analytics node selector
+  nodeSelector: {}
+  # Analytics affinity
+  affinity: {}
+  # Analytics tolerations
+  tolerations: []
+
+# Vector configuration
+vector:
+  # Enable Vector deployment
+  enabled: true
+  # Vector image configuration
+  image:
+    # Vector image repository
+    repository: timberio/vector
+    # Vector image tag
+    tag: 0.47.X-alpine
+    # Vector image pull policy
+    pullPolicy: IfNotPresent
+  # Vector image pull secrets
+  imagePullSecrets: ""
+  # Vector liveness probe
+  livenessProbe: {}
+  # Vector readiness probe
+  readinessProbe: {}
+  # Vector service account configuration
+  serviceAccount:
+    # Create a service account
+    create: true
+    # Annotations to add to the service account
+    annotations: {}
+    # The name of the service account to use
+    name: ""
+  # Vector service configuration
+  service:
+    # Vector service type
+    type: ClusterIP
+    # Vector service port
+    port: 9001
+  # Vector resource configuration
+  resources:
+    # Resource requests
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    # Resource limits
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  # Additional environment variables
+  extraEnvVars: []
+  # Additional pod annotations
+  extraAnnotations: {}
+  # Vector node selector
+  nodeSelector: {}
+  # Vector affinity
+  affinity: {}
+  # Vector tolerations
+  tolerations: []
+
+# Supavisor configuration
+supavisor:
+  # Enable Supavisor deployment
+  enabled: true
+  # Supavisor image configuration
+  image:
+    # Supavisor image repository
+    repository: supabase/supavisor
+    # Supavisor image tag
+    tag: 2.5.7
+    # Supavisor image pull policy
+    pullPolicy: IfNotPresent
+  # Supavisor image pull secrets
+  imagePullSecrets: ""
+  # Supavisor liveness probe
+  livenessProbe: {}
+  # Supavisor readiness probe
+  readinessProbe: {}
+  # Supavisor service account configuration
+  serviceAccount:
+    # Create a service account
+    create: true
+    # Annotations to add to the service account
+    annotations: {}
+    # The name of the service account to use
+    name: ""
+  # Supavisor service configuration
+  service:
+    # Supavisor service type
+    type: ClusterIP
+    # Supavisor service port
+    port: 4000
+  # Supavisor resource configuration
+  resources:
+    # Resource requests
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    # Resource limits
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  # Supavisor ingress configuration
+  ingress:
+    # Enable Supavisor ingress
+    enabled: false
+    # Ingress class name
+    ingressClassName: ""
+    # Additional ingress labels
+    labels: {}
+    # Additional ingress annotations
+    annotations: {}
+    # Supavisor hostname
+    hostname: supavisor.example.com
+    # Supavisor path
+    path: /
+    # Supavisor path type
+    pathType: Prefix
+    # Supavisor TLS configuration
+    tls:
+      - hosts:
+          - supavisor.example.com
+        secretName: supavisor-tls
+    # Additional ingress hosts
+    extraHosts: []
+    # Additional ingress paths
+    extraPaths: []
+    # Additional ingress rules
+    extraRules: []
+    # Additional TLS configurations
+    extraTls: []
+  # Supavisor pooler configuration
+  pooler:
+    # Pooler tenant ID
+    tenantId: default
+    # Default pool size
+    defaultPoolSize: 20
+    # Maximum client connections
+    maxClientConn: 100
+    # Database pool size
+    dbPoolSize: 10
+  # Supavisor secrets configuration
+  existingSecret: ""
+  # Secret key references for existing secret
+  secretKeys:
+    # Secret key base key in the secret
+    secretKeyBaseKey: secret-key-base
+    # Vault encryption key key in the secret
+    vaultEncKeyKey: vault-enc-key
+    # JWT secret key in the secret
+    jwtSecretKey: jwt-secret
+  # Supavisor environment variables
+  env:
+    # Secret key base (can be set directly or via secret)
+    secretKeyBase: ""
+    # Vault encryption key (can be set directly or via secret)
+    vaultEncKey: ""
+    # Region
+    region: local
+    # ERL AFLAGS
+    erlAflags: "-proto_dist inet_tcp"
+    # Pool mode
+    poolMode: transaction
+  # Additional environment variables
+  extraEnvVars: []
+  # Additional pod annotations
+  extraAnnotations: {}
+  # Supavisor node selector
+  nodeSelector: {}
+  # Supavisor affinity
+  affinity: {}
+  # Supavisor tolerations
+  tolerations: []

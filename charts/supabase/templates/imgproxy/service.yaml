@@ -1,0 +1,20 @@
+{{- if .Values.imgproxy.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "supabase.fullname" . }}-imgproxy
+  namespace: {{ include "supabase.namespace" . }}
+  labels:
+    {{- include "supabase.labels" . | nindent 4 }}
+    app.kubernetes.io/component: imgproxy
+spec:
+  type: {{ .Values.imgproxy.service.type }}
+  ports:
+  - port: {{ .Values.imgproxy.service.port }}
+    targetPort: http
+    protocol: TCP
+    name: http
+  selector:
+    {{- include "supabase.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: imgproxy
+{{- end }}

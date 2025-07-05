@@ -1,0 +1,137 @@
+name: Test Versioning
+
+on:
+  workflow_dispatch:
+    inputs:
+      test_type:
+        description: 'Type of version bump to test'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+
+jobs:
+  test-versioning:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Get current version
+        id: current
+        run: |
+          CURRENT_VERSION=$(grep "^version:" charts/supabase/Chart.yaml | sed 's/version: "\(.*\)"/\1/')
+          echo "current=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+          echo "Current version: $CURRENT_VERSION"
+
+      - name: Calculate new version
+        id: new_version
+        run: |
+          CURRENT_VERSION="${{ steps.current.outputs.current }}"
+          BUMP_TYPE="${{ github.event.inputs.test_type }}"
+
+          IFS='.' read -r major minor patch <<< "$CURRENT_VERSION"
+
+          case $BUMP_TYPE in
+            major)
+              major=$((major + 1))
+              minor=0
+              patch=0
+              ;;
+            minor)
+              minor=$((minor + 1))
+              patch=0
+              ;;
+            patch)
+              patch=$((patch + 1))
+              ;;
+          esac
+
+          NEW_VERSION="$major.$minor.$patch"
+          echo "new=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "Test bump type: $BUMP_TYPE"
+          echo "New version would be: $NEW_VERSION"
+
+      - name: Test changelog generation
+        run: |
+          NEW_VERSION="${{ steps.new_version.outputs.new }}"
+          CURRENT_DATE=$(date +%Y-%m-%d)
+          BUMP_TYPE="${{ github.event.inputs.test_type }}"
+
+          echo "## Test Changelog Entry"
+          echo "## [$NEW_VERSION] - $CURRENT_DATE"
+          echo ""
+          echo "### What Changed"
+          echo "- Test version bump ($BUMP_TYPE): Manual test"
+          echo ""
+          echo "### Recent Changes"
+          echo "- Test commit 1"
+          echo "- Test commit 2"
+          echo ""
+          echo "### Breaking Changes"
+          echo "- None"
+          echo ""
+          echo "### Migration Guide"
+          echo "- No migration required"
+          echo ""
+          echo "---"
+
+      - name: Test release notes
+        run: |
+          NEW_VERSION="${{ steps.new_version.outputs.new }}"
+          BUMP_TYPE="${{ github.event.inputs.test_type }}"
+
+          echo "## Test Release Notes"
+          echo "## What's Changed"
+          echo ""
+          echo "This is a test release with version bump to $NEW_VERSION."
+          echo ""
+          echo "**Bump Type:** $BUMP_TYPE"
+          echo "**Reason:** Manual test"
+          echo ""
+          echo "## Installation"
+          echo ""
+          echo '```bash'
+          echo "helm repo add supabase-helm https://wayli-app.github.io/supabase-helm"
+          echo "helm repo update"
+          echo "helm install my-supabase supabase-helm/supabase"
+          echo '```'
+          echo ""
+          echo "## Breaking Changes"
+          echo ""
+          echo "None in this release."
+          echo ""
+          echo "## Migration Guide"
+          echo ""
+          echo "No migration required for this release."
+
+      - name: Summary
+        run: |
+          echo "## Versioning Test Summary"
+          echo ""
+          echo "✅ **Test completed successfully**"
+          echo ""
+          echo "**Current Version:** ${{ steps.current.outputs.current }}"
+          echo "**Test Bump Type:** ${{ github.event.inputs.test_type }}"
+          echo "**New Version Would Be:** ${{ steps.new_version.outputs.new }}"
+          echo ""
+          echo "**What was tested:**"
+          echo "- Version calculation logic"
+          echo "- Changelog generation"
+          echo "- Release notes formatting"
+          echo ""
+          echo "**Next steps:**"
+          echo "- The actual versioning workflow would update Chart.yaml"
+          echo "- Create a git tag"
+          echo "- Publish a GitHub release"
+          echo "- Update the Helm repository"

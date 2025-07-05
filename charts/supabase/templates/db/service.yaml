@@ -1,0 +1,3 @@
+{{- if .Values.db.postgres.enabled }}
+{{- include "supabase.service" (dict "component" "db" "service" .Values.db.postgres.service "ports" (list (dict "port" .Values.db.postgres.service.port "targetPort" .Values.db.postgres.service.port "protocol" "TCP" "name" "postgresql")) "extraAnnotations" .Values.db.postgres.extraAnnotations "Values" .Values "Release" .Release "Chart" .Chart) }}
+{{- end }}
