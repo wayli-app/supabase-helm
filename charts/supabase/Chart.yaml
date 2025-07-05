@@ -2,7 +2,7 @@ apiVersion: v2
 name: supabase
 description: A complete Helm chart for deploying Supabase on Kubernetes with all core services including database, auth, storage, realtime, and more
 type: application
-version: "0.2.2"
+version: "0.2.3"
 appVersion: "2025.06.30"
 keywords:
   - supabase
