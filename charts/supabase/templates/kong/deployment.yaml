@@ -62,7 +62,7 @@ spec:
         - name: KONG_DNS_ORDER
           value: "LAST,A,CNAME"
         - name: KONG_PLUGINS
-          value: "request-transformer,cors,key-auth,http-log,acl"
+          value: "request-transformer,cors,key-auth,http-log,acl,basic-auth"
         - name: KONG_LOG_LEVEL
           value: "info"
         - name: KONG_PROXY_ACCESS_LOG
