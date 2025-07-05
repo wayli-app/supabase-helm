@@ -14,6 +14,7 @@ jobs:
     permissions:
       contents: write
       packages: write
+      actions: read
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -60,6 +61,11 @@ jobs:
         with:
           version: v3.12.0
 
+      - name: Verify Helm OCI support
+        run: |
+          helm version
+          echo "Helm OCI support verified"
+
       - name: Install chart-releaser
         uses: helm/chart-releaser-action@v1.6.0
         env:
@@ -68,6 +74,34 @@ jobs:
           charts_dir: charts
           config: cr.yaml
           push: true
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push Helm chart to GHCR
+        run: |
+          # Check if chart package exists
+          if [ ! -f .cr-release-packages/supabase-*.tgz ]; then
+            echo "Error: No chart package found in .cr-release-packages/"
+            exit 1
+          fi
+
+          # Get the chart version from the packaged chart
+          CHART_VERSION=$(helm show chart .cr-release-packages/supabase-*.tgz | grep '^version:' | cut -d' ' -f2)
+          echo "Pushing chart version: $CHART_VERSION to GHCR"
+
+          # List the chart package for verification
+          ls -la .cr-release-packages/
+
+          # Push the chart to GHCR
+          helm push .cr-release-packages/supabase-*.tgz oci://ghcr.io/${{ github.repository_owner }}/charts
+
+          echo "Successfully pushed chart to GHCR"
+          echo "Chart available at: oci://ghcr.io/${{ github.repository_owner }}/charts/supabase:$CHART_VERSION"
 
       - name: Create Release
         uses: actions/create-release@v1
