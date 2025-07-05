@@ -6,6 +6,26 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+## [0.5.0] - 2025-07-05
+
+### What Changed
+- Automated version bump (minor): Direct push contains feature commits
+
+### Recent Changes
+- fix: gh-pages branch if it doesn't already exist.
+- chore: bump version to 0.4.0 [skip ci]
+- fix: move secrets to global settings.
+- chore: bump version to 0.3.0 [skip ci]
+- fix: release pipeline.
+
+### Breaking Changes
+- None
+
+### Migration Guide
+- No migration required
+
+---
+
 ## [0.4.0] - 2025-07-05
 
 ### What Changed
