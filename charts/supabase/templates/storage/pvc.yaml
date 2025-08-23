@@ -10,7 +10,16 @@ metadata:
     app.kubernetes.io/component: storage
 spec:
   accessModes:
+{{- if .Values.storage.persistence.accessModes }}
+{{- toYaml .Values.storage.persistence.accessModes | nindent 4 }}
+{{- else }}
     - ReadWriteOnce
+{{- end }}
+  {{- if .Values.storage.persistence.storageClass }}
+  storageClassName: {{ .Values.storage.persistence.storageClass }}
+  {{- else if .Values.global.defaultStorageClass }}
+  storageClassName: {{ .Values.global.defaultStorageClass }}
+  {{- end }}
   resources:
     requests:
       storage: {{ .Values.storage.persistence.size }}

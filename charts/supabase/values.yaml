@@ -25,12 +25,6 @@ global:
   imagePullSecrets: []
   # Global default storage class
   defaultStorageClass: ""
-  # Global storage class
-  storageClass: ""
-  # Security configuration
-  security:
-    # Allow insecure images
-    allowInsecureImages: false
   # OpenAI API configuration
   openApi:
     # OpenAI API key
@@ -691,8 +685,8 @@ storage:
     existingClaim: ""
     # Storage class name
     storageClass: ""
-    # Access mode
-    accessMode: ReadWriteOnce
+    # Access modes
+    accessModes: [ReadWriteOnce]
     # Mount path
     mountPath: /var/lib/storage
   # Additional environment variables
@@ -930,8 +924,8 @@ functions:
     existingClaim: ""
     # Storage class name
     storageClass: ""
-    # Access mode
-    accessMode: ReadWriteOnce
+    # Access modes
+    accessModes: [ReadWriteOnce]
     # Mount path
     mountPath: /var/lib/functions
   # Additional environment variables
@@ -1076,8 +1070,8 @@ analytics:
     existingClaim: ""
     # Storage class name
     storageClass: ""
-    # Access mode
-    accessMode: ReadWriteOnce
+    # Access modes
+    accessModes: [ReadWriteOnce]
     # Mount path
     mountPath: /var/lib/analytics
   # Additional environment variables

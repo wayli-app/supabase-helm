@@ -10,9 +10,15 @@ metadata:
     app.kubernetes.io/component: analytics
 spec:
   accessModes:
-    - {{ .Values.analytics.persistence.accessMode }}
+{{- if .Values.analytics.persistence.accessModes }}
+{{- toYaml .Values.analytics.persistence.accessModes | nindent 4 }}
+{{- else }}
+    - ReadWriteOnce
+{{- end }}
   {{- if .Values.analytics.persistence.storageClass }}
   storageClassName: {{ .Values.analytics.persistence.storageClass }}
+  {{- else if .Values.global.defaultStorageClass }}
+  storageClassName: {{ .Values.global.defaultStorageClass }}
   {{- end }}
   resources:
     requests:

@@ -112,8 +112,13 @@ spec:
       volumes:
         - name: functions
           {{- if .Values.functions.persistence.enabled }}
+          {{- if .Values.functions.persistence.existingClaim }}
           persistentVolumeClaim:
-            claimName: {{ .Values.functions.persistence.existingClaim | default (printf "%s-functions" (include "supabase.fullname" .)) }}
+            claimName: {{ .Values.functions.persistence.existingClaim }}
+          {{- else }}
+          persistentVolumeClaim:
+            claimName: {{ include "supabase.fullname" . }}-functions
+          {{- end }}
           {{- else }}
           emptyDir: {}
           {{- end }}
