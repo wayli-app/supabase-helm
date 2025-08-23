@@ -1,0 +1,27 @@
+{{- if .Values.functions.enabled }}
+{{- if and .Values.functions.persistence.enabled (not .Values.functions.persistence.existingClaim) }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "supabase.fullname" . }}-functions
+  namespace: {{ include "supabase.namespace" . }}
+  labels:
+    {{- include "supabase.labels" . | nindent 4 }}
+    app.kubernetes.io/component: functions
+spec:
+  accessModes:
+{{- if .Values.functions.persistence.accessModes }}
+{{- toYaml .Values.functions.persistence.accessModes | nindent 4 }}
+{{- else }}
+    - ReadWriteOnce
+{{- end }}
+  {{- if .Values.functions.persistence.storageClass }}
+  storageClassName: {{ .Values.functions.persistence.storageClass }}
+  {{- else if .Values.global.defaultStorageClass }}
+  storageClassName: {{ .Values.global.defaultStorageClass }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ .Values.functions.persistence.size }}
+{{- end }}
+{{- end }}
