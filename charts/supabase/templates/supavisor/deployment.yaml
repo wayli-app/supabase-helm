@@ -49,6 +49,10 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- with .Values.supavisor.initContainers }}
+      initContainers:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       containers:
         - name: supavisor
           image: "{{ .Values.supavisor.image.repository }}:{{ .Values.supavisor.image.tag }}"

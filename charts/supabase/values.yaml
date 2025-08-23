@@ -336,6 +336,19 @@ studio:
   affinity: {}
   # Studio tolerations
   tolerations: []
+  # Studio init containers configuration
+  initContainers: []
+  # Example init container configuration:
+  # - name: wait-for-db
+  #   image: busybox:1.35
+  #   command: ['sh', '-c', 'until nc -z {{ include "supabase.fullname" . }}-db 5432; do echo waiting for database; sleep 2; done;']
+  #   resources:
+  #     requests:
+  #       cpu: 10m
+  #       memory: 16Mi
+  #     limits:
+  #       cpu: 100m
+  #       memory: 64Mi
 
 # Kong configuration
 kong:
@@ -424,6 +437,19 @@ kong:
   affinity: {}
   # Kong tolerations
   tolerations: []
+  # Kong init containers configuration
+  initContainers: []
+  # Example init container configuration:
+  # - name: wait-for-db
+  #   image: busybox:1.35
+  #   command: ['sh', '-c', 'until nc -z {{ include "supabase.fullname" . }}-db 5432; do echo waiting for database; sleep 2; done;']
+  #   resources:
+  #     requests:
+  #       cpu: 10m
+  #       memory: 16Mi
+  #     limits:
+  #       cpu: 100m
+  #       memory: 64Mi
 
 # Auth configuration
 auth:
@@ -477,6 +503,19 @@ auth:
   affinity: {}
   # Auth tolerations
   tolerations: []
+  # Auth init containers configuration
+  initContainers: []
+  # Example init container configuration:
+  # - name: wait-for-db
+  #   image: busybox:1.35
+  #   command: ['sh', '-c', 'until nc -z {{ include "supabase.fullname" . }}-db 5432; do echo waiting for database; sleep 2; done;']
+  #   resources:
+  #     requests:
+  #       cpu: 10m
+  #       memory: 16Mi
+  #     limits:
+  #       cpu: 100m
+  #       memory: 64Mi
 
 # REST configuration
 rest:
@@ -550,6 +589,19 @@ rest:
   affinity: {}
   # REST tolerations
   tolerations: []
+  # REST init containers configuration
+  initContainers: []
+  # Example init container configuration:
+  # - name: wait-for-db
+  #   image: busybox:1.35
+  #   command: ['sh', '-c', 'until nc -z {{ include "supabase.fullname" . }}-db 5432; do echo waiting for database; sleep 2; done;']
+  #   resources:
+  #     requests:
+  #       cpu: 10m
+  #       memory: 16Mi
+  #     limits:
+  #       cpu: 100m
+  #       memory: 64Mi
 
 # Realtime configuration
 realtime:
@@ -633,6 +685,19 @@ realtime:
   affinity: {}
   # Realtime tolerations
   tolerations: []
+  # Realtime init containers configuration
+  initContainers: []
+  # Example init container configuration:
+  # - name: wait-for-db
+  #   image: busybox:1.35
+  #   command: ['sh', '-c', 'until nc -z {{ include "supabase.fullname" . }}-db 5432; do echo waiting for database; sleep 2; done;']
+  #   resources:
+  #     requests:
+  #       cpu: 10m
+  #       memory: 16Mi
+  #     limits:
+  #       cpu: 100m
+  #       memory: 64Mi
 
 # Storage configuration
 storage:
@@ -730,6 +795,19 @@ storage:
   affinity: {}
   # Storage tolerations
   tolerations: []
+  # Storage init containers configuration
+  initContainers: []
+  # Example init container configuration:
+  # - name: wait-for-db
+  #   image: busybox:1.35
+  #   command: ['sh', '-c', 'until nc -z {{ include "supabase.fullname" . }}-db 5432; do echo waiting for database; sleep 2; done;']
+  #   resources:
+  #     requests:
+  #       cpu: 10m
+  #       memory: 16Mi
+  #     limits:
+  #       cpu: 100m
+  #       memory: 64Mi
 
 # Imgproxy configuration
 imgproxy:
@@ -878,6 +956,19 @@ meta:
   affinity: {}
   # Meta tolerations
   tolerations: []
+  # Meta init containers configuration
+  initContainers: []
+  # Example init container configuration:
+  # - name: wait-for-db
+  #   image: busybox:1.35
+  #   command: ['sh', '-c', 'until nc -z {{ include "supabase.fullname" . }}-db 5432; do echo waiting for database; sleep 2; done;']
+  #   resources:
+  #     requests:
+  #       cpu: 10m
+  #       memory: 16Mi
+  #     limits:
+  #       cpu: 100m
+  #       memory: 64Mi
 
 # Functions configuration
 functions:
@@ -946,7 +1037,7 @@ functions:
   # Functions persistence configuration
   persistence:
     # Enable persistence
-    enabled: true
+    enabled: false
     # Volume name
     volumeName: "data"
     # Storage size
@@ -969,6 +1060,19 @@ functions:
   affinity: {}
   # Functions tolerations
   tolerations: []
+  # Functions init containers configuration
+  initContainers: []
+  # Example init container configuration:
+  # - name: wait-for-db
+  #   image: busybox:1.35
+  #   command: ['sh', '-c', 'until nc -z {{ include "supabase.fullname" . }}-db 5432; do echo waiting for database; sleep 2; done;']
+  #   resources:
+  #     requests:
+  #       cpu: 10m
+  #       memory: 16Mi
+  #     limits:
+  #       cpu: 100m
+  #       memory: 64Mi
   # Additional volume mounts
   extraVolumeMounts: []
   # Additional volumes
@@ -1115,6 +1219,19 @@ analytics:
   affinity: {}
   # Analytics tolerations
   tolerations: []
+  # Analytics init containers configuration
+  initContainers: []
+  # Example init container configuration:
+  # - name: wait-for-db
+  #   image: busybox:1.35
+  #   command: ['sh', '-c', 'until nc -z {{ include "supabase.fullname" . }}-db 5432; do echo waiting for database; sleep 2; done;']
+  #   resources:
+  #     requests:
+  #       cpu: 10m
+  #       memory: 16Mi
+  #     limits:
+  #       cpu: 100m
+  #       memory: 64Mi
 
 # Vector configuration
 vector:
@@ -1268,3 +1385,16 @@ supavisor:
   affinity: {}
   # Supavisor tolerations
   tolerations: []
+  # Supavisor init containers configuration
+  initContainers: []
+  # Example init container configuration:
+  # - name: wait-for-db
+  #   image: busybox:1.35
+  #   command: ['sh', '-c', 'until nc -z {{ include "supabase.fullname" . }}-db 5432; do echo waiting for database; sleep 2; done;']
+  #   resources:
+  #     requests:
+  #       cpu: 10m
+  #       memory: 16Mi
+  #     limits:
+  #       cpu: 100m
+  #       memory: 64Mi

@@ -41,6 +41,10 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- with .Values.analytics.initContainers }}
+      initContainers:
+        {{- toYaml . | nindent 8 }}
+      {{- else }}
       initContainers:
         - name: init-db
           image: postgres:15-alpine
@@ -76,6 +80,7 @@ spec:
             limits:
               cpu: 100m
               memory: 128Mi
+      {{- end }}
       containers:
       - name: analytics
         image: "{{ .Values.analytics.image.repository }}:{{ .Values.analytics.image.tag }}"
