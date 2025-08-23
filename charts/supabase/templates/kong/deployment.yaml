@@ -88,15 +88,35 @@ spec:
               name: {{ .Values.global.supabase.existingSecret | default (printf "%s-secret" (include "supabase.fullname" .)) }}
               key: {{ .Values.global.supabase.secretKeys.serviceRoleKey }}
         - name: DASHBOARD_USERNAME
-          value: {{ .Values.studio.config.auth.username | default "supabase" | quote }}
+          {{- if .Values.studio.enabled }}
+            {{- if .Values.studio.config.auth.existingSecret }}
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.studio.config.auth.existingSecret }}
+              key: {{ .Values.studio.config.auth.secretKeys.usernameKey | default "username" }}
+            {{- else if .Values.studio.config.auth.username }}
+          value: {{ .Values.studio.config.auth.username | quote }}
+            {{- else }}
+          value: "supabase"
+            {{- end }}
+          {{- else }}
+          value: "supabase"
+          {{- end }}
         - name: DASHBOARD_PASSWORD
-          {{- if .Values.studio.config.auth.existingSecret }}
+          {{- if .Values.studio.enabled }}
+            {{- if .Values.studio.config.auth.existingSecret }}
           valueFrom:
             secretKeyRef:
               name: {{ .Values.studio.config.auth.existingSecret }}
               key: {{ .Values.studio.config.auth.secretKeys.passwordKey }}
-          {{- else if .Values.studio.config.auth.password }}
+            {{- else if .Values.studio.config.auth.password }}
           value: {{ .Values.studio.config.auth.password | quote }}
+            {{- else }}
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.global.supabase.existingSecret | default (printf "%s-secret" (include "supabase.fullname" .)) }}
+              key: {{ .Values.studio.config.auth.secretKeys.passwordKey | default "password" }}
+            {{- end }}
           {{- else }}
           valueFrom:
             secretKeyRef:

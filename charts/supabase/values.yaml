@@ -318,10 +318,12 @@ studio:
       username: supabase
       # Studio password
       password: ""
-      # Existing secret containing studio password
+      # Existing secret containing studio credentials
       existingSecret: ""
       # Secret keys configuration for existing secret
       secretKeys:
+        # Username key in the secret
+        usernameKey: username
         # Password key in the secret
         passwordKey: password
   # Additional environment variables
