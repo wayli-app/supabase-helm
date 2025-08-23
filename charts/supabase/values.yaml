@@ -261,6 +261,35 @@ studio:
     type: ClusterIP
     # Studio service port
     port: 3000
+  # Studio ingress configuration
+  ingress:
+    # Enable Studio ingress
+    enabled: false
+    # Ingress class name
+    ingressClassName: ""
+    # Additional ingress labels
+    labels: {}
+    # Additional ingress annotations
+    annotations: {}
+    # Studio hostname
+    hostname: studio.example.com
+    # Studio path
+    path: /
+    # Studio path type
+    pathType: Prefix
+    # Studio TLS configuration
+    tls:
+      - hosts:
+          - studio.example.com
+        secretName: studio-tls
+    # Additional ingress hosts
+    extraHosts: []
+    # Additional ingress paths
+    extraPaths: []
+    # Additional ingress rules
+    extraRules: []
+    # Additional TLS configurations
+    extraTls: []
   # Studio resource configuration
   resources:
     # Resource requests
