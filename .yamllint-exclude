@@ -1,0 +1,4 @@
+# Exclude files from yamllint
+.github/workflows/
+*.lock
+*.example.*
