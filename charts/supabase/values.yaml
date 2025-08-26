@@ -29,6 +29,8 @@ global:
   securityContext:
     # Pod security context defaults
     pod:
+      # Run as non-root user by default
+      runAsNonRoot: true
       # Default user ID (can be overridden per component)
       runAsUser: 1000
       runAsGroup: 1000
@@ -38,12 +40,14 @@ global:
       # Modern security profile for syscall filtering
       seccompProfile:
         type: RuntimeDefault
+      # Allow the process to write to its root filesystem
+      allowPrivilegeEscalation: false
+      # Read-only root filesystem
+      readOnlyRootFilesystem: false
     # Container security context defaults
     container:
-      # Run as non-root user (validation only)
-      runAsNonRoot: true
-      # Note: runAsUser, runAsGroup, allowPrivilegeEscalation, readOnlyRootFilesystem
-      # are now handled at the pod level for better compatibility
+      # Note: Most security context fields are now at pod level for better compatibility
+      # Container level only supports minimal fields like 'privileged' if needed
   # OpenAI API configuration
   openApi:
     # OpenAI API key
@@ -377,6 +381,8 @@ studio:
   securityContext:
     # Pod security context
     pod:
+      # Run as non-root user
+      runAsNonRoot: true
       # Default user ID (nginx typically runs as user 101)
       runAsUser: 101
       runAsGroup: 101
@@ -386,11 +392,13 @@ studio:
       # Modern security profile for syscall filtering
       seccompProfile:
         type: RuntimeDefault
+      # Allow the process to write to its root filesystem
+      allowPrivilegeEscalation: false
+      # Read-only root filesystem
+      readOnlyRootFilesystem: false
     # Container security context
     container:
-      # Run as non-root user (validation only)
-      runAsNonRoot: true
-      # Note: runAsUser, runAsGroup are handled at pod level
+      # Note: Most security context fields are now at pod level for better compatibility
   # Studio init containers configuration
   initContainers: []
   # Example init container configuration:
@@ -496,6 +504,8 @@ kong:
   securityContext:
     # Pod security context
     pod:
+      # Run as non-root user
+      runAsNonRoot: true
       # Default user ID
       runAsUser: 1000
       runAsGroup: 1000
@@ -505,11 +515,13 @@ kong:
       # Modern security profile for syscall filtering
       seccompProfile:
         type: RuntimeDefault
+      # Allow the process to write to its root filesystem
+      allowPrivilegeEscalation: false
+      # Read-only root filesystem
+      readOnlyRootFilesystem: false
     # Container security context
     container:
-      # Run as non-root user (validation only)
-      runAsNonRoot: true
-      # Note: runAsUser, runAsGroup are handled at pod level
+      # Note: Most security context fields are now at pod level for better compatibility
   # Kong init containers configuration
   initContainers: []
   # Example init container configuration:

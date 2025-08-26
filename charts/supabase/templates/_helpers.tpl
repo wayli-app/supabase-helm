@@ -172,24 +172,28 @@ Create security context template for containers
 {{- /* Filter out invalid container security context fields */ -}}
 {{- $validFields := dict -}}
 {{- /*
-  ONLY include fields that are definitely valid at container level in modern K8s.
-  Many fields have been moved to pod level or deprecated.
+  MODERN KUBERNETES: Most security context fields have been moved to pod level.
+  Container level now only supports a very limited set of fields.
 */ -}}
-{{- if hasKey $securityContext "runAsNonRoot" }}
-  {{- $_ := set $validFields "runAsNonRoot" (get $securityContext "runAsNonRoot") }}
-{{- end }}
 {{- /*
   Fields intentionally excluded from container level (moved to pod level):
+  - runAsNonRoot (pod level only)
   - runAsUser, runAsGroup (pod level only)
   - allowPrivilegeEscalation (pod level only)
   - readOnlyRootFilesystem (pod level only)
   - seccompProfile (pod level only)
 
-  Only include the most basic, universally supported container fields.
+  Container level now only supports:
+  - privileged (if absolutely necessary)
+  - capabilities (deprecated but still technically supported)
 */ -}}
 {{- if hasKey $securityContext "privileged" }}
   {{- $_ := set $validFields "privileged" (get $securityContext "privileged") }}
 {{- end }}
+{{- /*
+  Note: In modern Kubernetes, most security context configuration
+  should be done at the pod level for better compatibility.
+*/ -}}
 {{- toYaml $validFields | nindent 10 }}
 {{- end }}
 {{- end }}
