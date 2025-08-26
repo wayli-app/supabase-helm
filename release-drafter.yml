@@ -1,0 +1,85 @@
+name-template: 'Release v{{version}}'
+tag-template: 'v{{version}}'
+categories:
+  - title: '🚀 Features'
+    labels:
+      - 'feature'
+      - 'enhancement'
+  - title: '🐛 Bug Fixes'
+    labels:
+      - 'fix'
+      - 'bugfix'
+      - 'bug'
+  - title: '🧹 Maintenance'
+    labels:
+      - 'chore'
+      - 'dependencies'
+      - 'maintenance'
+  - title: '📚 Documentation'
+    labels:
+      - 'documentation'
+      - 'docs'
+  - title: '🔧 Configuration'
+    labels:
+      - 'config'
+      - 'configuration'
+template: |
+  ## What's Changed
+
+  {{#if releases}}
+  {{#each releases}}
+  {{#if @first}}
+  {{#if tag_name}}
+  ## [{{tag_name}}] - {{date}}
+  {{else}}
+  ## [Unreleased]
+  {{/if}}
+  {{/if}}
+  {{#if commits}}
+  {{#each commits}}
+  - {{subject}} {{#if href}}([`{{shorthash}}`]({{href}})){{/if}}
+  {{/each}}
+  {{/if}}
+  {{#if merges}}
+  {{#each merges}}
+  - {{message}} {{#if href}}([`{{shorthash}}`]({{href}})){{/if}}
+  {{/each}}
+  {{/if}}
+  {{#if fixes}}
+  {{#each fixes}}
+  - {{commit.subject}}{{#each fixes}} {{#if href}}([`{{shorthash}}`]({{href}})){{/if}}{{/each}}
+  {{/each}}
+  {{/if}}
+  {{#if breaking}}
+  {{#each breaking}}
+  - 💥 **BREAKING:** {{commit.subject}}{{#each breaking}} {{#if href}}([`{{shorthash}}`]({{href}})){{/if}}{{/each}}
+  {{/each}}
+  {{/if}}
+  {{/each}}
+  {{/if}}
+
+  ## Installation
+
+  ```bash
+  helm repo add supabase-helm https://wayli-app.github.io/supabase-helm
+  helm repo update
+  helm install my-supabase supabase-helm/supabase
+  ```
+
+  ## Breaking Changes
+
+  {{#if breaking}}
+  {{#each breaking}}
+  - {{commit.subject}}{{#each breaking}} {{#if href}}([`{{shorthash}}`]({{href}})){{/if}}{{/each}}
+  {{/each}}
+  {{else}}
+  None in this release.
+  {{/if}}
+
+  ## Migration Guide
+
+  {{#if breaking}}
+  Please review the breaking changes above and update your configurations accordingly.
+  {{else}}
+  No migration required for this release.
+  {{/if}}
