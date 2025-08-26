@@ -89,28 +89,40 @@ jobs:
       - name: Try manual chart-releaser
         run: |
           echo "Trying to run chart-releaser manually..."
-          # Install chart-releaser CLI
-          curl -sSLo cr https://github.com/helm/chart-releaser/releases/download/v1.7.0/cr-linux-amd64.tar.gz
-          tar -xzf cr-linux-amd64.tar.gz
-          chmod +x cr
+          # Install chart-releaser CLI with better error handling
+          echo "Downloading chart-releaser..."
+          curl -L -o cr.tar.gz https://github.com/helm/chart-releaser/releases/download/v1.7.0/cr-linux-amd64.tar.gz
           
-          # Try to package charts
-          ./cr package --charts-dir charts
+          if [ ! -f cr.tar.gz ]; then
+            echo "Failed to download chart-releaser, trying alternative method..."
+            curl -L -o cr.tar.gz https://github.com/helm/chart-releaser/releases/latest/download/cr-linux-amd64.tar.gz
+          fi
           
-          echo "Manual chart-releaser output:"
-          ls -la .cr-release-packages/ 2>/dev/null || echo "No packages created"
+          if [ -f cr.tar.gz ]; then
+            echo "Extracting chart-releaser..."
+            tar -xzf cr.tar.gz
+            chmod +x cr
+            
+            # Try to package charts
+            echo "Packaging charts..."
+            ./cr package --charts-dir charts
+            
+            echo "Manual chart-releaser output:"
+            ls -la .cr-release-packages/ 2>/dev/null || echo "No packages created"
+          else
+            echo "Failed to download chart-releaser, will use helm package instead"
+          fi
 
       - name: Verify chart package creation
         run: |
           echo "Checking for chart packages..."
           ls -la .cr-release-packages/ || echo "No packages directory found"
 
-          if [ -d .cr-release-packages/ ]; then
+          if [ -d .cr-release-packages/ ] && [ "$(ls -A .cr-release-packages/)" ]; then
             echo "Chart packages found:"
             ls -la .cr-release-packages/
           else
-            echo "Error: Chart packages directory not found"
-            echo "Trying to create packages manually..."
+            echo "No packages found, creating them manually with helm..."
             mkdir -p .cr-release-packages
             cd charts/supabase
             helm package . --destination ../../.cr-release-packages/
