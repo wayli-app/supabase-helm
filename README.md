@@ -465,3 +465,4 @@ Each component can be configured with:
 
 Each component supports additional environment variables through the `extraEnvVars` parameter. These can be used to configure component-specific settings not covered by the default parameters.
 # Test commit to trigger version workflow
+# Test commit to trigger version workflow
