@@ -101,8 +101,8 @@ spec:
               cp -r /docker-entrypoint-initdb.d/* /initdb.d/
 
               echo "Copying SQL files from ConfigMap..."
-              mkdir -p /initdb.d/init-scripts
-              cp /custom-init-scripts/* /initdb.d/init-scripts/
+              mkdir -p /initdb.d/migrations
+              cp /custom-init-scripts/* /initdb.d/migrations/
               echo "SQL files copied: $(ls /custom-init-scripts/)"
 
               echo "Checking for user-defined migration scripts..."
