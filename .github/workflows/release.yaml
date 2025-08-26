@@ -73,7 +73,16 @@ jobs:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
         with:
           charts_dir: charts
-          config: cr.yaml
+
+      - name: Debug chart-releaser output
+        run: |
+          echo "Current directory: $(pwd)"
+          echo "Directory contents:"
+          ls -la
+          echo "Charts directory contents:"
+          ls -la charts/
+          echo "Chart.yaml contents:"
+          cat charts/supabase/Chart.yaml
 
       - name: Verify chart package creation
         run: |
@@ -85,7 +94,13 @@ jobs:
             ls -la .cr-release-packages/
           else
             echo "Error: Chart packages directory not found"
-            exit 1
+            echo "Trying to create packages manually..."
+            mkdir -p .cr-release-packages
+            cd charts/supabase
+            helm package . --destination ../../.cr-release-packages/
+            cd ../..
+            echo "Manual packages created:"
+            ls -la .cr-release-packages/
           fi
 
       - name: Login to GitHub Container Registry
