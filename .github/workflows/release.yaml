@@ -68,7 +68,7 @@ jobs:
           echo "Helm OCI support verified"
 
       - name: Install chart-releaser
-        uses: helm/chart-releaser-action@v1.6.0
+        uses: helm/chart-releaser-action@v1.7.0
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
         with:
@@ -83,6 +83,22 @@ jobs:
           ls -la charts/
           echo "Chart.yaml contents:"
           cat charts/supabase/Chart.yaml
+          echo "Checking if chart-releaser created any output:"
+          ls -la .cr-* 2>/dev/null || echo "No .cr-* directories found"
+
+      - name: Try manual chart-releaser
+        run: |
+          echo "Trying to run chart-releaser manually..."
+          # Install chart-releaser CLI
+          curl -sSLo cr https://github.com/helm/chart-releaser/releases/download/v1.7.0/cr-linux-amd64.tar.gz
+          tar -xzf cr-linux-amd64.tar.gz
+          chmod +x cr
+          
+          # Try to package charts
+          ./cr package --charts-dir charts
+          
+          echo "Manual chart-releaser output:"
+          ls -la .cr-release-packages/ 2>/dev/null || echo "No packages created"
 
       - name: Verify chart package creation
         run: |
