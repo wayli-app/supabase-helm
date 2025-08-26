@@ -284,11 +284,20 @@ jobs:
             COMMITS=$(git log --pretty=format:"- %s" HEAD)
           fi
 
-          # Add new version to CHANGELOG.md
-          CHANGELOG_ENTRY="## [$NEW_VERSION] - $TODAY\n\n$COMMITS\n"
+          # Create a temporary file with the new changelog entry
+          cat > /tmp/new_changelog_entry.md << 'EOF'
+          ## [$NEW_VERSION] - $TODAY
 
-          # Insert at the top of CHANGELOG.md (after the header)
-          sed -i "3i\\$CHANGELOG_ENTRY" CHANGELOG.md
+          $COMMITS
+
+          EOF
+
+          # Insert the new entry after line 2 (after the header)
+          head -n 2 CHANGELOG.md > /tmp/changelog_header.md
+          tail -n +3 CHANGELOG.md > /tmp/changelog_body.md
+          cat /tmp/changelog_header.md /tmp/new_changelog_entry.md /tmp/changelog_body.md > CHANGELOG.md
+
+          echo "CHANGELOG.md updated with new version $NEW_VERSION"
 
       - name: Commit and Push CHANGELOG
         run: |
