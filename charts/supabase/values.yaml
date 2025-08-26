@@ -1172,7 +1172,7 @@ analytics:
     # Analytics image repository
     repository: supabase/logflare
     # Analytics image tag
-    tag: 1.14.2
+    tag: 1.15.4
     # Analytics image pull policy
     pullPolicy: IfNotPresent
   # Analytics image pull secrets
