@@ -39,10 +39,9 @@ global:
     container:
       # Allow the process to write to its root filesystem
       allowPrivilegeEscalation: false
-      # Drop all capabilities
-      capabilities:
-        drop:
-          - ALL
+      # Modern security profile for syscall filtering
+      seccompProfile:
+        type: RuntimeDefault
       # Read-only root filesystem
       readOnlyRootFilesystem: false
       # Run as non-root user
@@ -395,10 +394,9 @@ studio:
     container:
       # Allow the process to write to its root filesystem
       allowPrivilegeEscalation: false
-      # Drop all capabilities
-      capabilities:
-        drop:
-          - ALL
+      # Modern security profile for syscall filtering
+      seccompProfile:
+        type: RuntimeDefault
       # Read-only root filesystem
       readOnlyRootFilesystem: false
       # Run as non-root user
@@ -520,10 +518,9 @@ kong:
     container:
       # Allow the process to write to its root filesystem
       allowPrivilegeEscalation: false
-      # Drop all capabilities
-      capabilities:
-        drop:
-          - ALL
+      # Modern security profile for syscall filtering
+      seccompProfile:
+        type: RuntimeDefault
       # Read-only root filesystem
       readOnlyRootFilesystem: false
       # Run as non-root user

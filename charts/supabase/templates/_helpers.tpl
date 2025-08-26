@@ -168,9 +168,7 @@ Create security context template for containers
 {{- if hasKey $securityContext "allowPrivilegeEscalation" }}
   {{- $_ := set $validFields "allowPrivilegeEscalation" (get $securityContext "allowPrivilegeEscalation") }}
 {{- end }}
-{{- if hasKey $securityContext "capabilities" }}
-  {{- $_ := set $validFields "capabilities" (get $securityContext "capabilities") }}
-{{- end }}
+{{- /* capabilities field removed - not supported in newer Kubernetes versions */ -}}
 {{- if hasKey $securityContext "readOnlyRootFilesystem" }}
   {{- $_ := set $validFields "readOnlyRootFilesystem" (get $securityContext "readOnlyRootFilesystem") }}
 {{- end }}
