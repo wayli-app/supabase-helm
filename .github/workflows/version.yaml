@@ -194,13 +194,29 @@ jobs:
       - name: Create Git tag
         if: steps.version_check.outputs.no_change != 'true'
         run: |
+          echo "Creating Git tag v${{ steps.new_version.outputs.new }}..."
+          
           # Remove tag if it already exists locally
           git tag -d v${{ steps.new_version.outputs.new }} 2>/dev/null || true
+          echo "Removed local tag if it existed"
+          
           # Remove tag if it already exists remotely
           git push origin :refs/tags/v${{ steps.new_version.outputs.new }} 2>/dev/null || true
-          # Create and push new tag
+          echo "Removed remote tag if it existed"
+          
+          # Create new tag
           git tag v${{ steps.new_version.outputs.new }}
+          echo "Created local tag v${{ steps.new_version.outputs.new }}"
+          
+          # Push the tag
           git push origin v${{ steps.new_version.outputs.new }}
+          echo "Pushed tag v${{ steps.new_version.outputs.new }} to remote"
+          
+          # Verify tag exists
+          echo "Verifying tag was created:"
+          git ls-remote --tags origin | grep "v${{ steps.new_version.outputs.new }}"
+          
+          echo "Tag v${{ steps.new_version.outputs.new }} created and pushed successfully"
 
       - name: Trigger Release Workflow
         if: steps.version_check.outputs.no_change != 'true'
