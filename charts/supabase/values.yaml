@@ -29,8 +29,6 @@ global:
   securityContext:
     # Pod security context defaults
     pod:
-      # Run as non-root user by default
-      runAsNonRoot: true
       # Default user ID (can be overridden per component)
       runAsUser: 1000
       runAsGroup: 1000
@@ -40,10 +38,6 @@ global:
       # Modern security profile for syscall filtering
       seccompProfile:
         type: RuntimeDefault
-      # Allow the process to write to its root filesystem
-      allowPrivilegeEscalation: false
-      # Read-only root filesystem
-      readOnlyRootFilesystem: false
     # Container security context defaults
     container:
       # Run as non-root user
@@ -51,6 +45,10 @@ global:
       # Default user ID (can be overridden per component)
       runAsUser: 1000
       runAsGroup: 1000
+      # Allow the process to write to its root filesystem
+      allowPrivilegeEscalation: false
+      # Read-only root filesystem
+      readOnlyRootFilesystem: false
   # OpenAI API configuration
   openApi:
     # OpenAI API key
@@ -384,21 +382,15 @@ studio:
   securityContext:
     # Pod security context
     pod:
-      # Run as non-root user (nginx typically runs as user 101)
+      # Default user ID (nginx typically runs as user 101)
       runAsUser: 101
       runAsGroup: 101
       fsGroup: 101
-      # Allow the process to write to its root filesystem
-      runAsNonRoot: true
       # Modern filesystem group change policy
       fsGroupChangePolicy: OnRootMismatch
       # Modern security profile for syscall filtering
       seccompProfile:
         type: RuntimeDefault
-      # Allow the process to write to its root filesystem
-      allowPrivilegeEscalation: false
-      # Read-only root filesystem
-      readOnlyRootFilesystem: false
     # Container security context
     container:
       # Run as non-root user
@@ -510,21 +502,15 @@ kong:
   securityContext:
     # Pod security context
     pod:
-      # Run as non-root user
+      # Default user ID
       runAsUser: 1000
       runAsGroup: 1000
       fsGroup: 1000
-      # Allow the process to write to its root filesystem
-      runAsNonRoot: true
       # Modern filesystem group change policy
       fsGroupChangePolicy: OnRootMismatch
       # Modern security profile for syscall filtering
       seccompProfile:
         type: RuntimeDefault
-      # Allow the process to write to its root filesystem
-      allowPrivilegeEscalation: false
-      # Read-only root filesystem
-      readOnlyRootFilesystem: false
     # Container security context
     container:
       # Run as non-root user

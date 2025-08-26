@@ -147,12 +147,11 @@ Create security context template for pods
 {{- if hasKey $securityContext "seccompProfile" }}
   {{- $_ := set $validFields "seccompProfile" (get $securityContext "seccompProfile") }}
 {{- end }}
-{{- if hasKey $securityContext "allowPrivilegeEscalation" }}
-  {{- $_ := set $validFields "allowPrivilegeEscalation" (get $securityContext "allowPrivilegeEscalation") }}
-{{- end }}
-{{- if hasKey $securityContext "readOnlyRootFilesystem" }}
-  {{- $_ := set $validFields "readOnlyRootFilesystem" (get $securityContext "readOnlyRootFilesystem") }}
-{{- end }}
+{{- /*
+  Fields that belong in container security context, not pod:
+  - allowPrivilegeEscalation
+  - readOnlyRootFilesystem
+*/ -}}
 {{- toYaml $validFields | nindent 8 }}
 {{- end }}
 {{- end }}
@@ -173,10 +172,10 @@ Create security context template for containers
 {{- /* Filter out invalid container security context fields */ -}}
 {{- $validFields := dict -}}
 {{- /*
-  Fields removed from container security context in modern Kubernetes:
-  - allowPrivilegeEscalation (moved to pod level)
-  - readOnlyRootFilesystem (moved to pod level)
-  - capabilities (deprecated and removed)
+  Valid container security context fields in modern Kubernetes:
+  - runAsNonRoot, runAsUser, runAsGroup
+  - allowPrivilegeEscalation, readOnlyRootFilesystem
+  - privileged (if needed)
 */ -}}
 {{- if hasKey $securityContext "runAsNonRoot" }}
   {{- $_ := set $validFields "runAsNonRoot" (get $securityContext "runAsNonRoot") }}
@@ -186,6 +185,12 @@ Create security context template for containers
 {{- end }}
 {{- if hasKey $securityContext "runAsGroup" }}
   {{- $_ := set $validFields "runAsGroup" (get $securityContext "runAsGroup") }}
+{{- end }}
+{{- if hasKey $securityContext "allowPrivilegeEscalation" }}
+  {{- $_ := set $validFields "allowPrivilegeEscalation" (get $securityContext "allowPrivilegeEscalation") }}
+{{- end }}
+{{- if hasKey $securityContext "readOnlyRootFilesystem" }}
+  {{- $_ := set $validFields "readOnlyRootFilesystem" (get $securityContext "readOnlyRootFilesystem") }}
 {{- end }}
 {{- if hasKey $securityContext "privileged" }}
   {{- $_ := set $validFields "privileged" (get $securityContext "privileged") }}
