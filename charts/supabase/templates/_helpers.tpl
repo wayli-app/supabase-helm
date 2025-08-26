@@ -172,30 +172,24 @@ Create security context template for containers
 {{- /* Filter out invalid container security context fields */ -}}
 {{- $validFields := dict -}}
 {{- /*
-  Valid container security context fields in modern Kubernetes:
-  - runAsNonRoot, runAsUser, runAsGroup
-  - allowPrivilegeEscalation, readOnlyRootFilesystem
-  - privileged (if needed)
+  ONLY include fields that are definitely valid at container level in modern K8s.
+  Many fields have been moved to pod level or deprecated.
 */ -}}
 {{- if hasKey $securityContext "runAsNonRoot" }}
   {{- $_ := set $validFields "runAsNonRoot" (get $securityContext "runAsNonRoot") }}
 {{- end }}
-{{- if hasKey $securityContext "runAsUser" }}
-  {{- $_ := set $validFields "runAsUser" (get $securityContext "runAsUser") }}
-{{- end }}
-{{- if hasKey $securityContext "runAsGroup" }}
-  {{- $_ := set $validFields "runAsGroup" (get $securityContext "runAsGroup") }}
-{{- end }}
-{{- if hasKey $securityContext "allowPrivilegeEscalation" }}
-  {{- $_ := set $validFields "allowPrivilegeEscalation" (get $securityContext "allowPrivilegeEscalation") }}
-{{- end }}
-{{- if hasKey $securityContext "readOnlyRootFilesystem" }}
-  {{- $_ := set $validFields "readOnlyRootFilesystem" (get $securityContext "readOnlyRootFilesystem") }}
-{{- end }}
+{{- /*
+  Fields intentionally excluded from container level (moved to pod level):
+  - runAsUser, runAsGroup (pod level only)
+  - allowPrivilegeEscalation (pod level only)
+  - readOnlyRootFilesystem (pod level only)
+  - seccompProfile (pod level only)
+
+  Only include the most basic, universally supported container fields.
+*/ -}}
 {{- if hasKey $securityContext "privileged" }}
   {{- $_ := set $validFields "privileged" (get $securityContext "privileged") }}
 {{- end }}
-{{- /* seccompProfile is a pod-level field, not container-level */ -}}
 {{- toYaml $validFields | nindent 10 }}
 {{- end }}
 {{- end }}

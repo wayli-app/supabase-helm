@@ -40,15 +40,10 @@ global:
         type: RuntimeDefault
     # Container security context defaults
     container:
-      # Run as non-root user
+      # Run as non-root user (validation only)
       runAsNonRoot: true
-      # Default user ID (can be overridden per component)
-      runAsUser: 1000
-      runAsGroup: 1000
-      # Allow the process to write to its root filesystem
-      allowPrivilegeEscalation: false
-      # Read-only root filesystem
-      readOnlyRootFilesystem: false
+      # Note: runAsUser, runAsGroup, allowPrivilegeEscalation, readOnlyRootFilesystem
+      # are now handled at the pod level for better compatibility
   # OpenAI API configuration
   openApi:
     # OpenAI API key
@@ -393,10 +388,9 @@ studio:
         type: RuntimeDefault
     # Container security context
     container:
-      # Run as non-root user
-      runAsUser: 101
-      runAsGroup: 101
+      # Run as non-root user (validation only)
       runAsNonRoot: true
+      # Note: runAsUser, runAsGroup are handled at pod level
   # Studio init containers configuration
   initContainers: []
   # Example init container configuration:
@@ -513,10 +507,9 @@ kong:
         type: RuntimeDefault
     # Container security context
     container:
-      # Run as non-root user
-      runAsUser: 1000
-      runAsGroup: 1000
+      # Run as non-root user (validation only)
       runAsNonRoot: true
+      # Note: runAsUser, runAsGroup are handled at pod level
   # Kong init containers configuration
   initContainers: []
   # Example init container configuration:
