@@ -35,13 +35,13 @@ global:
       runAsUser: 1000
       runAsGroup: 1000
       fsGroup: 1000
+      # Modern security profile for syscall filtering
+      seccompProfile:
+        type: RuntimeDefault
     # Container security context defaults
     container:
       # Allow the process to write to its root filesystem
       allowPrivilegeEscalation: false
-      # Modern security profile for syscall filtering
-      seccompProfile:
-        type: RuntimeDefault
       # Read-only root filesystem
       readOnlyRootFilesystem: false
       # Run as non-root user
@@ -390,13 +390,13 @@ studio:
       runAsNonRoot: true
       # Additional security settings for nginx
       supplementalGroups: [101]
+      # Modern security profile for syscall filtering
+      seccompProfile:
+        type: RuntimeDefault
     # Container security context
     container:
       # Allow the process to write to its root filesystem
       allowPrivilegeEscalation: false
-      # Modern security profile for syscall filtering
-      seccompProfile:
-        type: RuntimeDefault
       # Read-only root filesystem
       readOnlyRootFilesystem: false
       # Run as non-root user
@@ -514,13 +514,13 @@ kong:
       fsGroup: 1000
       # Allow the process to write to its root filesystem
       runAsNonRoot: true
+      # Modern security profile for syscall filtering
+      seccompProfile:
+        type: RuntimeDefault
     # Container security context
     container:
       # Allow the process to write to its root filesystem
       allowPrivilegeEscalation: false
-      # Modern security profile for syscall filtering
-      seccompProfile:
-        type: RuntimeDefault
       # Read-only root filesystem
       readOnlyRootFilesystem: false
       # Run as non-root user

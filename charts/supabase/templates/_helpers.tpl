@@ -184,9 +184,7 @@ Create security context template for containers
 {{- if hasKey $securityContext "privileged" }}
   {{- $_ := set $validFields "privileged" (get $securityContext "privileged") }}
 {{- end }}
-{{- if hasKey $securityContext "seccompProfile" }}
-  {{- $_ := set $validFields "seccompProfile" (get $securityContext "seccompProfile") }}
-{{- end }}
+{{- /* seccompProfile is a pod-level field, not container-level */ -}}
 {{- toYaml $validFields | nindent 10 }}
 {{- end }}
 {{- end }}
