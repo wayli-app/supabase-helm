@@ -6,6 +6,26 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+## [0.7.9] - 2025-08-26
+
+### What Changed
+- Automated version bump (patch): Direct push contains patch-level commits
+
+### Recent Changes
+- fix: Remove conflicting path filters from release workflow and add debugging to tag creation
+- docs: Add workflow sequencing documentation explaining the tag-based trigger system
+- docs: Restore workflow documentation files after rebase
+- docs: Add workflow sequencing documentation explaining the tag-based trigger system
+- chore: bump version to 0.7.8
+
+### Breaking Changes
+- None
+
+### Migration Guide
+- No migration required
+
+---
+
 ## [0.7.8] - 2025-08-26
 
 ### What Changed
