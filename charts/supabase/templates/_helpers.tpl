@@ -114,6 +114,32 @@ spec:
 {{- end }}
 
 {{/*
+Create security context template for pods
+*/}}
+{{- define "supabase.podSecurityContext" -}}
+{{- $component := .component -}}
+{{- $Values := .Values -}}
+{{- if (index $Values $component).securityContext.pod }}
+{{- toYaml (index $Values $component).securityContext.pod | nindent 8 }}
+{{- else if $Values.global.securityContext.pod }}
+{{- toYaml $Values.global.securityContext.pod | nindent 8 }}
+{{- end }}
+{{- end }}
+
+{{/*
+Create security context template for containers
+*/}}
+{{- define "supabase.containerSecurityContext" -}}
+{{- $component := .component -}}
+{{- $Values := .Values -}}
+{{- if (index $Values $component).securityContext.container }}
+{{- toYaml (index $Values $component).securityContext.container | nindent 10 }}
+{{- else if $Values.global.securityContext.container }}
+{{- toYaml $Values.global.securityContext.container | nindent 10 }}
+{{- end }}
+{{- end }}
+
+{{/*
 Create an ingress template
 */}}
 {{- define "supabase.ingress" -}}

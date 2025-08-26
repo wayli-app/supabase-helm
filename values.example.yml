@@ -40,6 +40,21 @@ db:
       # Storage class name
       storageClass: "standard"
 
+    # Example of using initContainers to copy migration files from another image
+    # Note: volumeMounts for /custom-migrations and /initdb.d are automatically added
+    # initContainers:
+    #   - name: copy-migrations
+    #     image: "your-migration-image:tag"
+    #     command: ["/bin/sh", "-c"]
+    #     args:
+    #       - |
+    #         echo "Copying migration files from migration image..."
+    #         cp -r /migrations/* /custom-migrations/
+    #     # volumeMounts are automatically injected - you only need to specify additional ones
+    #     # The following volumes are automatically available:
+    #     # - /custom-migrations (for copying migration files)
+    #     # - /initdb.d (for direct script placement)
+
 # Studio configuration
 studio:
   enabled: true

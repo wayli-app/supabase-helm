@@ -25,6 +25,31 @@ global:
   imagePullSecrets: []
   # Global default storage class
   defaultStorageClass: ""
+  # Global security context defaults
+  securityContext:
+    # Pod security context defaults
+    pod:
+      # Run as non-root user by default
+      runAsNonRoot: true
+      # Default user ID (can be overridden per component)
+      runAsUser: 1000
+      runAsGroup: 1000
+      fsGroup: 1000
+    # Container security context defaults
+    container:
+      # Allow the process to write to its root filesystem
+      allowPrivilegeEscalation: false
+      # Drop all capabilities
+      capabilities:
+        drop:
+          - ALL
+      # Read-only root filesystem
+      readOnlyRootFilesystem: false
+      # Run as non-root user
+      runAsNonRoot: true
+      # Default user ID (can be overridden per component)
+      runAsUser: 1000
+      runAsGroup: 1000
   # OpenAI API configuration
   openApi:
     # OpenAI API key
@@ -220,6 +245,24 @@ db:
       # Container security context
       container: {}
 
+    # Additional init containers to run before init-db
+    # Useful for copying migration files from other Docker images
+    # Note: volumeMounts for /custom-migrations and /initdb.d are automatically added
+    initContainers: []
+    # Example:
+    # initContainers:
+    #   - name: copy-migrations
+    #     image: "your-migration-image:tag"
+    #     command: ["/bin/sh", "-c"]
+    #     args:
+    #       - |
+    #         echo "Copying migration files..."
+    #         cp -r /migrations/* /custom-migrations/
+    #     # volumeMounts are automatically injected - you only need to specify additional ones
+    #     # The following volumes are automatically available:
+    #     # - /custom-migrations (for copying migration files)
+    #     # - /initdb.d (for direct script placement)
+
 # Override the full name of the release
 fullnameOverride: ""
 # Override the name of the chart
@@ -336,6 +379,32 @@ studio:
   affinity: {}
   # Studio tolerations
   tolerations: []
+  # Studio security context configuration
+  securityContext:
+    # Pod security context
+    pod:
+      # Run as non-root user (nginx typically runs as user 101)
+      runAsUser: 101
+      runAsGroup: 101
+      fsGroup: 101
+      # Allow the process to write to its root filesystem
+      runAsNonRoot: true
+      # Additional security settings for nginx
+      supplementalGroups: [101]
+    # Container security context
+    container:
+      # Allow the process to write to its root filesystem
+      allowPrivilegeEscalation: false
+      # Drop all capabilities
+      capabilities:
+        drop:
+          - ALL
+      # Read-only root filesystem
+      readOnlyRootFilesystem: false
+      # Run as non-root user
+      runAsUser: 101
+      runAsGroup: 101
+      runAsNonRoot: true
   # Studio init containers configuration
   initContainers: []
   # Example init container configuration:
@@ -437,6 +506,30 @@ kong:
   affinity: {}
   # Kong tolerations
   tolerations: []
+  # Kong security context configuration
+  securityContext:
+    # Pod security context
+    pod:
+      # Run as non-root user
+      runAsUser: 1000
+      runAsGroup: 1000
+      fsGroup: 1000
+      # Allow the process to write to its root filesystem
+      runAsNonRoot: true
+    # Container security context
+    container:
+      # Allow the process to write to its root filesystem
+      allowPrivilegeEscalation: false
+      # Drop all capabilities
+      capabilities:
+        drop:
+          - ALL
+      # Read-only root filesystem
+      readOnlyRootFilesystem: false
+      # Run as non-root user
+      runAsUser: 1000
+      runAsGroup: 1000
+      runAsNonRoot: true
   # Kong init containers configuration
   initContainers: []
   # Example init container configuration:

@@ -49,10 +49,18 @@ spec:
       initContainers:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- with (include "supabase.podSecurityContext" (dict "component" "studio" "Values" .Values)) }}
+      securityContext:
+        {{- . }}
+      {{- end }}
       containers:
         - name: studio
           image: {{ .Values.studio.image.repository }}:{{ .Values.studio.image.tag }}
           imagePullPolicy: {{ .Values.studio.image.pullPolicy }}
+          {{- with (include "supabase.containerSecurityContext" (dict "component" "studio" "Values" .Values)) }}
+          securityContext:
+            {{- . }}
+          {{- end }}
           {{- with .Values.studio.livenessProbe }}
           livenessProbe:
             {{- toYaml . | nindent 12 }}

@@ -54,6 +54,43 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       initContainers:
+        {{- if .Values.db.postgres.initContainers }}
+        {{- range .Values.db.postgres.initContainers }}
+        - name: {{ .name }}
+          {{- if .image }}
+          image: {{ .image | quote }}
+          {{- end }}
+          {{- if .imagePullPolicy }}
+          imagePullPolicy: {{ .imagePullPolicy }}
+          {{- end }}
+          {{- if .command }}
+          command: {{ .command | toYaml | nindent 10 }}
+          {{- end }}
+          {{- if .args }}
+          args: {{ .args | toYaml | nindent 10 }}
+          {{- end }}
+          {{- if .env }}
+          env: {{ .env | toYaml | nindent 10 }}
+          {{- end }}
+          {{- if .resources }}
+          resources: {{ .resources | toYaml | nindent 10 }}
+          {{- end }}
+          {{- if .securityContext }}
+          securityContext: {{ .securityContext | toYaml | nindent 10 }}
+          {{- end }}
+          volumeMounts:
+            {{- if .volumeMounts }}
+            {{- toYaml .volumeMounts | nindent 12 }}
+            {{- end }}
+            # Automatically injected volumeMounts for migration files
+            - mountPath: /custom-init-scripts
+              name: db-init-sql
+            - mountPath: /custom-migrations
+              name: custom-migrations
+            - mountPath: /initdb.d
+              name: initdb-scripts-data
+        {{- end }}
+        {{- end }}
         - name: init-db
           image: "{{ .Values.db.postgres.image.repository }}:{{ .Values.db.postgres.image.tag }}"
           imagePullPolicy: {{ .Values.db.postgres.image.pullPolicy }}

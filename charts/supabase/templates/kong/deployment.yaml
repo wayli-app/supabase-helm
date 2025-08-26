@@ -45,11 +45,19 @@ spec:
       initContainers:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- with (include "supabase.podSecurityContext" (dict "component" "kong" "Values" .Values)) }}
+      securityContext:
+        {{- . }}
+      {{- end }}
       containers:
       - name: kong
         image: "{{ .Values.kong.image.repository }}:{{ .Values.kong.image.tag }}"
         imagePullPolicy: {{ .Values.kong.image.pullPolicy }}
         command: ["/bin/bash", "/etc/kong/wrapper.sh"]
+        {{- with (include "supabase.containerSecurityContext" (dict "component" "kong" "Values" .Values)) }}
+        securityContext:
+          {{- . }}
+        {{- end }}
         {{- with .Values.kong.livenessProbe }}
         livenessProbe:
           {{- toYaml . | nindent 10 }}
