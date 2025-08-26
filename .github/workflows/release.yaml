@@ -144,23 +144,48 @@ jobs:
       - name: Update Chart Version
         run: |
           NEW_VERSION="${{ needs.version.outputs.new_version }}"
-          echo "Updating Chart.yaml version to: $NEW_VERSION"
-          sed -i "s/^version: .*/version: $NEW_VERSION/" charts/supabase/Chart.yaml
+          CURRENT_VERSION=$(grep '^version:' charts/supabase/Chart.yaml | awk '{print $2}')
 
-          # Update appVersion if it exists
-          if grep -q "^appVersion:" charts/supabase/Chart.yaml; then
-            sed -i "s/^appVersion: .*/appVersion: $NEW_VERSION/" charts/supabase/Chart.yaml
+          echo "Current Chart.yaml version: $CURRENT_VERSION"
+          echo "New version from semantic-version: $NEW_VERSION"
+
+          if [ "$NEW_VERSION" != "$CURRENT_VERSION" ]; then
+            echo "Version bump detected: $CURRENT_VERSION -> $NEW_VERSION"
+            sed -i "s/^version: .*/version: $NEW_VERSION/" charts/supabase/Chart.yaml
+
+            # Update appVersion if it exists
+            if grep -q "^appVersion:" charts/supabase/Chart.yaml; then
+              sed -i "s/^appVersion: .*/appVersion: $NEW_VERSION/" charts/supabase/Chart.yaml
+            fi
+
+            # Show the updated Chart.yaml
+            echo "Updated Chart.yaml:"
+            cat charts/supabase/Chart.yaml
+          else
+            echo "No version change detected. Current version: $CURRENT_VERSION, New version: $NEW_VERSION"
+            echo "This suggests the semantic-version action didn't detect a version bump."
+            echo "Check your commit patterns and semantic-version configuration."
           fi
-
-          # Show the updated Chart.yaml
-          echo "Updated Chart.yaml:"
-          cat charts/supabase/Chart.yaml
 
       - name: Commit Version Update
         run: |
-          git add charts/supabase/Chart.yaml
-          git commit -m "chore: bump version to ${{ needs.version.outputs.new_version }}"
-          git push origin main
+          # Check if there are changes to commit
+          if git diff --staged --quiet; then
+            echo "No changes to commit. Checking if Chart.yaml was modified..."
+            if git diff charts/supabase/Chart.yaml | grep -q "version:"; then
+              echo "Chart.yaml was modified, staging and committing..."
+              git add charts/supabase/Chart.yaml
+              git commit -m "chore: bump version to ${{ needs.version.outputs.new_version }}"
+              git push origin main
+            else
+              echo "No version changes detected in Chart.yaml. Skipping commit."
+              echo "This may indicate an issue with the semantic-version action."
+            fi
+          else
+            echo "Changes already staged, committing..."
+            git commit -m "chore: bump version to ${{ needs.version.outputs.new_version }}"
+            git push origin main
+          fi
 
       - name: Create and Push Tag
         run: |
