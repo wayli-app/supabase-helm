@@ -184,7 +184,7 @@ jobs:
         if: steps.version_check.outputs.no_change != 'true'
         run: |
           git add charts/supabase/Chart.yaml CHANGELOG.md
-          git commit -m "chore: bump version to ${{ steps.new_version.outputs.new }} [skip ci]"
+          git commit -m "chore: bump version to ${{ steps.new_version.outputs.new }}"
           git push origin main || {
             echo "Push failed, trying to pull latest changes first..."
             git pull origin main --rebase
