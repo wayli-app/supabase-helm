@@ -140,11 +140,18 @@ Create security context template for pods
 {{- if hasKey $securityContext "fsGroup" }}
   {{- $_ := set $validFields "fsGroup" (get $securityContext "fsGroup") }}
 {{- end }}
-{{- if hasKey $securityContext "supplementalGroups" }}
-  {{- $_ := set $validFields "supplementalGroups" (get $securityContext "supplementalGroups") }}
+{{- if hasKey $securityContext "fsGroupChangePolicy" }}
+  {{- $_ := set $validFields "fsGroupChangePolicy" (get $securityContext "fsGroupChangePolicy") }}
 {{- end }}
+{{- /* supplementalGroups deprecated - replaced with fsGroupChangePolicy */ -}}
 {{- if hasKey $securityContext "seccompProfile" }}
   {{- $_ := set $validFields "seccompProfile" (get $securityContext "seccompProfile") }}
+{{- end }}
+{{- if hasKey $securityContext "allowPrivilegeEscalation" }}
+  {{- $_ := set $validFields "allowPrivilegeEscalation" (get $securityContext "allowPrivilegeEscalation") }}
+{{- end }}
+{{- if hasKey $securityContext "readOnlyRootFilesystem" }}
+  {{- $_ := set $validFields "readOnlyRootFilesystem" (get $securityContext "readOnlyRootFilesystem") }}
 {{- end }}
 {{- toYaml $validFields | nindent 8 }}
 {{- end }}
@@ -165,13 +172,12 @@ Create security context template for containers
 {{- if $securityContext }}
 {{- /* Filter out invalid container security context fields */ -}}
 {{- $validFields := dict -}}
-{{- if hasKey $securityContext "allowPrivilegeEscalation" }}
-  {{- $_ := set $validFields "allowPrivilegeEscalation" (get $securityContext "allowPrivilegeEscalation") }}
-{{- end }}
-{{- /* capabilities field removed - not supported in newer Kubernetes versions */ -}}
-{{- if hasKey $securityContext "readOnlyRootFilesystem" }}
-  {{- $_ := set $validFields "readOnlyRootFilesystem" (get $securityContext "readOnlyRootFilesystem") }}
-{{- end }}
+{{- /*
+  Fields removed from container security context in modern Kubernetes:
+  - allowPrivilegeEscalation (moved to pod level)
+  - readOnlyRootFilesystem (moved to pod level)
+  - capabilities (deprecated and removed)
+*/ -}}
 {{- if hasKey $securityContext "runAsNonRoot" }}
   {{- $_ := set $validFields "runAsNonRoot" (get $securityContext "runAsNonRoot") }}
 {{- end }}
