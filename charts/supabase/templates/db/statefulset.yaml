@@ -101,13 +101,15 @@ spec:
               cp -r /docker-entrypoint-initdb.d/* /initdb.d/
 
               echo "Copying SQL files from ConfigMap..."
+              mkdir -p /initdb.d/init-scripts
               cp /custom-init-scripts/* /initdb.d/init-scripts/
               echo "SQL files copied: $(ls /custom-init-scripts/)"
 
               echo "Checking for user-defined migration scripts..."
               if [ -d /custom-migrations ] && [ "$(ls -A /custom-migrations 2>/dev/null)" ]; then
                 echo "Copying user-defined migration scripts..."
-                cp /custom-migrations/* /initdb.d/
+                mkdir -p /initdb.d/migrations
+                cp /custom-migrations/* /initdb.d/migrations/
               else
                 echo "No user-defined migrations found, skipping..."
               fi
