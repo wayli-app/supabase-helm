@@ -168,7 +168,7 @@ db:
       # PostgreSQL image repository
       repository: supabase/postgres
       # PostgreSQL image tag
-      tag: 17.4.1.049
+      tag: 17.4.1.075
       # PostgreSQL image pull policy
       pullPolicy: IfNotPresent
     # PostgreSQL image pull secrets
@@ -279,7 +279,7 @@ studio:
     # Studio image repository
     repository: supabase/studio
     # Studio image tag
-    tag: 2025.06.30-sha-6f5982d
+    tag: 2025.08.25-sha-72a94af
     # Studio image pull policy
     pullPolicy: IfNotPresent
   # Studio image pull secrets
@@ -422,7 +422,7 @@ kong:
     # Kong image repository
     repository: kong
     # Kong image tag
-    tag: 2.8.1
+    tag: 3.9.1
     # Kong image pull policy
     pullPolicy: IfNotPresent
   # Kong image pull secrets
@@ -545,7 +545,7 @@ auth:
     # Auth image repository
     repository: supabase/gotrue
     # Auth image tag
-    tag: v2.176.1
+    tag: v2.178.0
     # Auth image pull policy
     pullPolicy: IfNotPresent
   # Auth image pull secrets
@@ -611,7 +611,7 @@ rest:
     # REST image repository
     repository: postgrest/postgrest
     # REST image tag
-    tag: v12.2.12
+    tag: v13.0.5
     # REST image pull policy
     pullPolicy: IfNotPresent
   # REST image pull secrets
@@ -697,7 +697,7 @@ realtime:
     # Realtime image repository
     repository: supabase/realtime
     # Realtime image tag
-    tag: v2.40.0
+    tag: v2.43.1
     # Realtime image pull policy
     pullPolicy: IfNotPresent
   # Realtime image pull secrets
@@ -793,7 +793,7 @@ storage:
     # Storage image repository
     repository: supabase/storage-api
     # Storage image tag
-    tag: v1.25.3
+    tag: v1.26.4
     # Storage image pull policy
     pullPolicy: IfNotPresent
   # Storage image pull secrets
@@ -903,7 +903,7 @@ imgproxy:
     # Imgproxy image repository
     repository: darthsim/imgproxy
     # Imgproxy image tag
-    tag: v3.28.0
+    tag: v3.29.1
     # Imgproxy image pull policy
     pullPolicy: IfNotPresent
   # Imgproxy image pull secrets
@@ -978,7 +978,7 @@ meta:
     # Meta image repository
     repository: supabase/postgres-meta
     # Meta image tag
-    tag: v0.91.0
+    tag: v0.91.5
     # Meta image pull policy
     pullPolicy: IfNotPresent
   # Meta image pull secrets
@@ -1064,7 +1064,7 @@ functions:
     # Functions image repository
     repository: supabase/edge-runtime
     # Functions image tag
-    tag: v1.67.4
+    tag: v1.69.2
     # Functions image pull policy
     pullPolicy: IfNotPresent
   # Functions image pull secrets
@@ -1172,7 +1172,7 @@ analytics:
     # Analytics image repository
     repository: supabase/logflare
     # Analytics image tag
-    tag: 1.15.4
+    tag: 1.20.1
     # Analytics image pull policy
     pullPolicy: IfNotPresent
   # Analytics image pull secrets
@@ -1327,7 +1327,7 @@ vector:
     # Vector image repository
     repository: timberio/vector
     # Vector image tag
-    tag: 0.47.X-alpine
+    tag: 0.49.X-alpine
     # Vector image pull policy
     pullPolicy: IfNotPresent
   # Vector image pull secrets
@@ -1380,7 +1380,7 @@ supavisor:
     # Supavisor image repository
     repository: supabase/supavisor
     # Supavisor image tag
-    tag: 2.5.7
+    tag: 2.6.1
     # Supavisor image pull policy
     pullPolicy: IfNotPresent
   # Supavisor image pull secrets
