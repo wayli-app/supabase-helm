@@ -6,6 +6,26 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+## [0.7.3] - 2025-08-26
+
+### What Changed
+- Automated version bump (patch): Direct push contains patch-level commits
+
+### Recent Changes
+- fix: Update workflows and changelog to ensure Helm chart is pushed to registry on patch releases
+- chore: bump version to 0.7.2 [skip ci]
+- chore: bump version to 0.7.1 [skip ci]
+- fix: Allow adding init containers to the postgres db.
+- chore: bump version to 0.7.0 [skip ci]
+
+### Breaking Changes
+- None
+
+### Migration Guide
+- No migration required
+
+---
+
 
 ### Added
 - Automated version bumping and release workflow
