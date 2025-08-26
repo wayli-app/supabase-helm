@@ -2,12 +2,18 @@ name: Release Charts
 
 on:
   push:
-    branches:
-      - main
+    tags:
+      - 'v*'
     paths:
       - 'charts/**'
       - '.github/workflows/release.yaml'
       - 'CHANGELOG.md'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Chart version to release (e.g., 0.7.4)'
+        required: true
+        type: string
 
 jobs:
   release:
@@ -16,12 +22,14 @@ jobs:
       contents: write
       packages: write
       actions: read
+    # Only run for tag pushes (which happen after version workflow) or manual dispatch
+    if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          ref: main
+          ref: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || 'main' }}
 
       - name: Configure Git
         run: |

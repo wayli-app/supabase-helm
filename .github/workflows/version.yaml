@@ -202,6 +202,13 @@ jobs:
           git tag v${{ steps.new_version.outputs.new }}
           git push origin v${{ steps.new_version.outputs.new }}
 
+      - name: Trigger Release Workflow
+        if: steps.version_check.outputs.no_change != 'true'
+        run: |
+          echo "Tag v${{ steps.new_version.outputs.new }} created successfully"
+          echo "This will automatically trigger the Release Charts workflow"
+          echo "Release workflow will package and publish the Helm chart to GHCR"
+
       - name: Create Release
         if: steps.version_check.outputs.no_change != 'true'
         uses: actions/create-release@v1
