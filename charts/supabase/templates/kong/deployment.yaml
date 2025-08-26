@@ -71,6 +71,8 @@ spec:
           value: "off"
         - name: KONG_DECLARATIVE_CONFIG
           value: "/etc/kong/config/kong.yml"
+        - name: KONG_PREFIX
+          value: "/etc/kong"
         - name: KONG_DNS_ORDER
           value: "LAST,A,CNAME"
         - name: KONG_PLUGINS
@@ -154,6 +156,8 @@ spec:
           subPath: wrapper.sh
         - mountPath: /etc/kong/config
           name: kong-config-dir
+        - mountPath: /etc/kong
+          name: kong-runtime-dir
         readinessProbe:
           httpGet:
             path: /status
@@ -178,5 +182,7 @@ spec:
           name: {{ include "supabase.fullname" . }}-kong-config
         {{- end }}
       - name: kong-config-dir
+        emptyDir: {}
+      - name: kong-runtime-dir
         emptyDir: {}
 {{- end }}
