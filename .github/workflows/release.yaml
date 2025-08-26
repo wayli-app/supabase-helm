@@ -22,7 +22,7 @@ jobs:
       - name: YAML Linting
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: "3.11"
 
       - name: Install yamllint
         run: pip install yamllint
@@ -44,7 +44,7 @@ jobs:
       - name: Shell Script Linting
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: "18"
 
       - name: Install shellcheck
         run: |
