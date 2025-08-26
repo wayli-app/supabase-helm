@@ -6,6 +6,26 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+## [0.7.8] - 2025-08-26
+
+### What Changed
+- Automated version bump (patch): Direct push contains patch-level commits
+
+### Recent Changes
+- fix: Ensure release pipeline always runs after version pipeline by using tag-based triggers
+- chore: bump version to 0.7.7
+- fix: Improve security context helper functions to filter invalid fields and prevent deployment errors
+- chore: bump version to 0.7.6
+- fix: Improve manual chart-releaser step with better error handling and download method
+
+### Breaking Changes
+- None
+
+### Migration Guide
+- No migration required
+
+---
+
 ## [0.7.7] - 2025-08-26
 
 ### What Changed
