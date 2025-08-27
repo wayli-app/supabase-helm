@@ -1121,6 +1121,8 @@ functions:
     dbSsl: false
     # Verify JWT
     verifyJwt: true
+    # Main service path for edge functions
+    mainService: "/home/deno/functions/main"
   # Functions persistence configuration
   persistence:
     # Enable persistence
