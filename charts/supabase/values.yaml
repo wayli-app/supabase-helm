@@ -545,7 +545,7 @@ auth:
   # Auth image configuration
   image:
     # Auth image repository
-    repository: supabase/gotrue
+    repository: supabase/auth
     # Auth image tag
     tag: v2.178.0
     # Auth image pull policy
