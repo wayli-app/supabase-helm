@@ -64,6 +64,8 @@ global:
     projectName: Example project
     # Public URL of the Supabase instance
     publicUrl: https://supabase.example.com
+    # Site URL of the Supabase instance
+    siteUrl: https://example.com
     # Existing secret containing Supabase keys
     existingSecret: supabase-secret
     # Secret keys configuration for existing secret

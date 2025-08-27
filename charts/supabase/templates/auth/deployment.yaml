@@ -81,7 +81,7 @@ spec:
         - name: GOTRUE_DB_DATABASE_URL
           value: "postgres://supabase_auth_admin:$(DB_PASSWORD)@{{ .Values.db.postgres.service.name | default (printf "%s-db" (include "supabase.fullname" .)) }}{{- if .Values.db.postgres.service.namespace }}.{{ .Values.db.postgres.service.namespace }}{{- end }}:{{ .Values.db.postgres.service.port }}/postgres"
         - name: GOTRUE_SITE_URL
-          value: {{ .Values.global.supabase.publicUrl | quote }}
+          value: {{ .Values.global.supabase.siteUrl | quote }}
         - name: GOTRUE_URI_ALLOW_LIST
           value: {{ .Values.global.supabase.auth.additionalRedirectUrls | quote }}
         - name: GOTRUE_DISABLE_SIGNUP
