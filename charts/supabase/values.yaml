@@ -1100,7 +1100,7 @@ functions:
     # Functions service type
     type: ClusterIP
     # Functions service port
-    port: 54321
+    port: 9000
   # Functions resource configuration
   resources:
     # Resource requests

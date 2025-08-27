@@ -349,7 +349,7 @@ The following table lists the configurable parameters of the Supabase chart and 
 | `functions.image.tag`                 | Functions image tag              | `"v1.67.4"`               |
 | `functions.image.pullPolicy`          | Functions image pull policy      | `"IfNotPresent"`          |
 | `functions.service.type`              | Functions service type           | `"ClusterIP"`             |
-| `functions.service.port`              | Functions service port           | `54321`                   |
+| `functions.service.port`              | Functions service port           | `9000`                    |
 | `functions.persistence.enabled`       | Enable persistence               | `true`                    |
 | `functions.persistence.size`          | Storage size                     | `"1Gi"`                   |
 | `functions.persistence.existingClaim` | Existing PVC claim name          | `""`                      |
