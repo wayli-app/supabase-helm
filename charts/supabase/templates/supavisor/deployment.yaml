@@ -72,7 +72,7 @@ spec:
               value: {{ .Values.supavisor.service.port | quote }}
             # PostgreSQL configuration from db section
             - name: POSTGRES_PORT
-              value: {{ .Values.db.postgres.service.port | quote }}
+              value: {{- if .Values.supavisor.enabled }}5452{{- else }}{{ .Values.db.postgres.service.port | quote }}{{- end }}
             - name: POSTGRES_DB
               value: postgres
             - name: POSTGRES_PASSWORD
@@ -81,10 +81,10 @@ spec:
                   name: {{ .Values.db.postgres.existingSecret | default (printf "%s-db-secret" (include "supabase.fullname" .)) }}
                   key: {{ .Values.db.postgres.secretKeys.userPasswordKey }}
             - name: POSTGRES_HOST
-              value: {{ .Values.db.postgres.service.name | default (printf "%s-db" (include "supabase.fullname" .)) }}{{- if .Values.db.postgres.service.namespace }}.{{ .Values.db.postgres.service.namespace }}{{- end }}
+              value: {{- if .Values.supavisor.enabled }}{{ include "supabase.fullname" . }}-supavisor{{- else }}{{ .Values.db.postgres.service.name | default (printf "%s-db" (include "supabase.fullname" .)) }}{{- if .Values.db.postgres.service.namespace }}.{{ .Values.db.postgres.service.namespace }}{{- end }}{{- end }}
             # Database URL
             - name: DATABASE_URL
-              value: ecto://supabase_admin:$(POSTGRES_PASSWORD)@{{ .Values.db.postgres.service.name | default (printf "%s-db" (include "supabase.fullname" .)) }}{{- if .Values.db.postgres.service.namespace }}.{{ .Values.db.postgres.service.namespace }}{{- end }}:{{ .Values.db.postgres.service.port }}/_supabase
+              value: ecto://supabase_admin:$(POSTGRES_PASSWORD)@{{- if .Values.supavisor.enabled }}{{ include "supabase.fullname" . }}-supavisor:5452{{- else }}{{ .Values.db.postgres.service.name | default (printf "%s-db" (include "supabase.fullname" .)) }}{{- if .Values.db.postgres.service.namespace }}.{{ .Values.db.postgres.service.namespace }}{{- end }}:{{- if .Values.supavisor.enabled }}5452{{- else }}{{ .Values.db.postgres.service.port }}{{- end }}{{- end }}/_supabase
             # Cluster configuration
             - name: CLUSTER_POSTGRES
               value: "true"

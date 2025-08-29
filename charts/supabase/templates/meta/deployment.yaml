@@ -61,7 +61,7 @@ spec:
             - name: PG_META_PORT
               value: {{ .Values.meta.service.port | quote }}
             - name: PG_META_DB_HOST
-              value: {{ .Values.db.postgres.service.name | default (printf "%s-db" (include "supabase.fullname" .)) }}{{- if .Values.db.postgres.service.namespace }}.{{ .Values.db.postgres.service.namespace }}{{- end }}
+              value: {{- if .Values.supavisor.enabled }}{{ include "supabase.fullname" . }}-supavisor{{- else }}{{ .Values.db.postgres.service.name | default (printf "%s-db" (include "supabase.fullname" .)) }}{{- if .Values.db.postgres.service.namespace }}.{{ .Values.db.postgres.service.namespace }}{{- end }}{{- end }}
             - name: PG_META_DB_PASSWORD
               valueFrom:
                 secretKeyRef:

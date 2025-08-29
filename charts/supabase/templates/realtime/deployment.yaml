@@ -107,9 +107,9 @@ spec:
         - name: PORT
           value: "4000"
         - name: DB_HOST
-          value: {{ .Values.db.postgres.service.name | default (printf "%s-db" (include "supabase.fullname" .)) }}{{- if .Values.db.postgres.service.namespace }}.{{ .Values.db.postgres.service.namespace }}{{- end }}
+          value: {{- if .Values.supavisor.enabled }}{{ include "supabase.fullname" . }}-supavisor{{- else }}{{ .Values.db.postgres.service.name | default (printf "%s-db" (include "supabase.fullname" .)) }}{{- if .Values.db.postgres.service.namespace }}.{{ .Values.db.postgres.service.namespace }}{{- end }}{{- end }}
         - name: DB_PORT
-          value: {{ .Values.db.postgres.service.port | quote }}
+          value: {{- if .Values.supavisor.enabled }}5452{{- else }}{{ .Values.db.postgres.service.port | quote }}{{- end }}
         - name: DB_USER
           value: {{ .Values.realtime.config.dbUser | quote }}
         - name: DB_PASSWORD
