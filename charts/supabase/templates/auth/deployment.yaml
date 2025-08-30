@@ -79,7 +79,7 @@ spec:
               name: {{ .Values.db.postgres.existingSecret | default (printf "%s-db-secret" (include "supabase.fullname" .)) }}
               key: {{ .Values.db.postgres.secretKeys.userPasswordKey | default "password" }}
         - name: GOTRUE_DB_DATABASE_URL
-          value: "postgres://supabase_auth_admin:$(DB_PASSWORD)@{{- if .Values.db.pgbouncer.enabled }}{{ include "supabase.fullname" . }}-pgbouncer:{{ .Values.db.pgbouncer.service.port | default 5432 }}{{- else }}{{ .Values.db.postgres.service.name | default (printf "%s-db" (include "supabase.fullname" .)) }}{{- if .Values.db.postgres.service.namespace }}.{{ .Values.db.postgres.service.namespace }}{{- end }}:{{ .Values.db.postgres.service.port }}{{- end }}/postgres"
+          value: "postgres://supabase_auth_admin:$(DB_PASSWORD)@{{- if .Values.db.pgbouncer.enabled }}{{ .Values.db.pgbouncer.service.name | default (printf "%s-pgbouncer" (include "supabase.fullname" .)) }}{{- if .Values.db.pgbouncer.service.namespace }}.{{ .Values.db.pgbouncer.service.namespace }}{{- end }}:{{ .Values.db.pgbouncer.service.port | default 5432 }}{{- else }}{{ printf "%s-db" (include "supabase.fullname" .) }}{{- end }}/postgres"
         - name: GOTRUE_SITE_URL
           value: {{ .Values.global.supabase.siteUrl | quote }}
         - name: GOTRUE_URI_ALLOW_LIST
