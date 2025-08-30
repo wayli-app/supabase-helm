@@ -214,12 +214,64 @@ The following table lists the configurable parameters of the Supabase chart and 
 
 | Parameter                          | Description                               | Default                          |
 | ---------------------------------- | ----------------------------------------- | -------------------------------- |
+| `global.imageRegistry`             | Global image registry                     | `""`                             |
+| `global.imagePullSecrets`          | Global image pull secrets                 | `[]`                             |
+| `global.defaultStorageClass`       | Global default storage class             | `""`                             |
 | `global.openApi.key`               | OpenAI API key                            | `""`                             |
 | `global.openApi.existingSecret`    | Existing secret containing OpenAI API key | `""`                             |
+| `global.openApi.secretKey`         | Secret key for OpenAI API key            | `"openai-api-key"`               |
 | `global.supabase.organizationName` | Organization name for Studio              | `"Supabase Demo"`                |
 | `global.supabase.projectName`      | Project name for Studio                   | `"Example project"`              |
 | `global.supabase.publicUrl`        | Public URL of the Supabase instance       | `"https://supabase.example.com"` |
+| `global.supabase.siteUrl`          | Site URL of the Supabase instance         | `"https://example.com"`          |
 | `global.supabase.existingSecret`   | Existing secret containing Supabase keys  | `"supabase-secret"`              |
+| `global.supabase.jwtExpiry`        | JWT token expiry in seconds              | `3600`                           |
+
+#### Global Security Context
+
+| Parameter                                    | Description                                    | Default                    |
+| -------------------------------------------- | ---------------------------------------------- | -------------------------- |
+| `global.securityContext.pod.runAsNonRoot`   | Run as non-root user by default               | `true`                     |
+| `global.securityContext.pod.runAsUser`      | Default user ID                               | `1000`                     |
+| `global.securityContext.pod.runAsGroup`     | Default group ID                              | `1000`                     |
+| `global.securityContext.pod.fsGroup`        | Default filesystem group                      | `1000`                     |
+| `global.securityContext.pod.fsGroupChangePolicy` | Filesystem group change policy            | `"OnRootMismatch"`         |
+| `global.securityContext.pod.seccompProfile.type` | Security profile for syscall filtering | `"RuntimeDefault"`         |
+| `global.securityContext.pod.allowPrivilegeEscalation` | Allow privilege escalation              | `false`                    |
+| `global.securityContext.pod.readOnlyRootFilesystem` | Read-only root filesystem               | `false`                    |
+
+#### Global Auth Configuration
+
+| Parameter                                    | Description                                    | Default                    |
+| -------------------------------------------- | ---------------------------------------------- | -------------------------- |
+| `global.supabase.auth.disableSignup`         | Disable user signup                           | `false`                    |
+| `global.supabase.auth.enableEmailSignup`     | Enable email signup                            | `true`                     |
+| `global.supabase.auth.enableAnonymousUsers`  | Enable anonymous users                         | `false`                    |
+| `global.supabase.auth.enableEmailAutoconfirm` | Enable email autoconfirm                    | `false`                    |
+| `global.supabase.auth.enablePhoneSignup`     | Enable phone signup                            | `false`                    |
+| `global.supabase.auth.enablePhoneAutoconfirm` | Enable phone autoconfirm                    | `false`                    |
+| `global.supabase.auth.additionalRedirectUrls` | Additional redirect URLs                    | `""`                       |
+
+#### Global SMTP Configuration
+
+| Parameter                                    | Description                                    | Default                    |
+| -------------------------------------------- | ---------------------------------------------- | -------------------------- |
+| `global.supabase.auth.smtp.adminEmail`       | SMTP admin email                               | `""`                       |
+| `global.supabase.auth.smtp.host`             | SMTP host                                     | `""`                       |
+| `global.supabase.auth.smtp.port`             | SMTP port                                     | `587`                      |
+| `global.supabase.auth.smtp.user`             | SMTP user                                     | `""`                       |
+| `global.supabase.auth.smtp.password`         | SMTP password                                 | `""`                       |
+| `global.supabase.auth.smtp.senderName`       | SMTP sender name                              | `""`                       |
+| `global.supabase.auth.smtp.existingSecret`   | Existing secret containing SMTP credentials   | `""`                       |
+
+#### Global Mailer Configuration
+
+| Parameter                                    | Description                                    | Default                    |
+| -------------------------------------------- | ---------------------------------------------- | -------------------------- |
+| `global.supabase.auth.mailer.urlpathsInvite` | Invite URL path                               | `"/auth/v1/verify"`        |
+| `global.supabase.auth.mailer.urlpathsConfirmation` | Confirmation URL path                     | `"/auth/v1/verify"`        |
+| `global.supabase.auth.mailer.urlpathsRecovery` | Recovery URL path                           | `"/auth/v1/verify"`        |
+| `global.supabase.auth.mailer.urlpathsEmailChange` | Email change URL path                     | `"/auth/v1/verify"`        |
 
 #### Required Secret Keys for `global.supabase.existingSecret`
 
@@ -232,6 +284,26 @@ The following table lists the configurable parameters of the Supabase chart and 
 | `vaultEncKey`    | Vault encryption key              |
 | `dbEncKey`       | Database encryption key           |
 
+### Common Configuration
+
+| Parameter                | Description                           | Default |
+| ------------------------ | ------------------------------------- | ------- |
+| `commonLabels`           | Common labels to add to all resources | `{}`    |
+| `commonAnnotations`      | Common annotations to add to all resources | `{}` |
+| `secretAnnotations`      | Annotations to add to all secrets    | `{}`    |
+| `fullnameOverride`       | Override the full name of the release | `""`    |
+| `nameOverride`           | Override the name of the chart        | `""`    |
+| `namespaceOverride`      | Override the namespace                | `""`    |
+
+### ServiceAccount Configuration
+
+| Parameter                          | Description                           | Default |
+| ---------------------------------- | ------------------------------------- | ------- |
+| `serviceAccount.create`            | Create a service account              | `true`  |
+| `serviceAccount.annotations`       | Annotations to add to the service account | `{}` |
+| `serviceAccount.name`              | The name of the service account to use | `""`   |
+| `serviceAccount.automountServiceAccountToken` | Automount API credentials | `true` |
+
 ### Studio Configuration
 
 | Parameter                 | Description                      | Default                    |
@@ -239,7 +311,7 @@ The following table lists the configurable parameters of the Supabase chart and 
 | `studio.enabled`          | Enable Studio deployment         | `true`                     |
 | `studio.replicaCount`     | Number of Studio replicas        | `1`                        |
 | `studio.image.repository` | Studio image repository          | `"supabase/studio"`        |
-| `studio.image.tag`        | Studio image tag                 | `"2025.06.30-sha-6f5982d"` |
+| `studio.image.tag`        | Studio image tag                 | `"2025.08.25-sha-72a94af"` |
 | `studio.image.pullPolicy` | Studio image pull policy         | `"IfNotPresent"`           |
 | `studio.service.type`     | Studio service type              | `"ClusterIP"`              |
 | `studio.service.port`     | Studio service port              | `3000`                     |
@@ -247,6 +319,16 @@ The following table lists the configurable parameters of the Supabase chart and 
 | `studio.volumeMounts`     | Additional volume mounts         | `[]`                       |
 | `studio.volumes`          | Additional volumes               | `[]`                       |
 | `studio.extraEnvVars`     | Additional environment variables | `[]`                       |
+| `studio.config.enableLogs` | Enable logs in Studio           | `true`                     |
+| `studio.config.analyticsBackendProvider` | Analytics backend provider | `"postgres"`               |
+
+#### Studio Authentication Configuration
+
+| Parameter                                    | Description                                    | Default                    |
+| -------------------------------------------- | ---------------------------------------------- | -------------------------- |
+| `studio.config.auth.username`                | Studio username                               | `"supabase"`               |
+| `studio.config.auth.password`                | Studio password                               | `""`                       |
+| `studio.config.auth.existingSecret`          | Existing secret containing studio credentials | `""`                       |
 
 ### Kong Configuration
 
@@ -254,7 +336,7 @@ The following table lists the configurable parameters of the Supabase chart and 
 | ------------------------ | ----------------------------------------- | ---------------- |
 | `kong.enabled`           | Enable Kong deployment                    | `true`           |
 | `kong.image.repository`  | Kong image repository                     | `"kong"`         |
-| `kong.image.tag`         | Kong image tag                            | `"2.8.1"`        |
+| `kong.image.tag`         | Kong image tag                            | `"3.9.1"`        |
 | `kong.image.pullPolicy`  | Kong image pull policy                    | `"IfNotPresent"` |
 | `kong.service.type`      | Kong service type                         | `"ClusterIP"`    |
 | `kong.service.httpPort`  | Kong HTTP port                            | `8000`           |
@@ -268,8 +350,8 @@ The following table lists the configurable parameters of the Supabase chart and 
 | Parameter               | Description                      | Default             |
 | ----------------------- | -------------------------------- | ------------------- |
 | `auth.enabled`          | Enable Auth deployment           | `true`              |
-| `auth.image.repository` | Auth image repository            | `"supabase/gotrue"` |
-| `auth.image.tag`        | Auth image tag                   | `"v2.176.1"`        |
+| `auth.image.repository` | Auth image repository            | `"supabase/auth"`   |
+| `auth.image.tag`        | Auth image tag                   | `"v2.178.0"`        |
 | `auth.image.pullPolicy` | Auth image pull policy           | `"IfNotPresent"`    |
 | `auth.service.type`     | Auth service type                | `"ClusterIP"`       |
 | `auth.service.port`     | Auth service port                | `9999`              |
@@ -281,11 +363,19 @@ The following table lists the configurable parameters of the Supabase chart and 
 | ----------------------- | -------------------------------- | ----------------------- |
 | `rest.enabled`          | Enable REST deployment           | `true`                  |
 | `rest.image.repository` | REST image repository            | `"postgrest/postgrest"` |
-| `rest.image.tag`        | REST image tag                   | `"v12.2.12"`            |
+| `rest.image.tag`        | REST image tag                   | `"v13.0.5"`            |
 | `rest.image.pullPolicy` | REST image pull policy           | `"IfNotPresent"`        |
 | `rest.service.type`     | REST service type                | `"ClusterIP"`           |
 | `rest.service.port`     | REST service port                | `3000`                  |
 | `rest.extraEnvVars`     | Additional environment variables | `[]`                    |
+
+#### REST Configuration
+
+| Parameter                    | Description                    | Default                           |
+| ---------------------------- | ------------------------------ | --------------------------------- |
+| `rest.config.dbSchemas`      | Database schemas to expose     | `"public,storage,graphql_public"` |
+| `rest.config.anonRole`       | Anonymous role                 | `"anon"`                          |
+| `rest.config.useLegacyGucs`  | Use legacy GUCs                | `false`                           |
 
 ### Realtime Configuration
 
@@ -293,11 +383,24 @@ The following table lists the configurable parameters of the Supabase chart and 
 | --------------------------- | -------------------------------- | --------------------- |
 | `realtime.enabled`          | Enable Realtime deployment       | `true`                |
 | `realtime.image.repository` | Realtime image repository        | `"supabase/realtime"` |
-| `realtime.image.tag`        | Realtime image tag               | `"v2.40.0"`           |
+| `realtime.image.tag`        | Realtime image tag               | `"v2.43.1"`           |
 | `realtime.image.pullPolicy` | Realtime image pull policy       | `"IfNotPresent"`      |
 | `realtime.service.type`     | Realtime service type            | `"ClusterIP"`         |
 | `realtime.service.port`     | Realtime service port            | `4000`                |
 | `realtime.extraEnvVars`     | Additional environment variables | `[]`                  |
+
+#### Realtime Configuration
+
+| Parameter                        | Description                    | Default                    |
+| -------------------------------- | ------------------------------ | -------------------------- |
+| `realtime.config.dbUser`        | Database user                  | `"supabase_admin"`         |
+| `realtime.config.afterConnectQuery` | Database after connect query | `"SET search_path TO _realtime"` |
+| `realtime.config.erlAflags`     | Erlang flags                  | `"-proto_dist inet_tcp"`   |
+| `realtime.config.dnsNodes`      | DNS nodes                     | `"''"`                     |
+| `realtime.config.rlimitNofile`  | File descriptor limit         | `"10000"`                  |
+| `realtime.config.appName`       | Application name              | `"realtime"`               |
+| `realtime.config.seedSelfHost`  | Seed self host                | `true`                     |
+| `realtime.config.runJanitor`    | Run janitor                   | `true`                     |
 
 ### Storage Configuration
 
@@ -305,7 +408,7 @@ The following table lists the configurable parameters of the Supabase chart and 
 | ----------------------------------- | -------------------------------- | ------------------------ |
 | `storage.enabled`                   | Enable Storage deployment        | `true`                   |
 | `storage.image.repository`          | Storage image repository         | `"supabase/storage-api"` |
-| `storage.image.tag`                 | Storage image tag                | `"v1.25.3"`              |
+| `storage.image.tag`                 | Storage image tag                | `"v1.26.4"`              |
 | `storage.image.pullPolicy`          | Storage image pull policy        | `"IfNotPresent"`         |
 | `storage.service.type`              | Storage service type             | `"ClusterIP"`            |
 | `storage.service.port`              | Storage service port             | `5000`                   |
@@ -316,17 +419,38 @@ The following table lists the configurable parameters of the Supabase chart and 
 | `storage.persistence.accessMode`    | Access mode                      | `"ReadWriteOnce"`        |
 | `storage.extraEnvVars`              | Additional environment variables | `[]`                     |
 
+#### Storage Configuration
+
+| Parameter                                    | Description                    | Default                    |
+| -------------------------------------------- | ------------------------------ | -------------------------- |
+| `storage.config.fileSizeLimit`               | File size limit in bytes       | `52428800`                 |
+| `storage.config.storageBackend`              | Storage backend type           | `"file"`                   |
+| `storage.config.fileStorageBackendPath`      | File storage backend path      | `"/var/lib/storage"`       |
+| `storage.config.tenantId`                    | Tenant ID                      | `"stub"`                   |
+| `storage.config.region`                      | Region                         | `"stub"`                   |
+| `storage.config.globalS3Bucket`              | Global S3 bucket               | `"stub"`                   |
+| `storage.config.enableImageTransformation`  | Enable image transformation     | `true`                     |
+
 ### Imgproxy Configuration
 
 | Parameter                   | Description                      | Default               |
 | --------------------------- | -------------------------------- | --------------------- |
 | `imgproxy.enabled`          | Enable Imgproxy deployment       | `true`                |
 | `imgproxy.image.repository` | Imgproxy image repository        | `"darthsim/imgproxy"` |
-| `imgproxy.image.tag`        | Imgproxy image tag               | `"v3.28.0"`           |
+| `imgproxy.image.tag`        | Imgproxy image tag               | `"v3.29.1"`           |
 | `imgproxy.image.pullPolicy` | Imgproxy image pull policy       | `"IfNotPresent"`      |
 | `imgproxy.service.type`     | Imgproxy service type            | `"ClusterIP"`         |
 | `imgproxy.service.port`     | Imgproxy service port            | `5001`                |
 | `imgproxy.extraEnvVars`     | Additional environment variables | `[]`                  |
+
+#### Imgproxy Configuration
+
+| Parameter                                    | Description                    | Default                    |
+| -------------------------------------------- | ------------------------------ | -------------------------- |
+| `imgproxy.config.bind`                       | Bind address and port          | `":5001"`                  |
+| `imgproxy.config.localFilesystemRoot`        | Local filesystem root          | `"/"`                      |
+| `imgproxy.config.useEtag`                    | Use ETag                       | `true`                     |
+| `imgproxy.config.enableWebpDetection`        | Enable WebP detection          | `true`                     |
 
 ### Meta Configuration
 
@@ -334,11 +458,19 @@ The following table lists the configurable parameters of the Supabase chart and 
 | ----------------------- | -------------------------------- | -------------------------- |
 | `meta.enabled`          | Enable Meta deployment           | `true`                     |
 | `meta.image.repository` | Meta image repository            | `"supabase/postgres-meta"` |
-| `meta.image.tag`        | Meta image tag                   | `"v0.91.0"`                |
+| `meta.image.tag`        | Meta image tag                   | `"v0.91.5"`                |
 | `meta.image.pullPolicy` | Meta image pull policy           | `"IfNotPresent"`           |
 | `meta.service.type`     | Meta service type                | `"ClusterIP"`              |
 | `meta.service.port`     | Meta service port                | `8080`                     |
 | `meta.extraEnvVars`     | Additional environment variables | `[]`                       |
+
+#### Meta Configuration
+
+| Parameter                    | Description                    | Default                    |
+| ---------------------------- | ------------------------------ | -------------------------- |
+| `meta.config.dbUser`         | Database user                  | `"supabase_admin"`         |
+| `meta.config.dbSchema`       | Database schema                | `"public"`                 |
+| `meta.config.dbSsl`          | Database SSL                   | `false`                    |
 
 ### Functions Configuration
 
@@ -346,16 +478,26 @@ The following table lists the configurable parameters of the Supabase chart and 
 | ------------------------------------- | -------------------------------- | ------------------------- |
 | `functions.enabled`                   | Enable Functions deployment      | `true`                    |
 | `functions.image.repository`          | Functions image repository       | `"supabase/edge-runtime"` |
-| `functions.image.tag`                 | Functions image tag              | `"v1.67.4"`               |
+| `functions.image.tag`                 | Functions image tag              | `"v1.69.2"`               |
 | `functions.image.pullPolicy`          | Functions image pull policy      | `"IfNotPresent"`          |
 | `functions.service.type`              | Functions service type           | `"ClusterIP"`             |
 | `functions.service.port`              | Functions service port           | `9000`                    |
-| `functions.persistence.enabled`       | Enable persistence               | `true`                    |
+| `functions.persistence.enabled`       | Enable persistence               | `false`                   |
 | `functions.persistence.size`          | Storage size                     | `"1Gi"`                   |
 | `functions.persistence.existingClaim` | Existing PVC claim name          | `""`                      |
 | `functions.persistence.storageClass`  | Storage class name               | `""`                      |
 | `functions.persistence.accessMode`    | Access mode                      | `"ReadWriteOnce"`         |
 | `functions.extraEnvVars`              | Additional environment variables | `[]`                      |
+
+#### Functions Configuration
+
+| Parameter                        | Description                    | Default                    |
+| -------------------------------- | ------------------------------ | -------------------------- |
+| `functions.config.dbUser`       | Database user                  | `"postgres"`               |
+| `functions.config.dbSchema`     | Database schema                | `"public"`                 |
+| `functions.config.dbSsl`        | Database SSL                   | `false`                    |
+| `functions.config.verifyJwt`    | Verify JWT                     | `true`                     |
+| `functions.config.mainService`  | Main service path for edge functions | `"/home/deno/functions/main"` |
 
 ### Analytics Configuration
 
@@ -374,13 +516,35 @@ The following table lists the configurable parameters of the Supabase chart and 
 | `analytics.persistence.accessMode`    | Access mode                      | `"ReadWriteOnce"`     |
 | `analytics.extraEnvVars`              | Additional environment variables | `[]`                  |
 
+#### Analytics Configuration
+
+| Parameter                                    | Description                    | Default                    |
+| -------------------------------------------- | ------------------------------ | -------------------------- |
+| `analytics.config.dbUser`                    | Database user                  | `"supabase_admin"`         |
+| `analytics.config.dbDatabase`                | Database name                  | `"_supabase"`              |
+| `analytics.config.dbSchema`                  | Database schema                | `"_analytics"`             |
+| `analytics.config.singleTenant`              | Single tenant mode             | `true`                     |
+| `analytics.config.supabaseMode`              | Supabase mode                  | `true`                     |
+| `analytics.config.minClusterSize`            | Minimum cluster size           | `1`                        |
+| `analytics.config.featureFlagOverride`       | Feature flag override          | `"multibackend=true"`      |
+
+#### Analytics Secret Configuration
+
+| Parameter                                    | Description                    | Default                    |
+| -------------------------------------------- | ------------------------------ | -------------------------- |
+| `analytics.logflarePublicAccessToken`        | Logflare public access token   | `""`                       |
+| `analytics.logflarePrivateAccessToken`       | Logflare private access token  | `""`                       |
+| `analytics.existingSecret`                   | Existing secret containing Logflare tokens | `""`        |
+| `analytics.secretKeys.logflarePublicAccessToken` | Public access token key in secret | `"logflare-public-access-token"` |
+| `analytics.secretKeys.logflarePrivateAccessToken` | Private access token key in secret | `"logflare-private-access-token"` |
+
 ### Database Configuration
 
 | Parameter                      | Description                                    | Default               |
 | ------------------------------ | ---------------------------------------------- | --------------------- |
 | `db.enabled`                   | Enable Database deployment                     | `true`                |
 | `db.postgres.image.repository` | Database image repository                      | `"supabase/postgres"` |
-| `db.postgres.image.tag`        | Database image tag                             | `"17.4.1.049"`        |
+| `db.postgres.image.tag`        | Database image tag                             | `"17.4.1.075"`        |
 | `db.postgres.image.pullPolicy` | Database image pull policy                     | `"IfNotPresent"`      |
 | `db.postgres.service.type`     | Database service type                          | `"ClusterIP"`         |
 | `db.postgres.service.port`     | Database service port                          | `5432`                |
@@ -392,33 +556,30 @@ The following table lists the configurable parameters of the Supabase chart and 
 | `db.postgres.existingSecret`   | Existing secret containing PostgreSQL password | `""`                  |
 | `db.postgres.secretKeys.userPasswordKey` | Key in existing secret for database password | `"password"`          |
 
+#### PgBouncer Configuration
+
+**Note:** You must deploy PgBouncer yourself. This configuration will configure the Supabase components to connect to your PgBouncer instance.
+
+| Parameter                    | Description                                    | Default               |
+| ---------------------------- | ---------------------------------------------- | --------------------- |
+| `db.pgbouncer.enabled`      | Enable PgBouncer connection configuration     | `false`               |
+| `db.pgbouncer.service.name` | PgBouncer service name                         | `""`                  |
+| `db.pgbouncer.service.namespace` | PgBouncer service namespace (if different from release namespace) | `""` |
+| `db.pgbouncer.service.port` | PgBouncer service port                         | `5432`                |
+
 ### Vector Configuration
 
 | Parameter                 | Description                      | Default             |
 | ------------------------- | -------------------------------- | ------------------- |
 | `vector.enabled`          | Enable Vector deployment         | `true`              |
 | `vector.image.repository` | Vector image repository          | `"timberio/vector"` |
-| `vector.image.tag`        | Vector image tag                 | `"0.47.X-alpine"`   |
+| `vector.image.tag`        | Vector image tag                 | `"0.49.X-alpine"`   |
 | `vector.image.pullPolicy` | Vector image pull policy         | `"IfNotPresent"`    |
 | `vector.service.type`     | Vector service type              | `"ClusterIP"`       |
 | `vector.service.port`     | Vector service port              | `9001`              |
 | `vector.extraEnvVars`     | Additional environment variables | `[]`                |
 
-### Supavisor Configuration
 
-| Parameter                          | Description                      | Default                |
-| ---------------------------------- | -------------------------------- | ---------------------- |
-| `supavisor.enabled`                | Enable Supavisor deployment      | `true`                 |
-| `supavisor.image.repository`       | Supavisor image repository       | `"supabase/supavisor"` |
-| `supavisor.image.tag`              | Supavisor image tag              | `"2.5.7"`              |
-| `supavisor.image.pullPolicy`       | Supavisor image pull policy      | `"IfNotPresent"`       |
-| `supavisor.service.type`           | Supavisor service type           | `"ClusterIP"`          |
-| `supavisor.service.port`           | Supavisor service port           | `4000`                 |
-| `supavisor.pooler.tenantId`        | Pooler tenant ID                 | `"default"`            |
-| `supavisor.pooler.defaultPoolSize` | Default pool size                | `20`                   |
-| `supavisor.pooler.maxClientConn`   | Maximum client connections       | `100`                  |
-| `supavisor.pooler.dbPoolSize`      | Database pool size               | `10`                   |
-| `supavisor.extraEnvVars`           | Additional environment variables | `[]`                   |
 
 ## Creating Required Secrets
 
@@ -464,5 +625,65 @@ Each component can be configured with:
 ## Additional Configuration
 
 Each component supports additional environment variables through the `extraEnvVars` parameter. These can be used to configure component-specific settings not covered by the default parameters.
-# Test commit to trigger version workflow
-# Test commit to trigger version workflow
+
+### Init Containers
+
+Most components support init containers through the `initContainers` parameter. This is useful for:
+
+- Waiting for dependencies (e.g., database)
+- Copying migration files
+- Running setup scripts
+- Health checks
+
+Example init container configuration:
+
+```yaml
+initContainers:
+  - name: wait-for-db
+    image: busybox:1.35
+    command: ['sh', '-c', 'until nc -z {{ include "supabase.fullname" . }}-db 5432; do echo waiting for database; sleep 2; done;']
+    resources:
+      requests:
+        cpu: 10m
+        memory: 16Mi
+      limits:
+        cpu: 100m
+        memory: 64Mi
+```
+
+### Security Context
+
+The chart provides comprehensive security context configuration at both global and component levels:
+
+- **Global defaults**: Applied to all components unless overridden
+- **Component-specific**: Can override global defaults for specific services
+- **Modern security**: Uses current Kubernetes security best practices
+
+### Resource Management
+
+Each component can be configured with resource requests and limits:
+
+```yaml
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+```
+
+### Ingress Configuration
+
+Studio, Kong, and Analytics support ingress configuration for external access:
+
+```yaml
+ingress:
+  enabled: true
+  ingressClassName: nginx
+  hostname: my-supabase.example.com
+  tls:
+    - hosts:
+        - my-supabase.example.com
+      secretName: my-supabase-tls
+```

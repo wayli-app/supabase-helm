@@ -82,7 +82,7 @@ spec:
                   name: {{ .Values.db.postgres.existingSecret | default (printf "%s-db-secret" (include "supabase.fullname" .)) }}
                   key: {{ .Values.db.postgres.secretKeys.userPasswordKey | default "password" }}
             - name: SUPABASE_DB_URL
-              value: "postgresql://{{ .Values.functions.config.dbUser }}:$(DB_PASSWORD)@{{- if .Values.supavisor.enabled }}{{ include "supabase.fullname" . }}-supavisor:5452{{- else }}{{ .Values.db.postgres.service.name | default (printf "%s-db" (include "supabase.fullname" .)) }}{{- if .Values.db.postgres.service.namespace }}.{{ .Values.db.postgres.service.namespace }}{{- end }}:{{- if .Values.supavisor.enabled }}5452{{- else }}{{ .Values.db.postgres.service.port }}{{- end }}{{- end }}/postgres"
+              value: "postgresql://{{ .Values.functions.config.dbUser }}:$(DB_PASSWORD)@{{- if .Values.db.pgbouncer.enabled }}{{ include "supabase.fullname" . }}-pgbouncer:{{ .Values.db.pgbouncer.service.port | default "5432" }}{{- else }}{{ .Values.db.postgres.service.name | default (printf "%s-db" (include "supabase.fullname" .)) }}{{- if .Values.db.postgres.service.namespace }}.{{ .Values.db.postgres.service.namespace }}{{- end }}:{{ .Values.db.postgres.service.port }}{{- end }}/postgres"
             - name: VERIFY_JWT
               value: {{ .Values.functions.config.verifyJwt | quote }}
             {{- with .Values.functions.extraEnvVars }}

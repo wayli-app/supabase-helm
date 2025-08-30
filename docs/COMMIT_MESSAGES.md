@@ -76,7 +76,6 @@ Scopes help categorize changes by component or service:
 - `vector` - Vector search
 - `imgproxy` - Image processing
 - `meta` - Metadata service
-- `supavisor` - Connection pooling
 
 ### Chart Components
 - `chart` - Chart configuration

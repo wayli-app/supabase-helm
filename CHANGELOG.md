@@ -293,7 +293,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Initial release of Supabase Helm Chart
-- PostgreSQL database with connection pooling via Supavisor
+- PostgreSQL database
 - Studio web-based management interface
 - Kong API Gateway for routing and authentication
 - Auth service for authentication and authorization

@@ -181,7 +181,3 @@ analytics:
 # Vector configuration
 vector:
   enabled: true
-
-# Supavisor configuration
-supavisor:
-  enabled: true

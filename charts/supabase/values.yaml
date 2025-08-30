@@ -1,7 +1,7 @@
 # Supabase Helm Chart - Implemented Services
 #
 # This chart implements the following Supabase services:
-# 1. Database (PostgreSQL) - Core database with connection pooling via Supavisor
+# 1. Database (PostgreSQL) - Core database
 # 2. Studio - Web-based management interface for Supabase
 # 3. Kong - API Gateway for routing and authentication
 # 4. Auth - Authentication and authorization service
@@ -13,7 +13,6 @@
 # 10. Functions - Edge functions for serverless compute
 # 11. Analytics - Analytics and monitoring service
 # 12. Vector - Vector search and similarity service
-# 13. Supavisor - Database connection pooling service
 #
 #
 
@@ -164,6 +163,18 @@ serviceAccount:
 # Database configuration
 db:
   enabled: true
+  # PgBouncer configuration. You must deploy pgbouncer yourself, and this will configure the Supabase components to connect to it.
+  pgbouncer:
+    # Enable PgBouncer deployment
+    enabled: false
+    # PgBouncer service configuration
+    service:
+      # Service name
+      name: ""
+      # Service namespace (if different from release namespace)
+      namespace: ""
+      # Service port
+      port: 5432
   postgres:
     # PostgreSQL image configuration
     image:
@@ -1114,7 +1125,7 @@ functions:
   # Functions-specific configuration
   config:
     # Database user
-    dbUser: "postgres"
+    dbUser: "supabase_admin"
     # Database schema
     dbSchema: "public"
     # Database SSL
@@ -1375,115 +1386,4 @@ vector:
   # Vector tolerations
   tolerations: []
 
-# Supavisor configuration
-supavisor:
-  # Enable Supavisor deployment
-  enabled: true
-  # Supavisor image configuration
-  image:
-    # Supavisor image repository
-    repository: supabase/supavisor
-    # Supavisor image tag
-    tag: 2.6.1
-    # Supavisor image pull policy
-    pullPolicy: IfNotPresent
-  # Supavisor image pull secrets
-  imagePullSecrets: ""
-  # Supavisor liveness probe
-  livenessProbe: {}
-  # Supavisor readiness probe
-  readinessProbe: {}
-  # Supavisor service account configuration
-  serviceAccount:
-    # Create a service account
-    create: true
-    # Annotations to add to the service account
-    annotations: {}
-    # The name of the service account to use
-    name: ""
-  # Supavisor service configuration
-  service:
-    # Supavisor service type
-    type: ClusterIP
-    # Supavisor service port
-    port: 4000
-  # Supavisor resource configuration
-  resources:
-    # Resource requests
-    requests:
-      cpu: 100m
-      memory: 128Mi
-    # Resource limits
-    limits:
-      cpu: 500m
-      memory: 512Mi
-  # Supavisor ingress configuration
-  ingress:
-    # Enable Supavisor ingress
-    enabled: false
-    # Ingress class name
-    ingressClassName: ""
-    # Additional ingress labels
-    labels: {}
-    # Additional ingress annotations
-    annotations: {}
-    # Supavisor hostname
-    hostname: supavisor.example.com
-    # Supavisor path
-    path: /
-    # Supavisor path type
-    pathType: Prefix
-    # Supavisor TLS configuration
-    tls:
-      - hosts:
-          - supavisor.example.com
-        secretName: supavisor-tls
-    # Additional ingress hosts
-    extraHosts: []
-    # Additional ingress paths
-    extraPaths: []
-    # Additional ingress rules
-    extraRules: []
-    # Additional TLS configurations
-    extraTls: []
-  # Supavisor pooler configuration
-  pooler:
-    # Pooler tenant ID
-    tenantId: default
-    # Default pool size
-    defaultPoolSize: 20
-    # Maximum client connections
-    maxClientConn: 100
-    # Database pool size
-    dbPoolSize: 10
-  # Supavisor environment variables
-  env:
-    # Region
-    region: local
-    # ERL AFLAGS
-    erlAflags: "-proto_dist inet_tcp"
-    # Pool mode
-    poolMode: transaction
-  # Additional environment variables
-  extraEnvVars: []
-  # Additional pod annotations
-  extraAnnotations: {}
-  # Supavisor node selector
-  nodeSelector: {}
-  # Supavisor affinity
-  affinity: {}
-  # Supavisor tolerations
-  tolerations: []
-  # Supavisor init containers configuration
-  initContainers: []
-  # Example init container configuration:
-  # - name: wait-for-db
-  #   image: busybox:1.35
-  #   command: ['sh', '-c', 'until nc -z {{ include "supabase.fullname" . }}-db 5432; do echo waiting for database; sleep 2; done;']
-  #   resources:
-  #     requests:
-  #       cpu: 10m
-  #       memory: 16Mi
-  #     limits:
-  #       cpu: 100m
-  #       memory: 64Mi
+

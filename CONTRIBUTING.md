@@ -242,7 +242,7 @@ We follow the [Conventional Commits](https://www.conventionalcommits.org/) speci
 
 #### Scopes
 Use scopes to categorize changes:
-- **Supabase Services**: `auth`, `db`, `storage`, `realtime`, `rest`, `kong`, `studio`, `functions`, `analytics`, `vector`, `imgproxy`, `meta`, `supavisor`
+- **Supabase Services**: `auth`, `db`, `storage`, `realtime`, `rest`, `kong`, `studio`, `functions`, `analytics`, `vector`, `imgproxy`, `meta`
 - **Chart Components**: `chart`, `templates`, `values`, `docs`, `ci`, `deps`, `release`, `security`, `test`, `lint`
 
 **Breaking Changes**: Use `BREAKING CHANGE:` in the commit body or footer to trigger a major version bump.

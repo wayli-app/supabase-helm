@@ -52,14 +52,18 @@ spec:
           env:
             - name: DB_HOST
               {{- if .Values.db.enabled }}
-              value: {{- if .Values.supavisor.enabled }}{{ include "supabase.fullname" . }}-supavisor{{- else }}{{ .Values.db.postgres.service.name | default (printf "%s-db" (include "supabase.fullname" .)) }}{{- if .Values.db.postgres.service.namespace }}.{{ .Values.db.postgres.service.namespace }}{{- end }}{{- end }}
+              {{- if .Values.db.pgbouncer.enabled }}
+              value: {{ .Values.db.pgbouncer.service.name | default (printf "%s-pgbouncer" (include "supabase.fullname" .)) | quote }}
+              {{- else }}
+              value: {{ .Values.db.postgres.service.name | default (printf "%s-db" (include "supabase.fullname" .)) }}{{- if .Values.db.postgres.service.namespace }}.{{ .Values.db.postgres.service.namespace }}{{- end }}
+              {{- end }}
               {{- else }}
               value: {{ .Values.analytics.config.dbHost | default "localhost" | quote }}
               {{- end }}
             - name: DB_USER
               value: {{ .Values.analytics.config.dbUser | quote }}
             - name: DB_PORT
-              value: {{- if .Values.supavisor.enabled }}5452{{- else }}{{ .Values.db.postgres.service.port | quote }}{{- end }}
+              value: {{ if .Values.db.pgbouncer.enabled }}{{ .Values.db.pgbouncer.service.port | default "5432" }}{{- else }}{{ .Values.db.postgres.service.port | quote }}{{- end }}
             - name: PGPASSWORD
               valueFrom:
                 secretKeyRef:
@@ -110,9 +114,13 @@ spec:
         - name: DB_DATABASE
           value: {{ .Values.analytics.config.dbDatabase | quote }}
         - name: DB_HOSTNAME
-          value: {{- if .Values.supavisor.enabled }}{{ include "supabase.fullname" . }}-supavisor{{- else }}{{ .Values.db.postgres.service.name | default (printf "%s-db" (include "supabase.fullname" .)) }}{{- if .Values.db.postgres.service.namespace }}.{{ .Values.db.postgres.service.namespace }}{{- end }}{{- end }}
+          {{- if .Values.db.pgbouncer.enabled }}
+          value: {{ include "supabase.fullname" . }}-pgbouncer
+          {{- else }}
+          value: {{ .Values.db.postgres.service.name | default (printf "%s-db" (include "supabase.fullname" .)) }}{{- if .Values.db.postgres.service.namespace }}.{{ .Values.db.postgres.service.namespace }}{{- end }}
+          {{- end }}
         - name: DB_PORT
-          value: {{- if .Values.supavisor.enabled }}5452{{- else }}{{ .Values.db.postgres.service.port | quote }}{{- end }}
+          value: {{ if .Values.db.pgbouncer.enabled }}{{ .Values.db.pgbouncer.service.port | default "5432" }}{{- else }}{{ .Values.db.postgres.service.port | quote }}{{- end }}
         - name: DB_PASSWORD
           valueFrom:
             secretKeyRef:
@@ -155,7 +163,7 @@ spec:
         - name: LOGFLARE_MIN_CLUSTER_SIZE
           value: {{ .Values.analytics.config.minClusterSize | quote }}
         - name: POSTGRES_BACKEND_URL
-          value: "postgresql://{{ .Values.analytics.config.dbUser }}:$(DB_PASSWORD)@{{- if .Values.supavisor.enabled }}{{ include "supabase.fullname" . }}-supavisor:5452{{- else }}{{ .Values.db.postgres.service.name | default (printf "%s-db" (include "supabase.fullname" .)) }}{{- if .Values.db.postgres.service.namespace }}.{{ .Values.db.postgres.service.namespace }}{{- end }}:{{- if .Values.supavisor.enabled }}5452{{- else }}{{ .Values.db.postgres.service.port }}{{- end }}{{- end }}/{{ .Values.analytics.config.dbDatabase }}"
+          value: "postgresql://{{ .Values.analytics.config.dbUser }}:$(DB_PASSWORD)@{{- if .Values.db.pgbouncer.enabled }}{{ include "supabase.fullname" . }}-pgbouncer:{{ .Values.db.pgbouncer.service.port | default 5432 }}{{- else }}{{ .Values.db.postgres.service.name | default (printf "%s-db" (include "supabase.fullname" .)) }}{{- if .Values.db.postgres.service.namespace }}.{{ .Values.db.postgres.service.namespace }}{{- end }}:{{ .Values.db.postgres.service.port }}{{- end }}/{{ .Values.analytics.config.dbDatabase }}"
         - name: POSTGRES_BACKEND_SCHEMA
           value: {{ .Values.analytics.config.dbSchema | quote }}
         - name: LOGFLARE_FEATURE_FLAG_OVERRIDE

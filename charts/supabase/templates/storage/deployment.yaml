@@ -88,7 +88,7 @@ spec:
               name: {{ .Values.db.postgres.existingSecret | default (printf "%s-db-secret" (include "supabase.fullname" .)) }}
               key: {{ .Values.db.postgres.secretKeys.userPasswordKey | default "password" }}
         - name: DATABASE_URL
-          value: "postgres://supabase_storage_admin:$(DB_PASSWORD)@{{- if .Values.supavisor.enabled }}{{ include "supabase.fullname" . }}-supavisor:5452{{- else }}{{ .Values.db.postgres.service.name | default (printf "%s-db" (include "supabase.fullname" .)) }}{{- if .Values.db.postgres.service.namespace }}.{{ .Values.db.postgres.service.namespace }}{{- end }}:{{- if .Values.supavisor.enabled }}5452{{- else }}{{ .Values.db.postgres.service.port }}{{- end }}{{- end }}/postgres"
+          value: "postgres://supabase_storage_admin:$(DB_PASSWORD)@{{- if .Values.db.pgbouncer.enabled }}{{ include "supabase.fullname" . }}-pgbouncer:{{ .Values.db.pgbouncer.service.port | default 5432 }}{{- else }}{{ .Values.db.postgres.service.name | default (printf "%s-db" (include "supabase.fullname" .)) }}{{- if .Values.db.postgres.service.namespace }}.{{ .Values.db.postgres.service.namespace }}{{- end }}:{{ .Values.db.postgres.service.port }}{{- end }}/postgres"
         - name: FILE_SIZE_LIMIT
           value: {{ .Values.storage.config.fileSizeLimit | quote }}
         - name: STORAGE_BACKEND
