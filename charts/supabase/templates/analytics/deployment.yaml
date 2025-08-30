@@ -41,11 +41,10 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.analytics.initContainers }}
       initContainers:
-        {{- toYaml . | nindent 8 }}
-      {{- else }}
-      initContainers:
+        {{- with .Values.analytics.initContainers }}
+          {{- toYaml . | nindent 8 }}
+        {{- else }}
         - name: init-db
           image: postgres:15-alpine
           imagePullPolicy: IfNotPresent
@@ -63,7 +62,7 @@ spec:
             - name: DB_USER
               value: {{ .Values.analytics.config.dbUser | quote }}
             - name: DB_PORT
-              value: {{ if .Values.db.pgbouncer.enabled }}{{ .Values.db.pgbouncer.service.port | default "5432" }}{{- else }}{{ .Values.db.postgres.service.port | quote }}{{- end }}
+              value: {{ if .Values.db.pgbouncer.enabled }}{{ .Values.db.pgbouncer.service.port | default "5432" | quote }}{{- else }}{{ .Values.db.postgres.service.port | quote }}{{- end }}
             - name: PGPASSWORD
               valueFrom:
                 secretKeyRef:
@@ -120,7 +119,7 @@ spec:
           value: {{ .Values.db.postgres.service.name | default (printf "%s-db" (include "supabase.fullname" .)) }}{{- if .Values.db.postgres.service.namespace }}.{{ .Values.db.postgres.service.namespace }}{{- end }}
           {{- end }}
         - name: DB_PORT
-          value: {{ if .Values.db.pgbouncer.enabled }}{{ .Values.db.pgbouncer.service.port | default "5432" }}{{- else }}{{ .Values.db.postgres.service.port | quote }}{{- end }}
+          value: {{ if .Values.db.pgbouncer.enabled }}{{ .Values.db.pgbouncer.service.port | default "5432" | quote }}{{- else }}{{ .Values.db.postgres.service.port | quote }}{{- end }}
         - name: DB_PASSWORD
           valueFrom:
             secretKeyRef:
