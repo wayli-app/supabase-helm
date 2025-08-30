@@ -109,7 +109,7 @@ spec:
         - name: DB_HOST
           value: {{ if .Values.db.pgbouncer.enabled }}{{ include "supabase.fullname" . }}-pgbouncer{{- else }}{{ .Values.db.postgres.service.name | default (printf "%s-db" (include "supabase.fullname" .)) }}{{- if .Values.db.postgres.service.namespace }}.{{ .Values.db.postgres.service.namespace }}{{- end }}{{- end }}
         - name: DB_PORT
-          value: {{ if .Values.db.pgbouncer.enabled }}{{ .Values.db.pgbouncer.service.port | default "5432" }}{{- else }}{{ .Values.db.postgres.service.port | quote }}{{- end }}
+          value: {{ if .Values.db.pgbouncer.enabled }}{{ .Values.db.pgbouncer.service.port | default "5432" | quote }}{{- else }}{{ .Values.db.postgres.service.port | quote }}{{- end }}
         - name: DB_USER
           value: {{ .Values.realtime.config.dbUser | quote }}
         - name: DB_PASSWORD
