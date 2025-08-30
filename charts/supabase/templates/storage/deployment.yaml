@@ -101,6 +101,10 @@ spec:
           value: {{ .Values.storage.config.region | quote }}
         - name: GLOBAL_S3_BUCKET
           value: {{ .Values.storage.config.globalS3Bucket | quote }}
+        {{- if .Values.storage.config.globalS3Endpoint }}
+        - name: GLOBAL_S3_ENDPOINT
+          value: {{ .Values.storage.config.globalS3Endpoint | quote }}
+        {{- end }}
         - name: ENABLE_IMAGE_TRANSFORMATION
           value: {{ .Values.storage.config.enableImageTransformation | quote }}
         - name: IMGPROXY_URL

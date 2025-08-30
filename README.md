@@ -315,6 +315,8 @@ The following table lists the configurable parameters of the Supabase chart and 
 | `studio.image.pullPolicy` | Studio image pull policy         | `"IfNotPresent"`           |
 | `studio.service.type`     | Studio service type              | `"ClusterIP"`              |
 | `studio.service.port`     | Studio service port              | `3000`                     |
+| `studio.service.name`     | Studio service name (optional, defaults to release-name-studio) | `""` |
+| `studio.service.namespace` | Studio service namespace (optional, for cross-namespace communication) | `""` |
 | `studio.podAnnotations`   | Additional pod annotations       | `{}`                       |
 | `studio.volumeMounts`     | Additional volume mounts         | `[]`                       |
 | `studio.volumes`          | Additional volumes               | `[]`                       |
@@ -323,6 +325,14 @@ The following table lists the configurable parameters of the Supabase chart and 
 | `studio.config.analyticsBackendProvider` | Analytics backend provider | `"postgres"`               |
 
 #### Studio Authentication Configuration
+
+| Parameter                                    | Description                                    | Default                    |
+| -------------------------------------------- | ---------------------------------------------- | -------------------------- |
+| `studio.config.auth.username`                | Studio username                               | `"supabase"`               |
+| `studio.config.auth.password`                | Studio password                               | `""`                       |
+| `studio.config.auth.existingSecret`          | Existing secret containing studio credentials | `""`                       |
+| `studio.config.auth.secretKeys.usernameKey`  | Username key in the secret                    | `"username"`               |
+| `studio.config.auth.secretKeys.passwordKey`  | Password key in the secret                    | `"password"`               |
 
 | Parameter                                    | Description                                    | Default                    |
 | -------------------------------------------- | ---------------------------------------------- | -------------------------- |
@@ -342,6 +352,8 @@ The following table lists the configurable parameters of the Supabase chart and 
 | `kong.service.httpPort`  | Kong HTTP port                            | `8000`           |
 | `kong.service.httpsPort` | Kong HTTPS port                           | `8443`           |
 | `kong.service.port`      | Kong service port (for backward compatibility) | `8000`           |
+| `kong.service.name`      | Kong service name (optional, defaults to release-name-kong) | `""` |
+| `kong.service.namespace` | Kong service namespace (optional, for cross-namespace communication) | `""` |
 | `kong.existingConfigMap` | Existing ConfigMap for Kong configuration | `""`             |
 | `kong.extraEnvVars`      | Additional environment variables          | `[]`             |
 
@@ -355,6 +367,8 @@ The following table lists the configurable parameters of the Supabase chart and 
 | `auth.image.pullPolicy` | Auth image pull policy           | `"IfNotPresent"`    |
 | `auth.service.type`     | Auth service type                | `"ClusterIP"`       |
 | `auth.service.port`     | Auth service port                | `9999`              |
+| `auth.service.name`     | Auth service name (optional, defaults to release-name-auth) | `""` |
+| `auth.service.namespace` | Auth service namespace (optional, for cross-namespace communication) | `""` |
 | `auth.extraEnvVars`     | Additional environment variables | `[]`                |
 
 ### REST Configuration
@@ -367,6 +381,8 @@ The following table lists the configurable parameters of the Supabase chart and 
 | `rest.image.pullPolicy` | REST image pull policy           | `"IfNotPresent"`        |
 | `rest.service.type`     | REST service type                | `"ClusterIP"`           |
 | `rest.service.port`     | REST service port                | `3000`                  |
+| `rest.service.name`     | REST service name (optional, defaults to release-name-rest) | `""` |
+| `rest.service.namespace` | REST service namespace (optional, for cross-namespace communication) | `""` |
 | `rest.extraEnvVars`     | Additional environment variables | `[]`                    |
 
 #### REST Configuration
@@ -376,6 +392,15 @@ The following table lists the configurable parameters of the Supabase chart and 
 | `rest.config.dbSchemas`      | Database schemas to expose     | `"public,storage,graphql_public"` |
 | `rest.config.anonRole`       | Anonymous role                 | `"anon"`                          |
 | `rest.config.useLegacyGucs`  | Use legacy GUCs                | `false`                           |
+
+#### REST Health Checks
+
+| Parameter                                    | Description                    | Default                    |
+| -------------------------------------------- | ------------------------------ | -------------------------- |
+| `rest.livenessProbe.httpGet.path`            | Liveness probe path            | `"/"`                       |
+| `rest.livenessProbe.httpGet.port`            | Liveness probe port            | `http`                      |
+| `rest.readinessProbe.httpGet.path`           | Readiness probe path           | `"/"`                       |
+| `rest.readinessProbe.httpGet.port`           | Readiness probe port           | `http`                      |
 
 ### Realtime Configuration
 
@@ -387,6 +412,8 @@ The following table lists the configurable parameters of the Supabase chart and 
 | `realtime.image.pullPolicy` | Realtime image pull policy       | `"IfNotPresent"`      |
 | `realtime.service.type`     | Realtime service type            | `"ClusterIP"`         |
 | `realtime.service.port`     | Realtime service port            | `4000`                |
+| `realtime.service.name`     | Realtime service name (optional, defaults to release-name-realtime) | `""` |
+| `realtime.service.namespace` | Realtime service namespace (optional, for cross-namespace communication) | `""` |
 | `realtime.extraEnvVars`     | Additional environment variables | `[]`                  |
 
 #### Realtime Configuration
@@ -412,12 +439,23 @@ The following table lists the configurable parameters of the Supabase chart and 
 | `storage.image.pullPolicy`          | Storage image pull policy        | `"IfNotPresent"`         |
 | `storage.service.type`              | Storage service type             | `"ClusterIP"`            |
 | `storage.service.port`              | Storage service port             | `5000`                   |
+| `storage.service.name`              | Storage service name (optional, defaults to release-name-storage) | `""` |
+| `storage.service.namespace`         | Storage service namespace (optional, for cross-namespace communication) | `""` |
 | `storage.persistence.enabled`       | Enable persistence               | `true`                   |
 | `storage.persistence.size`          | Storage size                     | `"10Gi"`                 |
 | `storage.persistence.existingClaim` | Existing PVC claim name          | `""`                     |
 | `storage.persistence.storageClass`  | Storage class name               | `""`                     |
 | `storage.persistence.accessMode`    | Access mode                      | `"ReadWriteOnce"`        |
 | `storage.extraEnvVars`              | Additional environment variables | `[]`                     |
+
+#### Storage Health Checks
+
+| Parameter                                    | Description                    | Default                    |
+| -------------------------------------------- | ------------------------------ | -------------------------- |
+| `storage.livenessProbe.httpGet.path`         | Liveness probe path            | `"/status"`                |
+| `storage.livenessProbe.httpGet.port`         | Liveness probe port            | `http`                     |
+| `storage.readinessProbe.httpGet.path`        | Readiness probe path           | `"/status"`                |
+| `storage.readinessProbe.httpGet.port`        | Readiness probe port           | `http`                     |
 
 #### Storage Configuration
 
@@ -426,10 +464,13 @@ The following table lists the configurable parameters of the Supabase chart and 
 | `storage.config.fileSizeLimit`               | File size limit in bytes       | `52428800`                 |
 | `storage.config.storageBackend`              | Storage backend type           | `"file"`                   |
 | `storage.config.fileStorageBackendPath`      | File storage backend path      | `"/var/lib/storage"`       |
-| `storage.config.tenantId`                    | Tenant ID                      | `"stub"`                   |
-| `storage.config.region`                      | Region                         | `"stub"`                   |
-| `storage.config.globalS3Bucket`              | Global S3 bucket               | `"stub"`                   |
+| `storage.config.tenantId`                    | Tenant ID                      | `""`                       |
+| `storage.config.region`                      | Region                         | `""`                       |
+| `storage.config.globalS3Bucket`              | Global S3 bucket               | `""`                       |
+| `storage.config.globalS3Endpoint`            | Global S3 endpoint             | `""`                       |
 | `storage.config.enableImageTransformation`  | Enable image transformation     | `true`                     |
+
+**Note:** For S3 storage, set the values for `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` in the `extraEnvVars` or create a secret with these credentials.
 
 ### Imgproxy Configuration
 
@@ -441,6 +482,8 @@ The following table lists the configurable parameters of the Supabase chart and 
 | `imgproxy.image.pullPolicy` | Imgproxy image pull policy       | `"IfNotPresent"`      |
 | `imgproxy.service.type`     | Imgproxy service type            | `"ClusterIP"`         |
 | `imgproxy.service.port`     | Imgproxy service port            | `5001`                |
+| `imgproxy.service.name`     | Imgproxy service name (optional, defaults to release-name-imgproxy) | `""` |
+| `imgproxy.service.namespace` | Imgproxy service namespace (optional, for cross-namespace communication) | `""` |
 | `imgproxy.extraEnvVars`     | Additional environment variables | `[]`                  |
 
 #### Imgproxy Configuration
@@ -452,6 +495,15 @@ The following table lists the configurable parameters of the Supabase chart and 
 | `imgproxy.config.useEtag`                    | Use ETag                       | `true`                     |
 | `imgproxy.config.enableWebpDetection`        | Enable WebP detection          | `true`                     |
 
+#### Imgproxy Health Checks
+
+| Parameter                                    | Description                    | Default                    |
+| -------------------------------------------- | ------------------------------ | -------------------------- |
+| `imgproxy.livenessProbe.httpGet.path`        | Liveness probe path            | `"/health"`                |
+| `imgproxy.livenessProbe.httpGet.port`        | Liveness probe port            | `5001`                     |
+| `imgproxy.readinessProbe.httpGet.path`       | Readiness probe path           | `"/health"`                |
+| `imgproxy.readinessProbe.httpGet.port`       | Readiness probe port           | `5001`                     |
+
 ### Meta Configuration
 
 | Parameter               | Description                      | Default                    |
@@ -462,6 +514,8 @@ The following table lists the configurable parameters of the Supabase chart and 
 | `meta.image.pullPolicy` | Meta image pull policy           | `"IfNotPresent"`           |
 | `meta.service.type`     | Meta service type                | `"ClusterIP"`              |
 | `meta.service.port`     | Meta service port                | `8080`                     |
+| `meta.service.name`     | Meta service name (optional, defaults to release-name-meta) | `""` |
+| `meta.service.namespace` | Meta service namespace (optional, for cross-namespace communication) | `""` |
 | `meta.extraEnvVars`     | Additional environment variables | `[]`                       |
 
 #### Meta Configuration
@@ -482,6 +536,8 @@ The following table lists the configurable parameters of the Supabase chart and 
 | `functions.image.pullPolicy`          | Functions image pull policy      | `"IfNotPresent"`          |
 | `functions.service.type`              | Functions service type           | `"ClusterIP"`             |
 | `functions.service.port`              | Functions service port           | `9000`                    |
+| `functions.service.name`              | Functions service name (optional, defaults to release-name-functions) | `""` |
+| `functions.service.namespace`         | Functions service namespace (optional, for cross-namespace communication) | `""` |
 | `functions.persistence.enabled`       | Enable persistence               | `false`                   |
 | `functions.persistence.size`          | Storage size                     | `"1Gi"`                   |
 | `functions.persistence.existingClaim` | Existing PVC claim name          | `""`                      |
@@ -493,11 +549,18 @@ The following table lists the configurable parameters of the Supabase chart and 
 
 | Parameter                        | Description                    | Default                    |
 | -------------------------------- | ------------------------------ | -------------------------- |
-| `functions.config.dbUser`       | Database user                  | `"postgres"`               |
+| `functions.config.dbUser`       | Database user                  | `"supabase_admin"`         |
 | `functions.config.dbSchema`     | Database schema                | `"public"`                 |
 | `functions.config.dbSsl`        | Database SSL                   | `false`                    |
 | `functions.config.verifyJwt`    | Verify JWT                     | `true`                     |
 | `functions.config.mainService`  | Main service path for edge functions | `"/home/deno/functions/main"` |
+
+#### Functions Volume Configuration
+
+| Parameter                                    | Description                    | Default                    |
+| -------------------------------------------- | ------------------------------ | -------------------------- |
+| `functions.extraVolumeMounts`                | Additional volume mounts       | `[]`                        |
+| `functions.extraVolumes`                     | Additional volumes             | `[]`                        |
 
 ### Analytics Configuration
 
@@ -509,6 +572,8 @@ The following table lists the configurable parameters of the Supabase chart and 
 | `analytics.image.pullPolicy`          | Analytics image pull policy      | `"IfNotPresent"`      |
 | `analytics.service.type`              | Analytics service type           | `"ClusterIP"`         |
 | `analytics.service.port`              | Analytics service port           | `4000`                |
+| `analytics.service.name`              | Analytics service name (optional, defaults to release-name-analytics) | `""` |
+| `analytics.service.namespace`         | Analytics service namespace (optional, for cross-namespace communication) | `""` |
 | `analytics.persistence.enabled`       | Enable persistence               | `true`                |
 | `analytics.persistence.size`          | Storage size                     | `"1Gi"`               |
 | `analytics.persistence.existingClaim` | Existing PVC claim name          | `""`                  |
@@ -548,6 +613,8 @@ The following table lists the configurable parameters of the Supabase chart and 
 | `db.postgres.image.pullPolicy` | Database image pull policy                     | `"IfNotPresent"`      |
 | `db.postgres.service.type`     | Database service type                          | `"ClusterIP"`         |
 | `db.postgres.service.port`     | Database service port                          | `5432`                |
+| `db.postgres.service.name`     | Database service name (optional, defaults to release-name-db) | `""` |
+| `db.postgres.service.namespace` | Database service namespace (optional, for cross-namespace communication) | `""` |
 | `db.postgres.persistence.enabled` | Enable persistence                             | `true`                |
 | `db.postgres.persistence.size` | Storage size                                   | `"10Gi"`              |
 | `db.postgres.persistence.existingClaim` | Existing PVC claim name                        | `""`                  |
@@ -577,6 +644,8 @@ The following table lists the configurable parameters of the Supabase chart and 
 | `vector.image.pullPolicy` | Vector image pull policy         | `"IfNotPresent"`    |
 | `vector.service.type`     | Vector service type              | `"ClusterIP"`       |
 | `vector.service.port`     | Vector service port              | `9001`              |
+| `vector.service.name`     | Vector service name (optional, defaults to release-name-vector) | `""` |
+| `vector.service.namespace` | Vector service namespace (optional, for cross-namespace communication) | `""` |
 | `vector.extraEnvVars`     | Additional environment variables | `[]`                |
 
 

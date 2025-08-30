@@ -860,11 +860,13 @@ storage:
     # File storage backend path
     fileStorageBackendPath: "/var/lib/storage"
     # Tenant ID
-    tenantId: "stub"
+    tenantId: ""
     # Region
-    region: "stub"
+    region: ""
     # Global S3 bucket
-    globalS3Bucket: "stub"
+    globalS3Bucket: ""
+    # Global S3 endpoint
+    globalS3Endpoint: ""
     # Enable image transformation
     enableImageTransformation: true
   # Storage persistence configuration
@@ -884,6 +886,7 @@ storage:
     # Mount path
     mountPath: /var/lib/storage
   # Additional environment variables
+  # Make sure to set the values for AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY in the secret if you want to use S3 storage.
   extraEnvVars: []
   # Additional pod annotations
   extraAnnotations: {}
