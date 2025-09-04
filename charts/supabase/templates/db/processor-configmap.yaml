@@ -37,6 +37,7 @@ data:
         # Process each SQL template
         templates_dir: Path = Path("/templates")
         init_dir: Path = Path("/docker-entrypoint-initdb.d/init-scripts")
+        init_dir.mkdir(parents=True, exist_ok=True)
 
         for template_file in templates_dir.glob("*.sql"):
             content: str = template_file.read_text()
