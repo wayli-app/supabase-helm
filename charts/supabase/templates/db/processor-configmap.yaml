@@ -1,0 +1,54 @@
+{{- if .Values.db.postgres.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "supabase.fullname" . }}-db-processor
+  namespace: {{ include "supabase.namespace" . }}
+  labels:
+    {{- include "supabase.labels" . | nindent 4 }}
+data:
+  process-sql.py: |
+    #!/usr/bin/env python3
+    import os
+    import sys
+    from pathlib import Path
+
+    def process_sql_template(template_content: str, substitutions: dict[str, str]) -> str:
+        """Replace placeholders in SQL template with actual values."""
+        for placeholder, value in substitutions.items():
+            template_content = template_content.replace("${" + placeholder + "}", value)
+        return template_content
+
+    def main() -> None:
+        """Main processing function."""
+        # Read environment variables
+        postgres_password: str = os.environ.get("POSTGRES_PASSWORD")
+        jwt_secret: str = os.environ.get("JWT_SECRET")
+        jwt_exp: str = os.environ.get("JWT_EXP")
+        postgres_user: str = os.environ.get("POSTGRES_USER")
+
+        substitutions: dict[str, str] = {
+            "POSTGRES_PASSWORD": postgres_password,
+            "JWT_SECRET": jwt_secret,
+            "JWT_EXP": jwt_exp,
+            "POSTGRES_USER": postgres_user,
+        }
+
+        # Process each SQL template
+        templates_dir: Path = Path("/templates")
+        init_dir: Path = Path("/docker-entrypoint-initdb.d")
+
+        for template_file in templates_dir.glob("*.sql"):
+            content: str = template_file.read_text()
+
+            processed_content: str = process_sql_template(content, substitutions)
+
+            # Write to init directory
+            output_file: Path = init_dir / template_file.name
+            output_file.write_text(processed_content)
+
+        print("SQL templates processed successfully", file=sys.stderr)
+
+    if __name__ == "__main__":
+        main()
+{{- end }}
