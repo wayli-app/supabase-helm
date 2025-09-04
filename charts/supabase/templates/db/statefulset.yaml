@@ -91,19 +91,47 @@ spec:
               name: initdb-scripts-data
         {{- end }}
         {{- end }}
+        - name: sql-processor
+          image: python:3-alpine
+          command: ["python3", "/scripts/process-sql.py"]
+          env:
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.db.postgres.existingSecret | default (printf "%s-db-secret" (include "supabase.fullname" .)) }}
+                  key: {{ .Values.db.postgres.secretKeys.userPasswordKey | default "password" }}
+            - name: POSTGRES_USER
+              value: supabase_admin
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.global.supabase.existingSecret | default (printf "%s-secret" (include "supabase.fullname" .)) }}
+                  key: {{ .Values.global.supabase.secretKeys.jwtSecret }}
+            - name: JWT_EXP
+              value: {{ .Values.global.supabase.jwtExpiry | quote }}
+          volumeMounts:
+            - name: sql-templates
+              mountPath: /templates
+            - name: initdb-scripts-data
+              mountPath: /docker-entrypoint-initdb.d
+            - name: processor-script
+              mountPath: /scripts
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              cpu: 100m
+              memory: 128Mi
         - name: init-db
           image: "{{ .Values.db.postgres.image.repository }}:{{ .Values.db.postgres.image.tag }}"
           imagePullPolicy: {{ .Values.db.postgres.image.pullPolicy }}
           command: ["/bin/sh", "-c"]
           args:
             - |
-              echo "Copying init scripts into existing image script directory..."
+              echo "Copying processed SQL files to init directory..."
               cp -r /docker-entrypoint-initdb.d/* /initdb.d/
-
-              echo "Copying SQL files from ConfigMap..."
-              mkdir -p /initdb.d/migrations
-              cp /custom-init-scripts/* /initdb.d/migrations/
-              echo "SQL files copied: $(ls /custom-init-scripts/)"
+              echo "SQL files copied: $(ls /initdb.d/)"
 
               echo "Checking for user-defined migration scripts..."
               if [ -d /custom-migrations ] && [ "$(ls -A /custom-migrations 2>/dev/null)" ]; then
@@ -115,8 +143,6 @@ spec:
               fi
               echo "Initialization scripts are ready"
           volumeMounts:
-            - mountPath: /custom-init-scripts
-              name: db-init-sql
             - mountPath: /custom-migrations
               name: custom-migrations
             - mountPath: /initdb.d
@@ -172,6 +198,12 @@ spec:
         - name: db-init-sql
           configMap:
             name: {{ include "supabase.fullname" . }}-db-init
+        - name: sql-templates
+          configMap:
+            name: {{ include "supabase.fullname" . }}-db-init
+        - name: processor-script
+          configMap:
+            name: {{ include "supabase.fullname" . }}-db-processor
         - name: initdb-scripts-data
           emptyDir: {}
         - name: custom-migrations
@@ -181,6 +213,12 @@ spec:
         - name: db-init-sql
           configMap:
             name: {{ include "supabase.fullname" . }}-db-init
+        - name: sql-templates
+          configMap:
+            name: {{ include "supabase.fullname" . }}-db-init
+        - name: processor-script
+          configMap:
+            name: {{ include "supabase.fullname" . }}-db-processor
         - name: initdb-scripts-data
           emptyDir: {}
         - name: custom-migrations

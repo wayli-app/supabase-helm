@@ -8,9 +8,7 @@ metadata:
     {{- include "supabase.labels" . | nindent 4 }}
 data:
   000000000000000-_supabase.sql: |
-    \set pguser `echo "$POSTGRES_USER"`
-
-    CREATE DATABASE _supabase WITH OWNER :pguser;
+    CREATE DATABASE _supabase WITH OWNER ${POSTGRES_USER};
 
   98-webhooks.sql: |
     BEGIN;
@@ -224,32 +222,23 @@ data:
 
   99-roles.sql: |
     -- NOTE: change to your own passwords for production environments
-    \set pgpass `echo "$POSTGRES_PASSWORD"`
-
-    ALTER USER authenticator WITH PASSWORD :'pgpass';
-    ALTER USER pgbouncer WITH PASSWORD :'pgpass';
-    ALTER USER supabase_auth_admin WITH PASSWORD :'pgpass';
-    ALTER USER supabase_functions_admin WITH PASSWORD :'pgpass';
-    ALTER USER supabase_storage_admin WITH PASSWORD :'pgpass';
+    ALTER USER authenticator WITH PASSWORD '${POSTGRES_PASSWORD}';
+    ALTER USER pgbouncer WITH PASSWORD '${POSTGRES_PASSWORD}';
+    ALTER USER supabase_auth_admin WITH PASSWORD '${POSTGRES_PASSWORD}';
+    ALTER USER supabase_functions_admin WITH PASSWORD '${POSTGRES_PASSWORD}';
+    ALTER USER supabase_storage_admin WITH PASSWORD '${POSTGRES_PASSWORD}';
 
   99-jwt.sql: |
-    \set jwt_secret `echo "$JWT_SECRET"`
-    \set jwt_exp `echo "$JWT_EXP"`
-
-    ALTER DATABASE postgres SET "app.settings.jwt_secret" TO :'jwt_secret';
-    ALTER DATABASE postgres SET "app.settings.jwt_exp" TO :'jwt_exp';
+    ALTER DATABASE postgres SET "app.settings.jwt_secret" TO '${JWT_SECRET}';
+    ALTER DATABASE postgres SET "app.settings.jwt_exp" TO '${JWT_EXP}';
 
   99-logs.sql: |
-    \set pguser `echo "$POSTGRES_USER"`
-
     \c _supabase
     create schema if not exists _analytics;
-    alter schema _analytics owner to :pguser;
+    alter schema _analytics owner to ${POSTGRES_USER};
     \c postgres
 
   99-realtime.sql: |
-    \set pguser `echo "$POSTGRES_USER"`
-
     create schema if not exists _realtime;
-    alter schema _realtime owner to :pguser;
+    alter schema _realtime owner to ${POSTGRES_USER};
 {{- end }}
