@@ -181,7 +181,7 @@ db:
       # PostgreSQL image repository
       repository: supabase/postgres
       # PostgreSQL image tag
-      tag: 17.4.1.075
+      tag: 17.6.1.012
       # PostgreSQL image pull policy
       pullPolicy: IfNotPresent
     # PostgreSQL image pull secrets
@@ -292,7 +292,7 @@ studio:
     # Studio image repository
     repository: supabase/studio
     # Studio image tag
-    tag: 2025.08.25-sha-72a94af
+    tag: 2025.10.01-sha-8460121
     # Studio image pull policy
     pullPolicy: IfNotPresent
   # Studio image pull secrets
@@ -558,7 +558,7 @@ auth:
     # Auth image repository
     repository: supabase/auth
     # Auth image tag
-    tag: v2.178.0
+    tag: v2.180.0
     # Auth image pull policy
     pullPolicy: IfNotPresent
   # Auth image pull secrets
@@ -624,7 +624,7 @@ rest:
     # REST image repository
     repository: postgrest/postgrest
     # REST image tag
-    tag: v13.0.5
+    tag: v13.0.7
     # REST image pull policy
     pullPolicy: IfNotPresent
   # REST image pull secrets
@@ -710,7 +710,7 @@ realtime:
     # Realtime image repository
     repository: supabase/realtime
     # Realtime image tag
-    tag: v2.43.1
+    tag: v2.51.15
     # Realtime image pull policy
     pullPolicy: IfNotPresent
   # Realtime image pull secrets
@@ -806,7 +806,7 @@ storage:
     # Storage image repository
     repository: supabase/storage-api
     # Storage image tag
-    tag: v1.26.4
+    tag: v1.28.0
     # Storage image pull policy
     pullPolicy: IfNotPresent
   # Storage image pull secrets
@@ -919,7 +919,7 @@ imgproxy:
     # Imgproxy image repository
     repository: darthsim/imgproxy
     # Imgproxy image tag
-    tag: v3.29.1
+    tag: v3.30.0
     # Imgproxy image pull policy
     pullPolicy: IfNotPresent
   # Imgproxy image pull secrets
@@ -994,7 +994,7 @@ meta:
     # Meta image repository
     repository: supabase/postgres-meta
     # Meta image tag
-    tag: v0.91.5
+    tag: v0.91.6
     # Meta image pull policy
     pullPolicy: IfNotPresent
   # Meta image pull secrets
@@ -1080,7 +1080,7 @@ functions:
     # Functions image repository
     repository: supabase/edge-runtime
     # Functions image tag
-    tag: v1.69.2
+    tag: v1.69.12
     # Functions image pull policy
     pullPolicy: IfNotPresent
   # Functions image pull secrets
@@ -1190,7 +1190,7 @@ analytics:
     # Analytics image repository
     repository: supabase/logflare
     # Analytics image tag
-    tag: 1.15.4
+    tag: 1.22.5
     # Analytics image pull policy
     pullPolicy: IfNotPresent
   # Analytics image pull secrets
@@ -1345,7 +1345,7 @@ vector:
     # Vector image repository
     repository: timberio/vector
     # Vector image tag
-    tag: 0.49.X-alpine
+    tag: 0.50.X-alpine
     # Vector image pull policy
     pullPolicy: IfNotPresent
   # Vector image pull secrets
@@ -1388,5 +1388,3 @@ vector:
   affinity: {}
   # Vector tolerations
   tolerations: []
-
-
