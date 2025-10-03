@@ -73,6 +73,8 @@ spec:
           value: {{ .Values.global.supabase.publicUrl | quote }}
         - name: GOTRUE_DB_DRIVER
           value: "postgres"
+        - name: DB_NAMESPACE
+          value: auth
         - name: DB_PASSWORD
           valueFrom:
             secretKeyRef:
