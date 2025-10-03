@@ -8,6 +8,17 @@ This Helm chart deploys a complete Supabase stack on Kubernetes.
 - Helm 3.2.0+
 - PV provisioner support in the underlying infrastructure
 
+## Important notes
+
+- The Supabase Auth service will fail to run its migrations, because of [this issue](https://github.com/supabase/auth/pull/2047).
+  You will have to run the following query on your database:
+  ```sql
+  create type auth.factor_type as enum('totp', 'webauthn');
+  create type auth.factor_status as enum('unverified', 'verified');
+  create type auth.aal_level as enum('aal1', 'aal2', 'aal3');
+  create type auth.code_challenge_method as enum('s256', 'plain');
+  ```
+
 ## Installing the Chart
 
 ### Method 1: From GitHub Container Registry (Recommended)

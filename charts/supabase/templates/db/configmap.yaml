@@ -225,7 +225,7 @@ data:
     ALTER USER authenticator WITH PASSWORD '${POSTGRES_PASSWORD}';
     ALTER USER pgbouncer WITH PASSWORD '${POSTGRES_PASSWORD}';
     ALTER USER supabase_auth_admin WITH PASSWORD '${POSTGRES_PASSWORD}';
-    ALTER ROLE supabase_auth_admin SET search_path TO auth,public;
+    ALTER ROLE supabase_auth_admin SET search_path TO auth, public;
     ALTER USER supabase_functions_admin WITH PASSWORD '${POSTGRES_PASSWORD}';
     ALTER USER supabase_storage_admin WITH PASSWORD '${POSTGRES_PASSWORD}';
 
