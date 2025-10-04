@@ -773,6 +773,8 @@ realtime:
     seedSelfHost: true
     # Run janitor
     runJanitor: true
+    # Tenant ID
+    tenantId: realtime-dev
   # Additional environment variables
   extraEnvVars: []
   # Additional pod annotations

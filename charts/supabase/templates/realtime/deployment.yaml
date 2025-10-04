@@ -154,7 +154,7 @@ spec:
               name: {{ .Values.global.supabase.existingSecret | default (printf "%s-secret" (include "supabase.fullname" .)) }}
               key: {{ .Values.global.supabase.secretKeys.anonKey }}
         - name: TENANT_ID
-          value: realtime-dev
+          value: {{ .Values.realtime.config.tenantId | default "realtime-dev" }}
         {{- with .Values.realtime.extraEnvVars }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
