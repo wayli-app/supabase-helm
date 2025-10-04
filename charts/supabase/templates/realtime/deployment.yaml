@@ -54,7 +54,7 @@ spec:
         livenessProbe:
           {{- if .Values.realtime.livenessProbe.httpGet }}
           httpGet:
-            path: {{ .Values.realtime.livenessProbe.httpGet.path | default "/api/tenants/supabase/health" }}
+            path: {{ .Values.realtime.livenessProbe.httpGet.path | default "/api/tenants/realtime-dev/health" }}
             port: {{ .Values.realtime.livenessProbe.httpGet.port | default "http" }}
             httpHeaders:
             - name: Authorization
@@ -77,7 +77,7 @@ spec:
         readinessProbe:
           {{- if .Values.realtime.readinessProbe.httpGet }}
           httpGet:
-            path: {{ .Values.realtime.readinessProbe.httpGet.path | default "/api/tenants/supabase/health" }}
+            path: {{ .Values.realtime.readinessProbe.httpGet.path | default "/api/tenants/realtime-dev/health" }}
             port: {{ .Values.realtime.readinessProbe.httpGet.port | default "http" }}
             httpHeaders:
             - name: Authorization
@@ -154,7 +154,7 @@ spec:
               name: {{ .Values.global.supabase.existingSecret | default (printf "%s-secret" (include "supabase.fullname" .)) }}
               key: {{ .Values.global.supabase.secretKeys.anonKey }}
         - name: TENANT_ID
-          value: supabase
+          value: realtime-dev
         {{- with .Values.realtime.extraEnvVars }}
         {{- toYaml . | nindent 8 }}
         {{- end }}

@@ -718,7 +718,7 @@ realtime:
   # Realtime liveness probe
   livenessProbe: {}
     # httpGet:
-    #   path: /api/tenants/supabase/health
+    #   path: /api/tenants/realtime-dev/health
     #   port: http
     # timeoutSeconds: 5
     # periodSeconds: 5
@@ -726,7 +726,7 @@ realtime:
   # Realtime readiness probe
   readinessProbe: {}
     # httpGet:
-    #   path: /api/tenants/supabase/health
+    #   path: /api/tenants/realtime-dev/health
     #   port: http
     # timeoutSeconds: 5
     # periodSeconds: 5
