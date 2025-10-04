@@ -157,8 +157,6 @@ data:
             protocols:
               - http
               - https
-              - ws
-              - wss
         plugins:
           - name: cors
           - name: key-auth
