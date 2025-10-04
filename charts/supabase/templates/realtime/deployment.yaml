@@ -52,12 +52,12 @@ spec:
         {{- if .Values.realtime.livenessProbe }}
         livenessProbe:
           {{- if .Values.realtime.livenessProbe.httpGet }}
-          httpGet:
-            path: {{ .Values.realtime.livenessProbe.httpGet.path | default "/api/tenants/realtime-dev/health" }}
-            port: {{ .Values.realtime.livenessProbe.httpGet.port | default "http" }}
-            httpHeaders:
-            - name: Authorization
-              value: "Bearer $(ANON_KEY)"
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - |
+              curl -f -H "Authorization: Bearer ${ANON_KEY}" http://localhost:4000{{ .Values.realtime.livenessProbe.httpGet.path | default "/api/tenants/realtime-dev/health" }}
           {{- end }}
           {{- if .Values.realtime.livenessProbe.timeoutSeconds }}
           timeoutSeconds: {{ .Values.realtime.livenessProbe.timeoutSeconds }}
@@ -75,12 +75,12 @@ spec:
         {{- if .Values.realtime.readinessProbe }}
         readinessProbe:
           {{- if .Values.realtime.readinessProbe.httpGet }}
-          httpGet:
-            path: {{ .Values.realtime.readinessProbe.httpGet.path | default "/api/tenants/realtime-dev/health" }}
-            port: {{ .Values.realtime.readinessProbe.httpGet.port | default "http" }}
-            httpHeaders:
-            - name: Authorization
-              value: "Bearer $(ANON_KEY)"
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - |
+              curl -f -H "Authorization: Bearer ${ANON_KEY}" http://localhost:4000{{ .Values.realtime.readinessProbe.httpGet.path | default "/api/tenants/realtime-dev/health" }}
           {{- end }}
           {{- if .Values.realtime.readinessProbe.timeoutSeconds }}
           timeoutSeconds: {{ .Values.realtime.readinessProbe.timeoutSeconds }}

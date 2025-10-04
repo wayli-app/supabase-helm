@@ -715,22 +715,6 @@ realtime:
     pullPolicy: IfNotPresent
   # Realtime image pull secrets
   imagePullSecrets: ""
-  # Realtime liveness probe
-  livenessProbe:
-    httpGet:
-      path: /api/tenants/realtime-dev/health
-      port: http
-    timeoutSeconds: 5
-    periodSeconds: 5
-    failureThreshold: 3
-  # Realtime readiness probe
-  readinessProbe:
-    httpGet:
-      path: /api/tenants/realtime-dev/health
-      port: http
-    timeoutSeconds: 5
-    periodSeconds: 5
-    failureThreshold: 3
   # Realtime service account configuration
   serviceAccount:
     # Create a service account
