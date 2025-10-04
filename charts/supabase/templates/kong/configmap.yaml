@@ -154,6 +154,11 @@ data:
             strip_path: true
             paths:
               - /realtime/v1/
+            protocols:
+              - http
+              - https
+              - ws
+              - wss
         plugins:
           - name: cors
           - name: key-auth
