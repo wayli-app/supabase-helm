@@ -118,6 +118,8 @@ spec:
               key: {{ .Values.db.postgres.secretKeys.userPasswordKey }}
         - name: DB_NAME
           value: "postgres"
+        - name: DB_SSL
+          value: "false"
         - name: DB_AFTER_CONNECT_QUERY
           value: {{ .Values.realtime.config.afterConnectQuery | quote }}
         - name: DB_ENC_KEY
@@ -152,8 +154,8 @@ spec:
             secretKeyRef:
               name: {{ .Values.global.supabase.existingSecret | default (printf "%s-secret" (include "supabase.fullname" .)) }}
               key: {{ .Values.global.supabase.secretKeys.anonKey }}
-        - name: TENANT_ID
-          value: {{ .Values.realtime.config.tenantId | default "realtime-dev" }}
+        - name: SELF_HOST_TENANT_NAME
+          value: {{ .Values.realtime.config.tenantId | default "%s-realtime" (include "supabase.fullname" . ) }}
         {{- with .Values.realtime.extraEnvVars }}
         {{- toYaml . | nindent 8 }}
         {{- end }}

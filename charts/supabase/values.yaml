@@ -757,8 +757,8 @@ realtime:
     seedSelfHost: true
     # Run janitor
     runJanitor: true
-    # Tenant ID
-    tenantId: realtime-dev
+    # Tenant Name
+    tenantName: supabase-realtime
   # Additional environment variables
   extraEnvVars: []
   # Additional pod annotations
