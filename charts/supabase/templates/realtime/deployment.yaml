@@ -154,6 +154,8 @@ spec:
             secretKeyRef:
               name: {{ .Values.global.supabase.existingSecret | default (printf "%s-secret" (include "supabase.fullname" .)) }}
               key: {{ .Values.global.supabase.secretKeys.anonKey }}
+        # This value important and must be the same as the service name.
+        # Don't ask me why.
         - name: SELF_HOST_TENANT_NAME
           value: {{ .Values.realtime.config.tenantName | default (printf "%s-realtime" (include "supabase.fullname" . )) }}
         {{- with .Values.realtime.extraEnvVars }}
