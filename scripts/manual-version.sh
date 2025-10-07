@@ -6,7 +6,6 @@
 set -e
 
 CHART_FILE="charts/supabase/Chart.yaml"
-CHANGELOG_FILE="CHANGELOG.md"
 
 # Colors for output
 RED='\033[0;31m'

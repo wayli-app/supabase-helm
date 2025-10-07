@@ -271,37 +271,37 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Update CHANGELOG
-        run: |
-          NEW_VERSION="${{ needs.version.outputs.new_version }}"
-          TODAY=$(date +%Y-%m-%d)
+      # - name: Update CHANGELOG
+      #   run: |
+      #     NEW_VERSION="${{ needs.version.outputs.new_version }}"
+      #     TODAY=$(date +%Y-%m-%d)
 
-          # Get commits since last tag
-          PREVIOUS_TAG=$(git describe --tags --abbrev=0 HEAD~1 2>/dev/null || echo "")
-          if [ -n "$PREVIOUS_TAG" ]; then
-            COMMITS=$(git log --pretty=format:"- %s" $PREVIOUS_TAG..HEAD)
-          else
-            COMMITS=$(git log --pretty=format:"- %s" HEAD)
-          fi
+      #     # Get commits since last tag
+      #     PREVIOUS_TAG=$(git describe --tags --abbrev=0 HEAD~1 2>/dev/null || echo "")
+      #     if [ -n "$PREVIOUS_TAG" ]; then
+      #       COMMITS=$(git log --pretty=format:"- %s" $PREVIOUS_TAG..HEAD)
+      #     else
+      #       COMMITS=$(git log --pretty=format:"- %s" HEAD)
+      #     fi
 
-          # Create a temporary file with the new changelog entry
-          cat > /tmp/new_changelog_entry.md << 'EOF'
-          ## [$NEW_VERSION] - $TODAY
+      #     # Create a temporary file with the new changelog entry
+      #     cat > /tmp/new_changelog_entry.md << 'EOF'
+      #     ## [$NEW_VERSION] - $TODAY
 
-          $COMMITS
+      #     $COMMITS
 
-          EOF
+      #     EOF
 
-          # Insert the new entry after line 2 (after the header)
-          head -n 2 CHANGELOG.md > /tmp/changelog_header.md
-          tail -n +3 CHANGELOG.md > /tmp/changelog_body.md
-          cat /tmp/changelog_header.md /tmp/new_changelog_entry.md /tmp/changelog_body.md > CHANGELOG.md
+      #     # Insert the new entry after line 2 (after the header)
+      #     head -n 2 CHANGELOG.md > /tmp/changelog_header.md
+      #     tail -n +3 CHANGELOG.md > /tmp/changelog_body.md
+      #     cat /tmp/changelog_header.md /tmp/new_changelog_entry.md /tmp/changelog_body.md > CHANGELOG.md
 
-          echo "CHANGELOG.md updated with new version $NEW_VERSION"
+      #     echo "CHANGELOG.md updated with new version $NEW_VERSION"
 
-      - name: Commit and Push CHANGELOG
-        run: |
-          git add CHANGELOG.md
-          git commit -m "docs: update changelog for version ${{ needs.version.outputs.new_version }}"
-          git push origin main
-          echo "CHANGELOG.md updated and committed for version ${{ needs.version.outputs.new_version }}"
+      # - name: Commit and Push CHANGELOG
+      #   run: |
+      #     git add CHANGELOG.md
+      #     git commit -m "docs: update changelog for version ${{ needs.version.outputs.new_version }}"
+      #     git push origin main
+      #     echo "CHANGELOG.md updated and committed for version ${{ needs.version.outputs.new_version }}"

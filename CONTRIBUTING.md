@@ -341,24 +341,18 @@ We use semantic versioning (MAJOR.MINOR.PATCH):
    ./scripts/manual-version.sh patch  # or minor/major
    ```
 
-3. **Update changelog**
-   - Changelog is updated automatically by the versioning workflow
-   - For manual changes, add entries to CHANGELOG.md
-   - Document breaking changes
-   - List new features and fixes
-
-4. **Create release branch**
+3. **Create release branch**
    ```bash
    git checkout -b release/v1.2.3
    git push origin release/v1.2.3
    ```
 
-5. **Create pull request**
+4. **Create pull request**
    - Review changes
    - Run tests
    - Get approval
 
-6. **Merge and release**
+5. **Merge and release**
    - GitHub Actions will automatically create a release
    - Update Helm repository index
 

@@ -55,7 +55,7 @@ version_ignore_files:
   - "CONTRIBUTING.md"
   - "SECURITY.md"
   - "CODE_OF_CONDUCT.md"
-  - "CHANGELOG.md"
+  # - "CHANGELOG.md"
   - "README.md"
 
 # Changelog configuration

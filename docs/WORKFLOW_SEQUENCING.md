@@ -21,7 +21,6 @@ The Helm chart release process consists of two main workflows that run in sequen
 - Analyzes commit messages and PR labels
 - Determines version bump type (major/minor/patch)
 - Updates `charts/supabase/Chart.yaml` version
-- Updates `CHANGELOG.md` with new version entry
 - **Creates and pushes Git tag** (e.g., `v0.7.4`)
 - Creates GitHub release
 
@@ -72,7 +71,6 @@ GitHub Pages updated
 2. **Version workflow starts** (within ~1 minute)
 3. **Version workflow completes**:
    - Chart.yaml updated to 0.7.4
-   - CHANGELOG.md updated
    - Git tag `v0.7.4` created and pushed
 4. **Release workflow starts** (triggered by tag push)
 5. **Release workflow completes**:

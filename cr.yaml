@@ -79,7 +79,7 @@ license_file: LICENSE
 maintainers_file: MAINTAINERS
 
 # The changelog file name
-changelog_file: CHANGELOG.md
+# changelog_file: CHANGELOG.md
 
 # The security file name
 security_file: SECURITY.md
