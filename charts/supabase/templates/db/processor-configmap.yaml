@@ -39,15 +39,15 @@ data:
 
         # Process each SQL template
         templates_dir: Path = Path("/templates")
-        init_dir: Path = Path("/docker-entrypoint-initdb.d/init-scripts")
-        init_dir.mkdir(parents=True, exist_ok=True)
+        migrations_dir: Path = Path("/docker-entrypoint-initdb.d/migrations")
+        migrations_dir.mkdir(parents=True, exist_ok=True)
 
         for template_file in templates_dir.glob("*.sql"):
             content: str = template_file.read_text()
             processed_content: str = process_sql_template(content, substitutions)
 
             # Write to init directory
-            output_file: Path = init_dir / template_file.name
+            output_file: Path = migrations_dir / template_file.name
             output_file.write_text(processed_content)
             print(f"Saved to {output_file}")
 
