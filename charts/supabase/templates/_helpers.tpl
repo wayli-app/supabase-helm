@@ -120,9 +120,10 @@ Create security context template for pods
 {{- $component := .component -}}
 {{- $Values := .Values -}}
 {{- $securityContext := dict -}}
-{{- if (index $Values $component).securityContext.pod }}
-  {{- $securityContext = (index $Values $component).securityContext.pod }}
-{{- else if $Values.global.securityContext.pod }}
+{{- $componentValues := index $Values $component -}}
+{{- if and $componentValues (hasKey $componentValues "securityContext") $componentValues.securityContext.pod }}
+  {{- $securityContext = $componentValues.securityContext.pod }}
+{{- else if and $Values.global (hasKey $Values.global "securityContext") $Values.global.securityContext.pod }}
   {{- $securityContext = $Values.global.securityContext.pod }}
 {{- end }}
 {{- if $securityContext }}
@@ -163,9 +164,10 @@ Create security context template for containers
 {{- $component := .component -}}
 {{- $Values := .Values -}}
 {{- $securityContext := dict -}}
-{{- if (index $Values $component).securityContext.container }}
-  {{- $securityContext = (index $Values $component).securityContext.container }}
-{{- else if $Values.global.securityContext.container }}
+{{- $componentValues := index $Values $component -}}
+{{- if and $componentValues (hasKey $componentValues "securityContext") $componentValues.securityContext.container }}
+  {{- $securityContext = $componentValues.securityContext.container }}
+{{- else if and $Values.global (hasKey $Values.global "securityContext") $Values.global.securityContext.container }}
   {{- $securityContext = $Values.global.securityContext.container }}
 {{- end }}
 {{- if $securityContext }}
@@ -254,3 +256,38 @@ spec:
   {{- end }}
 {{- end }}
 {{- end }}
+
+{{/*
+Create image reference with optional global imageRegistry prefix
+Usage: {{ include "supabase.image" (dict "imageRoot" .Values.component.image "global" .Values.global) }}
+*/}}
+{{- define "supabase.image" -}}
+{{- $imageRoot := .imageRoot -}}
+{{- $global := .global -}}
+{{- $registry := "" -}}
+{{- if $global.imageRegistry -}}
+  {{- $registry = printf "%s/" $global.imageRegistry -}}
+{{- end -}}
+{{- printf "%s%s:%s" $registry $imageRoot.repository $imageRoot.tag -}}
+{{- end -}}
+
+{{/*
+Return the proper imagePullSecrets
+Usage: {{ include "supabase.imagePullSecrets" (dict "component" .Values.component "global" .Values.global) }}
+*/}}
+{{- define "supabase.imagePullSecrets" -}}
+{{- $component := .component -}}
+{{- $global := .global -}}
+{{- $pullSecrets := list -}}
+
+{{- if $component.imagePullSecrets -}}
+  {{- $pullSecrets = $component.imagePullSecrets -}}
+{{- else if $global.imagePullSecrets -}}
+  {{- $pullSecrets = $global.imagePullSecrets -}}
+{{- end -}}
+
+{{- if $pullSecrets -}}
+imagePullSecrets:
+  {{- toYaml $pullSecrets | nindent 2 -}}
+{{- end -}}
+{{- end -}}

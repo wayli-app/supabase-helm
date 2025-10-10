@@ -22,9 +22,8 @@ spec:
         app.kubernetes.io/component: analytics
         supabaseComponent: {{ include "supabase.fullname" . }}-analytics
     spec:
-      {{- if .Values.analytics.imagePullSecrets }}
-      imagePullSecrets:
-        {{- toYaml .Values.analytics.imagePullSecrets | nindent 8 }}
+      {{- with (include "supabase.imagePullSecrets" (dict "component" .Values.analytics "global" .Values.global)) }}
+      {{ . | nindent 6 }}
       {{- end }}
       {{- if .Values.analytics.serviceAccount.create }}
       serviceAccountName: {{ .Values.analytics.serviceAccount.name | default (printf "%s-analytics" (include "supabase.fullname" .)) }}
@@ -84,10 +83,18 @@ spec:
               cpu: 100m
               memory: 128Mi
       {{- end }}
+      {{- with (include "supabase.podSecurityContext" (dict "component" "analytics" "Values" .Values)) }}
+      securityContext:
+        {{- . }}
+      {{- end }}
       containers:
       - name: analytics
-        image: "{{ .Values.analytics.image.repository }}:{{ .Values.analytics.image.tag }}"
+        image: "{{ include "supabase.image" (dict "imageRoot" .Values.analytics.image "global" .Values.global) }}"
         imagePullPolicy: {{ .Values.analytics.image.pullPolicy }}
+        {{- with (include "supabase.containerSecurityContext" (dict "component" "analytics" "Values" .Values)) }}
+        securityContext:
+          {{- . }}
+        {{- end }}
         {{- with .Values.analytics.livenessProbe }}
         livenessProbe:
           {{- toYaml . | nindent 10 }}

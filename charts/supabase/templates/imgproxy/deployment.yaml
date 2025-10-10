@@ -22,9 +22,8 @@ spec:
         app.kubernetes.io/component: imgproxy
         supabaseComponent: {{ include "supabase.fullname" . }}-imgproxy
     spec:
-      {{- if .Values.imgproxy.imagePullSecrets }}
-      imagePullSecrets:
-        {{- toYaml .Values.imgproxy.imagePullSecrets | nindent 8 }}
+      {{- with (include "supabase.imagePullSecrets" (dict "component" .Values.imgproxy "global" .Values.global)) }}
+      {{ . | nindent 6 }}
       {{- end }}
       {{- if .Values.imgproxy.serviceAccount.create }}
       serviceAccountName: {{ .Values.imgproxy.serviceAccount.name | default (printf "%s-imgproxy" (include "supabase.fullname" .)) }}
@@ -41,10 +40,18 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- with (include "supabase.podSecurityContext" (dict "component" "imgproxy" "Values" .Values)) }}
+      securityContext:
+        {{- . }}
+      {{- end }}
       containers:
       - name: imgproxy
-        image: "{{ .Values.imgproxy.image.repository }}:{{ .Values.imgproxy.image.tag }}"
+        image: "{{ include "supabase.image" (dict "imageRoot" .Values.imgproxy.image "global" .Values.global) }}"
         imagePullPolicy: {{ .Values.imgproxy.image.pullPolicy }}
+        {{- with (include "supabase.containerSecurityContext" (dict "component" "imgproxy" "Values" .Values)) }}
+        securityContext:
+          {{- . }}
+        {{- end }}
         {{- with .Values.imgproxy.livenessProbe }}
         livenessProbe:
           {{- toYaml . | nindent 10 }}

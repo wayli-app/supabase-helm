@@ -22,9 +22,8 @@ spec:
         app.kubernetes.io/component: kong
         supabaseComponent: {{ include "supabase.fullname" . }}-kong
     spec:
-      {{- if .Values.kong.imagePullSecrets }}
-      imagePullSecrets:
-        {{- toYaml .Values.kong.imagePullSecrets | nindent 8 }}
+      {{- with (include "supabase.imagePullSecrets" (dict "component" .Values.kong "global" .Values.global)) }}
+      {{ . | nindent 6 }}
       {{- end }}
       {{- if .Values.kong.serviceAccount.create }}
       serviceAccountName: {{ .Values.kong.serviceAccount.name | default (printf "%s-kong" (include "supabase.fullname" .)) }}
@@ -51,7 +50,7 @@ spec:
       {{- end }}
       containers:
       - name: kong
-        image: "{{ .Values.kong.image.repository }}:{{ .Values.kong.image.tag }}"
+        image: "{{ include "supabase.image" (dict "imageRoot" .Values.kong.image "global" .Values.global) }}"
         imagePullPolicy: {{ .Values.kong.image.pullPolicy }}
         command: ["/bin/bash", "/etc/kong/wrapper.sh"]
         {{- with (include "supabase.containerSecurityContext" (dict "component" "kong" "Values" .Values)) }}

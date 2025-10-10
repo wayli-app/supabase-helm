@@ -25,10 +25,18 @@ spec:
       {{- if .Values.vector.serviceAccount.create }}
       serviceAccountName: {{ .Values.vector.serviceAccount.name | default "default" }}
       {{- end }}
+      {{- with (include "supabase.podSecurityContext" (dict "component" "vector" "Values" .Values)) }}
+      securityContext:
+        {{- . }}
+      {{- end }}
       containers:
         - name: vector
-          image: "{{ .Values.vector.image.repository }}:{{ .Values.vector.image.tag }}"
+          image: "{{ include "supabase.image" (dict "imageRoot" .Values.vector.image "global" .Values.global) }}"
           imagePullPolicy: {{ .Values.vector.image.pullPolicy }}
+          {{- with (include "supabase.containerSecurityContext" (dict "component" "vector" "Values" .Values)) }}
+          securityContext:
+            {{- . }}
+          {{- end }}
           env:
             - name: VECTOR_CONFIG
               value: /etc/vector/vector.yaml

@@ -26,9 +26,8 @@ spec:
         app.kubernetes.io/component: studio
         supabaseComponent: {{ include "supabase.fullname" . }}-studio
     spec:
-      {{- if .Values.studio.imagePullSecrets }}
-      imagePullSecrets:
-        {{- toYaml .Values.studio.imagePullSecrets | nindent 8 }}
+      {{- with (include "supabase.imagePullSecrets" (dict "component" .Values.studio "global" .Values.global)) }}
+      {{ . | nindent 6 }}
       {{- end }}
       {{- if .Values.studio.serviceAccount.create }}
       serviceAccountName: {{ .Values.studio.serviceAccount.name | default (printf "%s-studio" (include "supabase.fullname" .)) }}
@@ -55,7 +54,7 @@ spec:
       {{- end }}
       containers:
         - name: studio
-          image: {{ .Values.studio.image.repository }}:{{ .Values.studio.image.tag }}
+          image: "{{ include "supabase.image" (dict "imageRoot" .Values.studio.image "global" .Values.global) }}"
           imagePullPolicy: {{ .Values.studio.image.pullPolicy }}
           {{- with (include "supabase.containerSecurityContext" (dict "component" "studio" "Values" .Values)) }}
           securityContext:

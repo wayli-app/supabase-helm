@@ -22,9 +22,8 @@ spec:
         app.kubernetes.io/component: storage
         supabaseComponent: {{ include "supabase.fullname" . }}-storage
     spec:
-      {{- if .Values.storage.imagePullSecrets }}
-      imagePullSecrets:
-        {{- toYaml .Values.storage.imagePullSecrets | nindent 8 }}
+      {{- with (include "supabase.imagePullSecrets" (dict "component" .Values.storage "global" .Values.global)) }}
+      {{ . | nindent 6 }}
       {{- end }}
       {{- if .Values.storage.serviceAccount.create }}
       serviceAccountName: {{ .Values.storage.serviceAccount.name | default (printf "%s-storage" (include "supabase.fullname" .)) }}
@@ -45,10 +44,18 @@ spec:
       initContainers:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- with (include "supabase.podSecurityContext" (dict "component" "storage" "Values" .Values)) }}
+      securityContext:
+        {{- . }}
+      {{- end }}
       containers:
       - name: storage
-        image: "{{ .Values.storage.image.repository }}:{{ .Values.storage.image.tag }}"
+        image: "{{ include "supabase.image" (dict "imageRoot" .Values.storage.image "global" .Values.global) }}"
         imagePullPolicy: {{ .Values.storage.image.pullPolicy }}
+        {{- with (include "supabase.containerSecurityContext" (dict "component" "storage" "Values" .Values)) }}
+        securityContext:
+          {{- . }}
+        {{- end }}
         {{- with .Values.storage.livenessProbe }}
         livenessProbe:
           {{- toYaml . | nindent 10 }}

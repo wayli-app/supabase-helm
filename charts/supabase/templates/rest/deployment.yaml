@@ -22,9 +22,8 @@ spec:
         app.kubernetes.io/component: rest
         supabaseComponent: {{ include "supabase.fullname" . }}-rest
     spec:
-      {{- if .Values.rest.imagePullSecrets }}
-      imagePullSecrets:
-        {{- toYaml .Values.rest.imagePullSecrets | nindent 8 }}
+      {{- with (include "supabase.imagePullSecrets" (dict "component" .Values.rest "global" .Values.global)) }}
+      {{ . | nindent 6 }}
       {{- end }}
       {{- if .Values.rest.serviceAccount.create }}
       serviceAccountName: {{ .Values.rest.serviceAccount.name | default (printf "%s-rest" (include "supabase.fullname" .)) }}
@@ -45,10 +44,18 @@ spec:
       initContainers:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- with (include "supabase.podSecurityContext" (dict "component" "rest" "Values" .Values)) }}
+      securityContext:
+        {{- . }}
+      {{- end }}
       containers:
       - name: rest
-        image: "{{ .Values.rest.image.repository }}:{{ .Values.rest.image.tag }}"
+        image: "{{ include "supabase.image" (dict "imageRoot" .Values.rest.image "global" .Values.global) }}"
         imagePullPolicy: {{ .Values.rest.image.pullPolicy }}
+        {{- with (include "supabase.containerSecurityContext" (dict "component" "rest" "Values" .Values)) }}
+        securityContext:
+          {{- . }}
+        {{- end }}
         command: ["postgrest"]
         {{- with .Values.rest.livenessProbe }}
         livenessProbe:

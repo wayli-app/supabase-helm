@@ -22,9 +22,8 @@ spec:
         app.kubernetes.io/component: functions
         supabaseComponent: {{ include "supabase.fullname" . }}-functions
     spec:
-      {{- if .Values.functions.imagePullSecrets }}
-      imagePullSecrets:
-        {{- toYaml .Values.functions.imagePullSecrets | nindent 8 }}
+      {{- with (include "supabase.imagePullSecrets" (dict "component" .Values.functions "global" .Values.global)) }}
+      {{ . | nindent 6 }}
       {{- end }}
       {{- if .Values.functions.serviceAccount.create }}
       serviceAccountName: {{ .Values.functions.serviceAccount.name | default (printf "%s-functions" (include "supabase.fullname" .)) }}
@@ -45,10 +44,18 @@ spec:
       initContainers:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- with (include "supabase.podSecurityContext" (dict "component" "functions" "Values" .Values)) }}
+      securityContext:
+        {{- . }}
+      {{- end }}
       containers:
         - name: {{ .Chart.Name }}
-          image: "{{ .Values.functions.image.repository }}:{{ .Values.functions.image.tag }}"
+          image: "{{ include "supabase.image" (dict "imageRoot" .Values.functions.image "global" .Values.global) }}"
           imagePullPolicy: {{ .Values.functions.image.pullPolicy }}
+          {{- with (include "supabase.containerSecurityContext" (dict "component" "functions" "Values" .Values)) }}
+          securityContext:
+            {{- . }}
+          {{- end }}
           args: ["start", "--main-service", {{ .Values.functions.config.mainService | quote }}]
           {{- with .Values.functions.livenessProbe }}
           livenessProbe:

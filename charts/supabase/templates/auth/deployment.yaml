@@ -22,9 +22,8 @@ spec:
         app.kubernetes.io/component: auth
         supabaseComponent: {{ include "supabase.fullname" . }}-auth
     spec:
-      {{- if .Values.auth.imagePullSecrets }}
-      imagePullSecrets:
-        {{- toYaml .Values.auth.imagePullSecrets | nindent 8 }}
+      {{- with (include "supabase.imagePullSecrets" (dict "component" .Values.auth "global" .Values.global)) }}
+      {{ . | nindent 6 }}
       {{- end }}
       {{- if .Values.auth.serviceAccount.create }}
       serviceAccountName: {{ .Values.auth.serviceAccount.name | default (printf "%s-auth" (include "supabase.fullname" .)) }}
@@ -41,14 +40,22 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- with (include "supabase.podSecurityContext" (dict "component" "auth" "Values" .Values)) }}
+      securityContext:
+        {{- . }}
+      {{- end }}
       {{- with .Values.auth.initContainers }}
       initContainers:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       containers:
       - name: auth
-        image: "{{ .Values.auth.image.repository }}:{{ .Values.auth.image.tag }}"
+        image: "{{ include "supabase.image" (dict "imageRoot" .Values.auth.image "global" .Values.global) }}"
         imagePullPolicy: {{ .Values.auth.image.pullPolicy }}
+        {{- with (include "supabase.containerSecurityContext" (dict "component" "auth" "Values" .Values)) }}
+        securityContext:
+          {{- . }}
+        {{- end }}
         {{- with .Values.auth.livenessProbe }}
         livenessProbe:
           {{- toYaml . | nindent 10 }}

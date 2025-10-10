@@ -22,9 +22,8 @@ spec:
         app.kubernetes.io/component: meta
         supabaseComponent: {{ include "supabase.fullname" . }}-meta
     spec:
-      {{- if .Values.meta.imagePullSecrets }}
-      imagePullSecrets:
-        {{- toYaml .Values.meta.imagePullSecrets | nindent 8 }}
+      {{- with (include "supabase.imagePullSecrets" (dict "component" .Values.meta "global" .Values.global)) }}
+      {{ . | nindent 6 }}
       {{- end }}
       {{- if .Values.meta.serviceAccount.create }}
       serviceAccountName: {{ .Values.meta.serviceAccount.name | default (printf "%s-meta" (include "supabase.fullname" .)) }}
@@ -45,10 +44,18 @@ spec:
       initContainers:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- with (include "supabase.podSecurityContext" (dict "component" "meta" "Values" .Values)) }}
+      securityContext:
+        {{- . }}
+      {{- end }}
       containers:
         - name: {{ .Chart.Name }}
-          image: "{{ .Values.meta.image.repository }}:{{ .Values.meta.image.tag }}"
+          image: "{{ include "supabase.image" (dict "imageRoot" .Values.meta.image "global" .Values.global) }}"
           imagePullPolicy: {{ .Values.meta.image.pullPolicy }}
+          {{- with (include "supabase.containerSecurityContext" (dict "component" "meta" "Values" .Values)) }}
+          securityContext:
+            {{- . }}
+          {{- end }}
           {{- with .Values.meta.livenessProbe }}
           livenessProbe:
             {{- toYaml . | nindent 12 }}
