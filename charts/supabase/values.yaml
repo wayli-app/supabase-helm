@@ -174,7 +174,7 @@ db:
       # Service namespace (if different from release namespace)
       namespace: ""
       # Service port
-      port: 5432
+      port: 6432
   postgres:
     # PostgreSQL image configuration
     image:
