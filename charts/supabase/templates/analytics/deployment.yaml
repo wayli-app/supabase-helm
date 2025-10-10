@@ -52,9 +52,9 @@ spec:
             - name: DB_HOST
               {{- if .Values.db.enabled }}
               {{- if .Values.db.pgbouncer.enabled }}
-              value: {{ .Values.db.pgbouncer.service.name | default (printf "%s-pgbouncer" (include "supabase.fullname" .)) | quote }}
+              value: {{ .Values.db.pgbouncer.service.name | default (printf "%s-pgbouncer" .Release.Name) | quote }}
               {{- else }}
-              value: {{ .Values.db.postgres.service.name | default (printf "%s-db" (include "supabase.fullname" .)) }}{{- if .Values.db.postgres.service.namespace }}.{{ .Values.db.postgres.service.namespace }}{{- end }}
+              value: {{ .Values.db.postgres.service.name | default (printf "%s-supabase-db" .Release.Name) }}{{- if .Values.db.postgres.service.namespace }}.{{ .Values.db.postgres.service.namespace }}{{- end }}
               {{- end }}
               {{- else }}
               value: {{ .Values.analytics.config.dbHost | default "localhost" | quote }}
@@ -114,9 +114,9 @@ spec:
           value: {{ .Values.analytics.config.dbDatabase | quote }}
         - name: DB_HOSTNAME
           {{- if .Values.db.pgbouncer.enabled }}
-          value: {{ .Values.db.pgbouncer.service.name | default (printf "%s-pgbouncer" (include "supabase.fullname" .)) }}
+          value: {{ .Values.db.pgbouncer.service.name | default (printf "%s-pgbouncer" .Release.Name) }}
           {{- else }}
-          value: {{ .Values.db.postgres.service.name | default (printf "%s-db" (include "supabase.fullname" .)) }}{{- if .Values.db.postgres.service.namespace }}.{{ .Values.db.postgres.service.namespace }}{{- end }}
+          value: {{ .Values.db.postgres.service.name | default (printf "%s-supabase-db" .Release.Name) }}{{- if .Values.db.postgres.service.namespace }}.{{ .Values.db.postgres.service.namespace }}{{- end }}
           {{- end }}
         - name: DB_PORT
           value: {{ if .Values.db.pgbouncer.enabled }}{{ .Values.db.pgbouncer.service.port | default "5432" | quote }}{{- else }}{{ .Values.db.postgres.service.port | quote }}{{- end }}
@@ -162,7 +162,7 @@ spec:
         - name: LOGFLARE_MIN_CLUSTER_SIZE
           value: {{ .Values.analytics.config.minClusterSize | quote }}
         - name: POSTGRES_BACKEND_URL
-          value: "postgresql://{{ .Values.analytics.config.dbUser }}:$(DB_PASSWORD)@{{- if .Values.db.pgbouncer.enabled }}{{ .Values.db.pgbouncer.service.name | default (printf "%s-pgbouncer" (include "supabase.fullname" .)) }}{{- if .Values.db.pgbouncer.service.namespace }}.{{ .Values.db.pgbouncer.service.namespace }}{{- end }}:{{ .Values.db.pgbouncer.service.port | default 5432 }}{{- else }}{{ printf "%s-db" (include "supabase.fullname" .) }}{{- end }}/{{ .Values.analytics.config.dbDatabase }}"
+          value: "postgresql://{{ .Values.analytics.config.dbUser }}:$(DB_PASSWORD)@{{- if .Values.db.pgbouncer.enabled }}{{ .Values.db.pgbouncer.service.name | default (printf "%s-pgbouncer" .Release.Name) }}{{- if .Values.db.pgbouncer.service.namespace }}.{{ .Values.db.pgbouncer.service.namespace }}{{- end }}:{{ .Values.db.pgbouncer.service.port | default 5432 }}{{- else }}{{ printf "%s-supabase-db" .Release.Name }}{{- end }}/{{ .Values.analytics.config.dbDatabase }}"
         - name: POSTGRES_BACKEND_SCHEMA
           value: {{ .Values.analytics.config.dbSchema | quote }}
         - name: LOGFLARE_FEATURE_FLAG_OVERRIDE

@@ -72,7 +72,7 @@ spec:
               name: {{ .Values.db.postgres.existingSecret | default (printf "%s-db-secret" (include "supabase.fullname" .)) }}
               key: {{ .Values.db.postgres.secretKeys.userPasswordKey | default "password" }}
         - name: PGRST_DB_URI
-          value: "postgres://authenticator:$(DB_PASSWORD)@{{- if .Values.db.pgbouncer.enabled }}{{ .Values.db.pgbouncer.service.name | default (printf "%s-pgbouncer" (include "supabase.fullname" .)) }}{{- if .Values.db.pgbouncer.service.namespace }}.{{ .Values.db.pgbouncer.service.namespace }}{{- end }}:{{ .Values.db.pgbouncer.service.port | default 5432 }}{{- else }}{{ printf "%s-db" (include "supabase.fullname" .) }}{{- end }}/postgres"
+          value: "postgres://authenticator:$(DB_PASSWORD)@{{- if .Values.db.pgbouncer.enabled }}{{ .Values.db.pgbouncer.service.name | default (printf "%s-pgbouncer" .Release.Name) }}{{- if .Values.db.pgbouncer.service.namespace }}.{{ .Values.db.pgbouncer.service.namespace }}{{- end }}:{{ .Values.db.pgbouncer.service.port | default 5432 }}{{- else }}{{ printf "%s-supabase-db" .Release.Name }}{{- end }}/postgres"
         - name: PGRST_DB_SCHEMAS
           value: {{ .Values.rest.config.dbSchemas | quote }}
         - name: PGRST_DB_ANON_ROLE
