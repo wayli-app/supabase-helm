@@ -317,7 +317,7 @@ Usage: {{ include "supabase.databaseHost" . }}
 */}}
 {{- define "supabase.databaseHost" -}}
 {{- if .Values.db.pgbouncer.enabled -}}
-  {{- .Values.db.pgbouncer.service.name | default (printf "%s-pgbouncer" .Release.Name) -}}
+  {{- .Values.db.pgbouncer.service.name | default (printf "%s-pgbouncer" (include "supabase.fullname" .)) -}}
   {{- if .Values.db.pgbouncer.service.namespace -}}.{{ .Values.db.pgbouncer.service.namespace }}{{- end -}}
 {{- else -}}
   {{- .Values.db.postgres.service.name | default (printf "%s-db" (include "supabase.fullname" .)) -}}
