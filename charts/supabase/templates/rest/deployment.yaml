@@ -76,10 +76,10 @@ spec:
         - name: DB_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: {{ .Values.db.postgres.existingSecret | default (printf "%s-db-secret" (include "supabase.fullname" .)) }}
+              name: {{ include "supabase.dbSecretName" . }}
               key: {{ .Values.db.postgres.secretKeys.userPasswordKey | default "password" }}
         - name: PGRST_DB_URI
-          value: "postgres://authenticator:$(DB_PASSWORD)@{{- if .Values.db.pgbouncer.enabled }}{{ .Values.db.pgbouncer.service.name | default (printf "%s-pgbouncer" .Release.Name) }}{{- if .Values.db.pgbouncer.service.namespace }}.{{ .Values.db.pgbouncer.service.namespace }}{{- end }}:{{ .Values.db.pgbouncer.service.port | default 5432 }}{{- else }}{{ printf "%s-supabase-db" .Release.Name }}{{- end }}/postgres"
+          value: "postgres://authenticator:$(DB_PASSWORD)@{{ include "supabase.databaseHost" . }}:{{ include "supabase.databasePort" . }}/postgres"
         - name: PGRST_DB_SCHEMAS
           value: {{ .Values.rest.config.dbSchemas | quote }}
         - name: PGRST_DB_ANON_ROLE

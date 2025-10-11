@@ -50,22 +50,22 @@ spec:
           env:
             - name: DB_HOST
               {{- if .Values.db.enabled }}
-              {{- if .Values.db.pgbouncer.enabled }}
-              value: {{ .Values.db.pgbouncer.service.name | default (printf "%s-pgbouncer" .Release.Name) | quote }}
-              {{- else }}
-              value: {{ .Values.db.postgres.service.name | default (printf "%s-supabase-db" .Release.Name) }}{{- if .Values.db.postgres.service.namespace }}.{{ .Values.db.postgres.service.namespace }}{{- end }}
-              {{- end }}
+              value: {{ include "supabase.databaseHost" $ }}
               {{- else }}
               value: {{ .Values.analytics.config.dbHost | default "localhost" | quote }}
               {{- end }}
             - name: DB_USER
               value: {{ .Values.analytics.config.dbUser | quote }}
             - name: DB_PORT
-              value: {{ if .Values.db.pgbouncer.enabled }}{{ .Values.db.pgbouncer.service.port | default "5432" | quote }}{{- else }}{{ .Values.db.postgres.service.port | quote }}{{- end }}
+              {{- if .Values.db.enabled }}
+              value: {{ include "supabase.databasePort" $ | quote }}
+              {{- else }}
+              value: "5432"
+              {{- end }}
             - name: PGPASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.db.postgres.existingSecret | default (printf "%s-db-secret" (include "supabase.fullname" .)) }}
+                  name: {{ include "supabase.dbSecretName" . }}
                   key: {{ .Values.db.postgres.secretKeys.userPasswordKey }}
           command: ["/bin/sh", "-c"]
           args:
@@ -120,17 +120,13 @@ spec:
         - name: DB_DATABASE
           value: {{ .Values.analytics.config.dbDatabase | quote }}
         - name: DB_HOSTNAME
-          {{- if .Values.db.pgbouncer.enabled }}
-          value: {{ .Values.db.pgbouncer.service.name | default (printf "%s-pgbouncer" .Release.Name) }}
-          {{- else }}
-          value: {{ .Values.db.postgres.service.name | default (printf "%s-supabase-db" .Release.Name) }}{{- if .Values.db.postgres.service.namespace }}.{{ .Values.db.postgres.service.namespace }}{{- end }}
-          {{- end }}
+          value: {{ include "supabase.databaseHost" . }}
         - name: DB_PORT
-          value: {{ if .Values.db.pgbouncer.enabled }}{{ .Values.db.pgbouncer.service.port | default "5432" | quote }}{{- else }}{{ .Values.db.postgres.service.port | quote }}{{- end }}
+          value: {{ include "supabase.databasePort" . | quote }}
         - name: DB_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: {{ .Values.db.postgres.existingSecret | default (printf "%s-db-secret" (include "supabase.fullname" .)) }}
+              name: {{ include "supabase.dbSecretName" . }}
               key: {{ .Values.db.postgres.secretKeys.userPasswordKey }}
         - name: DB_SCHEMA
           value: {{ .Values.analytics.config.dbSchema | quote }}
@@ -169,7 +165,7 @@ spec:
         - name: LOGFLARE_MIN_CLUSTER_SIZE
           value: {{ .Values.analytics.config.minClusterSize | quote }}
         - name: POSTGRES_BACKEND_URL
-          value: "postgresql://{{ .Values.analytics.config.dbUser }}:$(DB_PASSWORD)@{{- if .Values.db.pgbouncer.enabled }}{{ .Values.db.pgbouncer.service.name | default (printf "%s-pgbouncer" .Release.Name) }}{{- if .Values.db.pgbouncer.service.namespace }}.{{ .Values.db.pgbouncer.service.namespace }}{{- end }}:{{ .Values.db.pgbouncer.service.port | default 5432 }}{{- else }}{{ printf "%s-supabase-db" .Release.Name }}{{- end }}/{{ .Values.analytics.config.dbDatabase }}"
+          value: "postgresql://{{ .Values.analytics.config.dbUser }}:$(DB_PASSWORD)@{{ include "supabase.databaseHost" . }}:{{ include "supabase.databasePort" . }}/{{ .Values.analytics.config.dbDatabase }}"
         - name: POSTGRES_BACKEND_SCHEMA
           value: {{ .Values.analytics.config.dbSchema | quote }}
         - name: LOGFLARE_FEATURE_FLAG_OVERRIDE

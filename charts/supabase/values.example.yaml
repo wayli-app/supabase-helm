@@ -1,0 +1,43 @@
+global:
+  # Global default storage class
+  defaultStorageClass: 'local-path'
+  # Global storage class
+  storageClass: 'local-path'
+  # Supabase global configuration
+  supabase:
+    # Organization name displayed in Studio
+    organizationName: Wayli
+    # Project name displayed in Studio
+    projectName: Wayli
+    # Public URL of the Studio instance (you MUST set this)
+    publicUrl: 'http://supabase.your-domain.com'
+    # Site URL of Wayli (you MUST set this)
+    siteUrl: 'http://your-domain.com'
+    # Existing secret containing Supabase keys
+    existingSecret: supabase-secret
+
+# Uncomment if you want to enable basic auth on the Supabase endpoint.
+# studio:
+#   config:
+#     auth:
+#       existingSecret: supabase-secret
+
+db:
+  ## PgBouncer connection pooler
+  pgbouncer:
+    enabled: false
+
+kong:
+  ingress:
+    enabled: true
+    ingressClassName: nginx
+    hostname: 'supabase.your-domain.com' # Use the same domain as in .supabase.global.supabase.publicUrl
+    annotations:
+      nginx.ingress.kubernetes.io/ssl-redirect: 'true'
+      nginx.ingress.kubernetes.io/force-ssl-redirect: 'true'
+      nginx.ingress.kubernetes.io/backend-protocol: 'HTTP'
+      nginx.ingress.kubernetes.io/proxy-body-size: '1g'
+      nginx.ingress.kubernetes.io/proxy-connect-timeout: '3600'
+      nginx.ingress.kubernetes.io/proxy-read-timeout: '3600'
+      nginx.ingress.kubernetes.io/proxy-send-timeout: '3600'
+    tls: []

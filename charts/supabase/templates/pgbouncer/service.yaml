@@ -1,0 +1,26 @@
+{{- if .Values.db.pgbouncer.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "supabase.fullname" . }}-pgbouncer
+  namespace: {{ include "supabase.namespace" . }}
+  labels:
+    {{- include "supabase.labels" . | nindent 4 }}
+    app.kubernetes.io/component: pgbouncer
+    {{- with .Values.db.pgbouncer.service.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with .Values.db.pgbouncer.service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.db.pgbouncer.service.type }}
+  ports:
+    - port: {{ .Values.db.pgbouncer.service.port }}
+      targetPort: {{ .Values.db.pgbouncer.service.targetPort }}
+      protocol: TCP
+      name: postgres
+  selector:
+    {{- include "supabase.selectorLabels.pgbouncer" . | nindent 4 }}
+{{- end }}

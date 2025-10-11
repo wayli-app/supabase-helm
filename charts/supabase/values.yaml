@@ -23,9 +23,10 @@ global:
   # Global image pull secrets
   imagePullSecrets: []
   # Global default storage class
-  defaultStorageClass: ""
+  defaultStorageClass: "local-path"
   # Global security context defaults
-  securityContext: {}
+  securityContext:
+    {}
     # # Pod security context defaults
     # pod:
     #   # Run as non-root user by default
@@ -165,16 +166,110 @@ db:
   enabled: true
   # PgBouncer configuration. You must deploy pgbouncer yourself, and this will configure the Supabase components to connect to it.
   pgbouncer:
-    # Enable PgBouncer deployment
-    enabled: false
-    # PgBouncer service configuration
+    enabled: true
+    replicaCount: 1
+
+    updateStrategy:
+      type: RollingUpdate
+      rollingUpdate:
+        maxSurge: 1
+        maxUnavailable: 0
+
+    image:
+      repository: edoburu/pgbouncer
+      tag: "v1.24.1-p1"
+      pullPolicy: IfNotPresent
+
+    ## Init container for generating userlist.txt
+    initContainer:
+      image:
+        repository: busybox
+        tag: "1.36"
+        pullPolicy: IfNotPresent
+
+    ## Database connection
+    ## Only override these if you need different values than Supabase config
+    database:
+      host: ""
+      port: ""
+      name: "_supabase"
+      user: ""
+
+    ## Service
     service:
-      # Service name
-      name: ""
-      # Service namespace (if different from release namespace)
-      namespace: ""
-      # Service port
+      type: ClusterIP
       port: 6432
+      targetPort: 5432
+      annotations: {}
+      labels: {}
+
+    ## Resources
+    resources:
+      requests:
+        memory: "128Mi"
+        cpu: "100m"
+      limits:
+        memory: "512Mi"
+        cpu: "500m"
+
+    ## HPA
+    autoscaling:
+      enabled: false
+      minReplicas: 2
+      maxReplicas: 5
+      targetCPU: 70
+
+    ## PgBouncer configuration (will be in ConfigMap)
+    configuration:
+      poolMode: transaction
+      maxClientConn: 1000
+      defaultPoolSize: 20
+      reservePoolSize: 5
+      reservePoolTimeout: 5
+      logConnections: 1
+      logDisconnections: 1
+      ## Extra configuration options
+      extraConfig: ""
+
+    ## Probes
+    livenessProbe:
+      enabled: true
+      tcpSocket:
+        port: 5432
+      initialDelaySeconds: 30
+      periodSeconds: 10
+      timeoutSeconds: 5
+      failureThreshold: 3
+
+    readinessProbe:
+      enabled: true
+      tcpSocket:
+        port: 5432
+      initialDelaySeconds: 5
+      periodSeconds: 5
+      timeoutSeconds: 3
+      failureThreshold: 3
+
+    podAnnotations: {}
+    podLabels: {}
+    affinity: {}
+    nodeSelector: {}
+    tolerations: []
+    priorityClassName: ""
+
+    securityContext:
+      pod: {}
+      container: {}
+
+    serviceAccount:
+      create: true
+      name: ""
+      annotations: {}
+      automountServiceAccountToken: true
+
+    extraEnvVars: []
+    extraVolumes: []
+    extraVolumeMounts: []
   postgres:
     # PostgreSQL image configuration
     image:
@@ -208,14 +303,12 @@ db:
       port: 5432
     # PostgreSQL password
     password: ""
-    # Password key in the secret
-    passwordKey: password
     # Existing secret containing PostgreSQL credentials
     existingSecret: ""
     # Secret keys configuration for existing secret
     secretKeys:
       # User password key in the secret
-      userPasswordKey: password
+      userPasswordKey: db-password
     # PostgreSQL resource configuration
     resources:
       # Resource requests
@@ -1072,7 +1165,8 @@ functions:
   # Functions image pull secrets
   imagePullSecrets: ""
   # Functions liveness probe
-  livenessProbe: {}
+  livenessProbe:
+    {}
     # httpGet:
     #   path: /health
     #   port: http
@@ -1080,7 +1174,8 @@ functions:
     # periodSeconds: 5
     # failureThreshold: 3
   # Functions readiness probe
-  readinessProbe: {}
+  readinessProbe:
+    {}
     # httpGet:
     #   path: /health
     #   port: http
@@ -1182,7 +1277,8 @@ analytics:
   # Analytics image pull secrets
   imagePullSecrets: ""
   # Analytics liveness probe
-  livenessProbe: {}
+  livenessProbe:
+    {}
     # httpGet:
     #   path: /health
     #   port: http
@@ -1190,7 +1286,8 @@ analytics:
     # periodSeconds: 5
     # failureThreshold: 10
   # Analytics readiness probe
-  readinessProbe: {}
+  readinessProbe:
+    {}
     # httpGet:
     #   path: /health
     #   port: http

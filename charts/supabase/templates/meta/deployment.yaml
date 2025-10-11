@@ -68,11 +68,13 @@ spec:
             - name: PG_META_PORT
               value: {{ .Values.meta.service.port | quote }}
             - name: PG_META_DB_HOST
-              value: {{ if .Values.db.pgbouncer.enabled }}{{ .Values.db.pgbouncer.service.name | default (printf "%s-pgbouncer" .Release.Name) }}{{- if .Values.db.pgbouncer.service.namespace }}.{{ .Values.db.pgbouncer.service.namespace }}{{- end }}{{- else }}{{ printf "%s-supabase-db" .Release.Name }}{{- end }}
+              value: {{ include "supabase.databaseHost" . }}
+            - name: PG_META_DB_PORT
+              value: {{ include "supabase.databasePort" . | quote }}
             - name: PG_META_DB_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.db.postgres.existingSecret | default (printf "%s-db-secret" (include "supabase.fullname" .)) }}
+                  name: {{ include "supabase.dbSecretName" . }}
                   key: {{ .Values.db.postgres.secretKeys.userPasswordKey | default "password" }}
             - name: PG_META_DB_NAME
               value: postgres

@@ -113,15 +113,15 @@ spec:
         - name: PORT
           value: "4000"
         - name: DB_HOST
-          value: {{ if .Values.db.pgbouncer.enabled }}{{ .Values.db.pgbouncer.service.name | default (printf "%s-pgbouncer" .Release.Name) }}{{- if .Values.db.pgbouncer.service.namespace }}.{{ .Values.db.pgbouncer.service.namespace }}{{- end }}{{- else }}{{ printf "%s-supabase-db" .Release.Name }}{{- end }}
+          value: {{ include "supabase.databaseHost" . }}
         - name: DB_PORT
-          value: {{ if .Values.db.pgbouncer.enabled }}{{ .Values.db.pgbouncer.service.port | default "5432" | quote }}{{- else }}{{ .Values.db.postgres.service.port | quote }}{{- end }}
+          value: {{ include "supabase.databasePort" . | quote }}
         - name: DB_USER
           value: {{ .Values.realtime.config.dbUser | quote }}
         - name: DB_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: {{ .Values.db.postgres.existingSecret | default (printf "%s-db-secret" (include "supabase.fullname" .)) }}
+              name: {{ include "supabase.dbSecretName" . }}
               key: {{ .Values.db.postgres.secretKeys.userPasswordKey }}
         - name: DB_NAME
           value: "postgres"

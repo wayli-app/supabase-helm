@@ -221,9 +221,14 @@ metadata:
     {{- with $ingress.labels }}
     {{- toYaml . | nindent 4 }}
     {{- end }}
-  {{- with $ingress.annotations }}
+  {{- if or $ingress.annotations (eq $component "kong") }}
   annotations:
+    {{- if eq $component "kong" }}
+    nginx.org/websocket-services: {{ include "supabase.fullname" (dict "Values" $Values "Release" $Release "Chart" $Chart) }}-kong
+    {{- end }}
+    {{- with $ingress.annotations }}
     {{- toYaml . | nindent 4 }}
+    {{- end }}
   {{- end }}
 spec:
   {{- if $ingress.ingressClassName }}
@@ -272,6 +277,20 @@ Usage: {{ include "supabase.image" (dict "imageRoot" .Values.component.image "gl
 {{- end -}}
 
 {{/*
+Return the database secret name with fallback to global secret
+Usage: {{ include "supabase.dbSecretName" . }}
+*/}}
+{{- define "supabase.dbSecretName" -}}
+{{- if .Values.db.postgres.existingSecret -}}
+  {{- .Values.db.postgres.existingSecret -}}
+{{- else if .Values.global.supabase.existingSecret -}}
+  {{- .Values.global.supabase.existingSecret -}}
+{{- else -}}
+  {{- printf "%s-db-secret" (include "supabase.fullname" .) -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
 Return the proper imagePullSecrets
 Usage: {{ include "supabase.imagePullSecrets" (dict "component" .Values.component "global" .Values.global) }}
 */}}
@@ -290,4 +309,78 @@ Usage: {{ include "supabase.imagePullSecrets" (dict "component" .Values.componen
 imagePullSecrets:
   {{- toYaml $pullSecrets | nindent 2 -}}
 {{- end -}}
+{{- end -}}
+
+{{/*
+Return the database host to connect to (pgbouncer or postgres direct)
+Usage: {{ include "supabase.databaseHost" . }}
+*/}}
+{{- define "supabase.databaseHost" -}}
+{{- if .Values.db.pgbouncer.enabled -}}
+  {{- .Values.db.pgbouncer.service.name | default (printf "%s-pgbouncer" .Release.Name) -}}
+  {{- if .Values.db.pgbouncer.service.namespace -}}.{{ .Values.db.pgbouncer.service.namespace }}{{- end -}}
+{{- else -}}
+  {{- .Values.db.postgres.service.name | default (printf "%s-db" (include "supabase.fullname" .)) -}}
+  {{- if .Values.db.postgres.service.namespace -}}.{{ .Values.db.postgres.service.namespace }}{{- end -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Return the database port to connect to (pgbouncer or postgres direct)
+Usage: {{ include "supabase.databasePort" . }}
+*/}}
+{{- define "supabase.databasePort" -}}
+{{- if .Values.db.pgbouncer.enabled -}}
+  {{- .Values.db.pgbouncer.service.port | default 5432 -}}
+{{- else -}}
+  {{- .Values.db.postgres.service.port | default 5432 -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+PgBouncer selector labels
+*/}}
+{{- define "supabase.selectorLabels.pgbouncer" -}}
+app.kubernetes.io/name: {{ include "supabase.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/component: pgbouncer
+{{- end -}}
+
+{{/*
+Return the pgbouncer image
+*/}}
+{{- define "supabase.pgbouncer.image" -}}
+{{- $registry := "" -}}
+{{- if .Values.global.imageRegistry -}}
+  {{- $registry = printf "%s/" .Values.global.imageRegistry -}}
+{{- end -}}
+{{- printf "%s%s:%s" $registry .Values.db.pgbouncer.image.repository .Values.db.pgbouncer.image.tag -}}
+{{- end -}}
+
+{{/*
+Return the database host that pgbouncer should connect to
+*/}}
+{{- define "supabase.pgbouncer.dbHost" -}}
+{{- .Values.db.pgbouncer.database.host | default (printf "%s-db" (include "supabase.fullname" .)) -}}
+{{- end -}}
+
+{{/*
+Return the database port that pgbouncer should connect to
+*/}}
+{{- define "supabase.pgbouncer.dbPort" -}}
+{{- .Values.db.pgbouncer.database.port | default (.Values.db.postgres.service.port | default 5432) -}}
+{{- end -}}
+
+{{/*
+Return the database user that pgbouncer should use
+*/}}
+{{- define "supabase.pgbouncer.dbUser" -}}
+{{- .Values.db.pgbouncer.database.user | default "postgres" -}}
+{{- end -}}
+
+{{/*
+Return the Supabase secret name
+*/}}
+{{- define "supabase.supabaseSecretName" -}}
+{{- .Values.global.supabase.existingSecret | default (printf "%s-secret" (include "supabase.fullname" .)) -}}
 {{- end -}}

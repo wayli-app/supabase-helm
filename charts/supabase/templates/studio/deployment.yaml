@@ -81,7 +81,7 @@ spec:
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.db.postgres.existingSecret | default (printf "%s-db-secret" (include "supabase.fullname" .)) }}
+                  name: {{ include "supabase.dbSecretName" . }}
                   key: {{ .Values.db.postgres.secretKeys.userPasswordKey }}
             - name: DEFAULT_ORGANIZATION_NAME
               value: {{ .Values.global.supabase.organizationName | quote }}

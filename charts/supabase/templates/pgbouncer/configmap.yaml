@@ -1,0 +1,44 @@
+{{- if .Values.db.pgbouncer.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "supabase.fullname" . }}-pgbouncer-config
+  labels:
+    {{- include "supabase.labels" . | nindent 4 }}
+    app.kubernetes.io/component: pgbouncer
+  {{- with .Values.commonAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+data:
+  pgbouncer.ini: |
+    [databases]
+    {{ .Values.db.pgbouncer.database.name }} = host={{ include "supabase.pgbouncer.dbHost" . }}.{{ .Release.Namespace }}.svc.cluster.local port={{ include "supabase.pgbouncer.dbPort" . }} dbname={{ .Values.db.pgbouncer.database.name }}
+    postgres = host={{ include "supabase.pgbouncer.dbHost" . }}.{{ .Release.Namespace }}.svc.cluster.local port={{ include "supabase.pgbouncer.dbPort" . }} dbname=postgres
+
+    [pgbouncer]
+    listen_addr = 0.0.0.0
+    listen_port = {{ .Values.db.pgbouncer.service.targetPort }}
+    auth_type = scram-sha-256
+    auth_file = /etc/pgbouncer/userlist.txt
+    pool_mode = {{ .Values.db.pgbouncer.configuration.poolMode }}
+    max_client_conn = {{ .Values.db.pgbouncer.configuration.maxClientConn }}
+    default_pool_size = {{ .Values.db.pgbouncer.configuration.defaultPoolSize }}
+    reserve_pool_size = {{ .Values.db.pgbouncer.configuration.reservePoolSize }}
+    reserve_pool_timeout = {{ .Values.db.pgbouncer.configuration.reservePoolTimeout }}
+    log_connections = {{ .Values.db.pgbouncer.configuration.logConnections }}
+    log_disconnections = {{ .Values.db.pgbouncer.configuration.logDisconnections }}
+    track_extra_parameters = search_path
+    {{- with .Values.db.pgbouncer.configuration.extraConfig }}
+    {{ . | nindent 4 }}
+    {{- end }}
+
+  userlist.txt.tpl: |
+    "{{ include "supabase.pgbouncer.dbUser" . }}" "__DB_PASSWORD__"
+    "pgbouncer" "__DB_PASSWORD__"
+    "supabase_admin" "__DB_PASSWORD__"
+    "authenticator" "__DB_PASSWORD__"
+    "supabase_auth_admin" "__DB_PASSWORD__"
+    "supabase_functions_admin" "__DB_PASSWORD__"
+    "supabase_storage_admin" "__DB_PASSWORD__"
+{{- end }}

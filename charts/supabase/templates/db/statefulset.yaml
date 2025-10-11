@@ -97,7 +97,7 @@ spec:
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.db.postgres.existingSecret | default (printf "%s-db-secret" (include "supabase.fullname" .)) }}
+                  name: {{ include "supabase.dbSecretName" . }}
                   key: {{ .Values.db.postgres.secretKeys.userPasswordKey | default "password" }}
             - name: POSTGRES_USER
               value: supabase_admin
@@ -166,7 +166,7 @@ spec:
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.db.postgres.existingSecret | default (printf "%s-db-secret" (include "supabase.fullname" .)) }}
+                  name: {{ include "supabase.dbSecretName" . }}
                   key: {{ .Values.db.postgres.secretKeys.userPasswordKey | default "password" }}
             - name: POSTGRES_USER
               value: supabase_admin
@@ -175,7 +175,7 @@ spec:
             - name: SUPABASE_ADMIN_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.db.postgres.existingSecret | default (printf "%s-db-secret" (include "supabase.fullname" .)) }}
+                  name: {{ include "supabase.dbSecretName" . }}
                   key: {{ .Values.db.postgres.secretKeys.userPasswordKey | default "password" }}
           ports:
             - name: postgresql

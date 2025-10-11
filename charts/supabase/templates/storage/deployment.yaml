@@ -92,10 +92,10 @@ spec:
         - name: DB_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: {{ .Values.db.postgres.existingSecret | default (printf "%s-db-secret" (include "supabase.fullname" .)) }}
+              name: {{ include "supabase.dbSecretName" . }}
               key: {{ .Values.db.postgres.secretKeys.userPasswordKey | default "password" }}
         - name: DATABASE_URL
-          value: "postgres://supabase_storage_admin:$(DB_PASSWORD)@{{- if .Values.db.pgbouncer.enabled }}{{ .Values.db.pgbouncer.service.name | default (printf "%s-pgbouncer" .Release.Name) }}{{- if .Values.db.pgbouncer.service.namespace }}.{{ .Values.db.pgbouncer.service.namespace }}{{- end }}:{{ .Values.db.pgbouncer.service.port | default 5432 }}{{- else }}{{ printf "%s-supabase-db" .Release.Name }}{{- end }}/postgres"
+          value: "postgres://supabase_storage_admin:$(DB_PASSWORD)@{{ include "supabase.databaseHost" . }}:{{ include "supabase.databasePort" . }}/postgres"
         - name: FILE_SIZE_LIMIT
           value: {{ .Values.storage.config.fileSizeLimit | quote }}
         - name: STORAGE_BACKEND

@@ -1,0 +1,25 @@
+{{- if and .Values.db.pgbouncer.enabled .Values.db.pgbouncer.autoscaling.enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "wayli.fullname" . }}-pgbouncer
+  labels:
+    {{- include "wayli.labels" . | nindent 4 }}
+    app.kubernetes.io/component: pgbouncer
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "wayli.fullname" . }}-pgbouncer
+  minReplicas: {{ .Values.db.pgbouncer.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.db.pgbouncer.autoscaling.maxReplicas }}
+  metrics:
+    {{- if .Values.db.pgbouncer.autoscaling.targetCPU }}
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.db.pgbouncer.autoscaling.targetCPU }}
+    {{- end }}
+{{- end }}

@@ -1,0 +1,150 @@
+{{- if .Values.db.pgbouncer.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "supabase.fullname" . }}-pgbouncer
+  labels:
+    {{- include "supabase.labels" . | nindent 4 }}
+    app.kubernetes.io/component: pgbouncer
+spec:
+  replicas: {{ .Values.db.pgbouncer.replicaCount }}
+  {{- with .Values.db.pgbouncer.updateStrategy }}
+  strategy:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "supabase.selectorLabels.pgbouncer" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "supabase.selectorLabels.pgbouncer" . | nindent 8 }}
+        {{- with .Values.db.pgbouncer.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- with .Values.db.pgbouncer.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      {{- with (include "supabase.imagePullSecrets" (dict "component" .Values.db.pgbouncer "global" .Values.global)) }}
+      {{ . | nindent 6 }}
+      {{- end }}
+      {{- if .Values.db.pgbouncer.serviceAccount.create }}
+      serviceAccountName: {{ .Values.db.pgbouncer.serviceAccount.name | default (printf "%s-pgbouncer" (include "supabase.fullname" .)) }}
+      {{- end }}
+      {{- with .Values.db.pgbouncer.securityContext.pod }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.db.pgbouncer.priorityClassName }}
+      priorityClassName: {{ . }}
+      {{- end }}
+      volumes:
+        - name: pgbouncer-config
+          configMap:
+            name: {{ include "supabase.fullname" . }}-pgbouncer-config
+        - name: pgbouncer-userlist
+          emptyDir: {}
+        {{- with .Values.db.pgbouncer.extraVolumes }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      initContainers:
+        - name: generate-userlist
+          image: {{ .Values.db.pgbouncer.initContainer.image.repository }}:{{ .Values.db.pgbouncer.initContainer.image.tag }}
+          imagePullPolicy: {{ .Values.db.pgbouncer.initContainer.image.pullPolicy }}
+          env:
+            - name: DB_USER
+              value: {{ include "supabase.pgbouncer.dbUser" . | quote }}
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "supabase.dbSecretName" . }}
+                  key: {{ .Values.db.postgres.secretKeys.userPasswordKey | default "db-password" }}
+          command:
+            - /bin/sh
+            - -c
+            - |
+              # Read template and inject password from Kubernetes secret
+              # PgBouncer with scram-sha-256 handles the hashing internally
+              # Format: "username" "plaintext-password"
+
+              # Escape special characters in password for sed
+              ESCAPED_PASSWORD=$(echo "$DB_PASSWORD" | sed 's/[\/&]/\\&/g')
+
+              # Replace placeholder in template
+              sed "s/__DB_PASSWORD__/${ESCAPED_PASSWORD}/g" /etc/pgbouncer-config/userlist.txt.tpl > /etc/pgbouncer/userlist.txt
+
+              echo "Generated userlist.txt for user: ${DB_USER}"
+          volumeMounts:
+            - name: pgbouncer-config
+              mountPath: /etc/pgbouncer-config
+            - name: pgbouncer-userlist
+              mountPath: /etc/pgbouncer
+      containers:
+        - name: pgbouncer
+          image: {{ include "supabase.pgbouncer.image" . }}
+          imagePullPolicy: {{ .Values.db.pgbouncer.image.pullPolicy }}
+          {{- with .Values.db.pgbouncer.securityContext.container }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          ports:
+            - containerPort: {{ .Values.db.pgbouncer.service.targetPort }}
+              name: postgres
+              protocol: TCP
+          env:
+            - name: DB_HOST
+              value: "{{ include "supabase.pgbouncer.dbHost" . }}.{{ .Release.Namespace }}.svc.cluster.local"
+            - name: DB_PORT
+              value: {{ include "supabase.pgbouncer.dbPort" . | quote }}
+            - name: DB_USER
+              value: {{ include "supabase.pgbouncer.dbUser" . | quote }}
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "supabase.dbSecretName" . }}
+                  key: {{ .Values.db.postgres.secretKeys.userPasswordKey | default "password" }}
+            - name: DB_NAME
+              value: {{ .Values.db.pgbouncer.database.name | quote }}
+            - name: DATABASE_URL
+              value: "postgresql://$(DB_USER):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)?prepareThreshold=0"
+            {{- if .Values.db.pgbouncer.extraEnvVars }}
+            {{- toYaml .Values.db.pgbouncer.extraEnvVars | nindent 12 }}
+            {{- end }}
+          volumeMounts:
+            - name: pgbouncer-config
+              mountPath: /etc/pgbouncer/pgbouncer.ini
+              subPath: pgbouncer.ini
+            - name: pgbouncer-userlist
+              mountPath: /etc/pgbouncer/userlist.txt
+              subPath: userlist.txt
+            {{- with .Values.db.pgbouncer.extraVolumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          {{- with .Values.db.pgbouncer.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- if .Values.db.pgbouncer.livenessProbe.enabled }}
+          livenessProbe:
+            {{- omit .Values.db.pgbouncer.livenessProbe "enabled" | toYaml | nindent 12 }}
+          {{- end }}
+          {{- if .Values.db.pgbouncer.readinessProbe.enabled }}
+          readinessProbe:
+            {{- omit .Values.db.pgbouncer.readinessProbe "enabled" | toYaml | nindent 12 }}
+          {{- end }}
+      restartPolicy: Always
+      {{- with .Values.db.pgbouncer.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.db.pgbouncer.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.db.pgbouncer.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}
