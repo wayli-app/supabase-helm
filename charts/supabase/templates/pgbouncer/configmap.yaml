@@ -29,6 +29,7 @@ data:
     log_connections = {{ .Values.db.pgbouncer.configuration.logConnections }}
     log_disconnections = {{ .Values.db.pgbouncer.configuration.logDisconnections }}
     track_extra_parameters = search_path
+    ignore_startup_parameters = extra_float_digits
     {{- with .Values.db.pgbouncer.configuration.extraConfig }}
     {{ . | nindent 4 }}
     {{- end }}
