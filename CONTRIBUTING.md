@@ -262,50 +262,48 @@ This project uses pre-commit hooks to automatically validate:
 
 **Setup**: Run `./scripts/setup-commitlint.sh` to install pre-commit hooks.
 
-### Automated Versioning
+### Versioning and Releases
 
-This project uses automated versioning based on your commits and pull requests:
+This project uses **manual versioning** for releases:
 
 #### How It Works
 
-1. **Commit-based versioning**: The system analyzes your commit messages to determine version bumps:
-   - `feat:` commits → minor version bump
-   - `fix:`, `docs:`, `style:`, `refactor:`, `test:`, `chore:` commits → patch version bump
-   - `BREAKING CHANGE:` → major version bump
+1. **Version is tracked in Chart.yaml**: The `version` field in `charts/supabase/Chart.yaml` is the single source of truth
+2. **Manual version bumps**: Contributors or maintainers manually update the version before release
+3. **Manual release trigger**: Releases are triggered manually via GitHub Actions workflow
+4. **Auto-generated release notes**: GitHub automatically generates release notes from commits
 
-2. **PR label override**: You can override the automatic versioning by adding labels to your PR:
-   - `major` label → forces major version bump
-   - `minor` label → forces minor version bump
-   - `patch` label → forces patch version bump
+#### Versioning Guidelines
 
-3. **Automatic release**: When a PR is merged or changes are pushed to main:
-   - Version is automatically bumped in `Chart.yaml`
-   - Changelog is updated with recent changes
-   - Git tag is created
-   - GitHub release is published
-   - Helm chart is published to the repository
+We follow [Semantic Versioning](https://semver.org/) (MAJOR.MINOR.PATCH):
+
+- **MAJOR**: Breaking changes that require user action
+- **MINOR**: New features (backward compatible)
+- **PATCH**: Bug fixes and minor improvements (backward compatible)
+
+#### When to Bump Versions
+
+- **Patch** (`0.0.X`): Bug fixes, documentation updates, dependency updates
+- **Minor** (`0.X.0`): New features, new services, non-breaking enhancements
+- **Major** (`X.0.0`): Breaking changes, major rewrites, incompatible API changes
 
 #### Examples
 
 ```bash
-# This will trigger a minor version bump
-git commit -m "feat: add new authentication service"
-
-# This will trigger a patch version bump
+# Bug fix - bump patch version
+# Change 0.0.8 → 0.0.9
 git commit -m "fix: resolve database connection issue"
 
-# This will trigger a major version bump
-git commit -m "feat: add new API
+# New feature - bump minor version
+# Change 0.0.8 → 0.1.0
+git commit -m "feat: add support for OAuth providers"
 
-BREAKING CHANGE: The authentication API has been completely rewritten"
+# Breaking change - bump major version
+# Change 0.0.8 → 1.0.0
+git commit -m "feat: redesign user management API
+
+BREAKING CHANGE: User management endpoints have been completely redesigned."
 ```
-
-#### Manual Override
-
-If you need to override the automatic versioning, add the appropriate label to your PR:
-- Add `major` label for breaking changes
-- Add `minor` label for new features
-- Add `patch` label for bug fixes and improvements
 
 ### Pull Request Checklist
 
@@ -319,42 +317,64 @@ If you need to override the automatic versioning, add the appropriate label to y
 
 ## Release Process
 
-### Version Management
+### Overview
 
-We use semantic versioning (MAJOR.MINOR.PATCH):
-
-- **MAJOR**: Breaking changes
-- **MINOR**: New features (backward compatible)
-- **PATCH**: Bug fixes (backward compatible)
+Releases are **manually triggered** by maintainers. This gives full control over release timing and ensures quality.
 
 ### Release Steps
 
-**Note**: This project uses automated versioning. Manual version management is typically not needed.
-
-1. **Automatic versioning** (recommended)
-   - Use conventional commits for automatic version bumps
-   - Add PR labels (`major`, `minor`, `patch`) to override if needed
-   - GitHub Actions will handle versioning automatically
-
-2. **Manual versioning** (if needed)
+1. **Update the version in Chart.yaml**
    ```bash
-   ./scripts/manual-version.sh patch  # or minor/major
+   # Edit charts/supabase/Chart.yaml
+   # Update both 'version' and 'appVersion' fields
+   version: 0.0.9
+   appVersion: 0.0.9
    ```
 
-3. **Create release branch**
+2. **Commit the version bump**
    ```bash
-   git checkout -b release/v1.2.3
-   git push origin release/v1.2.3
+   git add charts/supabase/Chart.yaml
+   git commit -m "chore: bump version to 0.0.9"
+   git push origin main
    ```
 
-4. **Create pull request**
-   - Review changes
-   - Run tests
-   - Get approval
+3. **Trigger the release workflow**
+   - Go to [GitHub Actions](https://github.com/wayli-app/supabase-helm/actions)
+   - Select "Release Pipeline"
+   - Click "Run workflow"
+   - Optionally enable "dry-run" to test without publishing
+   - Click "Run workflow" button
 
-5. **Merge and release**
-   - GitHub Actions will automatically create a release
-   - Update Helm repository index
+4. **What happens automatically**
+   - CI runs to validate the chart
+   - Git tag is created (e.g., `v0.0.9`)
+   - Helm chart is packaged
+   - Chart is published to GitHub Pages
+   - Chart is pushed to GHCR (GitHub Container Registry)
+   - GitHub Release is created with auto-generated notes
+
+### Dry-Run Mode
+
+Test the release process without actually publishing:
+
+1. Go to GitHub Actions → Release Pipeline
+2. Click "Run workflow"
+3. Check the "dry-run" checkbox
+4. Review the output to see what would happen
+
+### Release Checklist for Maintainers
+
+- [ ] All tests pass on main branch
+- [ ] Version is bumped in Chart.yaml
+- [ ] CHANGELOG.md is updated (if maintained)
+- [ ] Breaking changes are documented
+- [ ] Version follows semantic versioning
+- [ ] Tag doesn't already exist
+- [ ] Run dry-run first to verify
+- [ ] Trigger release workflow
+- [ ] Verify release appears on GitHub
+- [ ] Verify chart is available in GHCR
+- [ ] Verify chart is available on GitHub Pages
 
 ## Style Guides
 

@@ -1,0 +1,78 @@
+name: CI Pipeline
+
+on:
+  pull_request:
+    paths:
+      - 'charts/**'
+      - 'scripts/**'
+      - '.github/workflows/**'
+  push:
+    branches:
+      - main
+    paths:
+      - 'charts/**'
+      - 'scripts/**'
+      - '.github/workflows/**'
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: v3.12.0
+
+      - name: YAML Linting
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install yamllint
+        run: pip install yamllint
+
+      - name: Run yamllint
+        run: |
+          yamllint --strict . || true
+          yamllint --strict charts/ || true
+
+      - name: Helm Chart Linting
+        run: |
+          helm lint charts/supabase
+          helm dependency build charts/supabase
+
+      - name: Shell Script Linting
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+
+      - name: Install shellcheck
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y shellcheck
+
+      - name: Run shellcheck
+        run: |
+          find scripts/ -name "*.sh" -exec shellcheck {} \;
+
+  test:
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: v3.12.0
+
+      - name: Template and validate chart
+        run: |
+          helm dependency build charts/supabase
+          helm template test-release charts/supabase --debug

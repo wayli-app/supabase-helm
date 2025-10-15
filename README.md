@@ -1,5 +1,11 @@
 # Supabase Helm Chart
 
+[![CI Pipeline](https://github.com/wayli-app/supabase-helm/actions/workflows/ci.yaml/badge.svg)](https://github.com/wayli-app/supabase-helm/actions/workflows/ci.yaml)
+[![Release Pipeline](https://github.com/wayli-app/supabase-helm/actions/workflows/release.yaml/badge.svg)](https://github.com/wayli-app/supabase-helm/actions/workflows/release.yaml)
+[![Helm Version](https://img.shields.io/badge/helm-v3.12.0+-blue.svg)](https://helm.sh)
+[![Kubernetes Version](https://img.shields.io/badge/kubernetes-v1.19.0+-blue.svg)](https://kubernetes.io)
+[![License](https://img.shields.io/github/license/wayli-app/supabase-helm)](LICENSE)
+
 This Helm chart deploys a complete Supabase stack on Kubernetes.
 
 ## Prerequisites
