@@ -221,7 +221,7 @@ db:
 
     ## PgBouncer configuration (will be in ConfigMap)
     configuration:
-      poolMode: transaction
+      poolMode: session
       maxClientConn: 1000
       defaultPoolSize: 20
       reservePoolSize: 5
