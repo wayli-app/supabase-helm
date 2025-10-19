@@ -3,6 +3,16 @@ name: Release Pipeline
 on:
   workflow_dispatch:
     inputs:
+      version-bump:
+        description: 'Version bump type (none/patch/minor/major)'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - none
+          - patch
+          - minor
+          - major
       dry-run:
         description: 'Run in dry-run mode (no actual release)'
         required: false
@@ -27,6 +37,58 @@ jobs:
         run: |
           git config user.name "$GITHUB_ACTOR"
           git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+
+      - name: Install yq
+        if: ${{ inputs.version-bump != 'none' }}
+        run: |
+          sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+          sudo chmod +x /usr/local/bin/yq
+
+      - name: Bump Chart Version
+        if: ${{ inputs.version-bump != 'none' }}
+        id: bump_version
+        run: |
+          CHART_FILE="charts/supabase/Chart.yaml"
+          CURRENT_VERSION=$(yq eval '.version' $CHART_FILE)
+          echo "Current version: $CURRENT_VERSION"
+
+          # Split version into parts
+          IFS='.' read -r -a VERSION_PARTS <<< "$CURRENT_VERSION"
+          MAJOR="${VERSION_PARTS[0]}"
+          MINOR="${VERSION_PARTS[1]}"
+          PATCH="${VERSION_PARTS[2]}"
+
+          # Bump version based on input
+          case "${{ inputs.version-bump }}" in
+            major)
+              MAJOR=$((MAJOR + 1))
+              MINOR=0
+              PATCH=0
+              ;;
+            minor)
+              MINOR=$((MINOR + 1))
+              PATCH=0
+              ;;
+            patch)
+              PATCH=$((PATCH + 1))
+              ;;
+          esac
+
+          NEW_VERSION="${MAJOR}.${MINOR}.${PATCH}"
+          echo "New version: $NEW_VERSION"
+
+          # Update both version and appVersion in Chart.yaml
+          yq eval ".version = \"$NEW_VERSION\"" -i $CHART_FILE
+          yq eval ".appVersion = \"$NEW_VERSION\"" -i $CHART_FILE
+
+          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Commit and Push Version Bump
+        if: ${{ inputs.version-bump != 'none' && !inputs.dry-run }}
+        run: |
+          git add charts/supabase/Chart.yaml
+          git commit -m "chore: bump version to ${{ steps.bump_version.outputs.new_version }}"
+          git push origin main
 
       - name: Install Helm
         uses: azure/setup-helm@v3
@@ -137,6 +199,10 @@ jobs:
         if: ${{ inputs.dry-run }}
         run: |
           echo "=== DRY-RUN MODE ==="
+          if [ "${{ inputs.version-bump }}" != "none" ]; then
+            echo "Would have bumped version (${{ inputs.version-bump }}): ${{ steps.bump_version.outputs.new_version }}"
+            echo "Would have committed and pushed the version bump"
+          fi
           echo "Would have released version: ${{ steps.chart_version.outputs.version }}"
           echo "Would have created tag: v${{ steps.chart_version.outputs.version }}"
           echo "Would have published to GitHub Pages and GHCR"
