@@ -113,9 +113,9 @@ spec:
         - name: PORT
           value: "4000"
         - name: DB_HOST
-          value: {{ include "supabase.databaseHost" . }}
+          value: {{ .Values.db.postgres.service.name | default (printf "%s-db" (include "supabase.fullname" .)) }}
         - name: DB_PORT
-          value: {{ include "supabase.databasePort" . | quote }}
+          value: {{ .Values.db.postgres.service.port | default 5432 | quote }}
         - name: DB_USER
           value: {{ .Values.realtime.config.dbUser | quote }}
         - name: DB_PASSWORD
