@@ -385,7 +385,7 @@ studio:
     # Studio image repository
     repository: supabase/studio
     # Studio image tag
-    tag: 2025.10.01-sha-8460121
+    tag: 2025.10.20-sha-5005fc6
     # Studio image pull policy
     pullPolicy: IfNotPresent
   # Studio image pull secrets
@@ -803,7 +803,7 @@ realtime:
     # Realtime image repository
     repository: supabase/realtime
     # Realtime image tag
-    tag: v2.54.4
+    tag: v2.56.0
     # Realtime image pull policy
     pullPolicy: IfNotPresent
   # Realtime image pull secrets
@@ -885,7 +885,7 @@ storage:
     # Storage image repository
     repository: supabase/storage-api
     # Storage image tag
-    tag: v1.28.0
+    tag: v1.28.1
     # Storage image pull policy
     pullPolicy: IfNotPresent
   # Storage image pull secrets
@@ -1271,7 +1271,7 @@ analytics:
     # Analytics image repository
     repository: supabase/logflare
     # Analytics image tag
-    tag: 1.22.5
+    tag: 1.22.6
     # Analytics image pull policy
     pullPolicy: IfNotPresent
   # Analytics image pull secrets
