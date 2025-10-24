@@ -385,7 +385,7 @@ studio:
     # Studio image repository
     repository: supabase/studio
     # Studio image tag
-    tag: 2025.10.20-sha-5005fc6
+    tag: 2025.10.01-sha-8460121
     # Studio image pull policy
     pullPolicy: IfNotPresent
   # Studio image pull secrets
