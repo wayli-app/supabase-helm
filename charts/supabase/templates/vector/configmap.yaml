@@ -140,6 +140,13 @@ data:
         inputs:
           - router.realtime
         source: |-
+          # Filter out repetitive Realtime messages
+          if contains(string!(.event_message), "Billing metrics: [:realtime, :connections]") {
+            abort
+          }
+          if contains(string!(.event_message), "Replica region not found, defaulting to Realtime.Repo") {
+            abort
+          }
           .metadata.project = del(.project)
           .metadata.external_id = .metadata.project
           parsed, err = parse_regex(.event_message, r'^(?P<time>\d+:\d+:\d+\.\d+) \[(?P<level>\w+)\] (?P<msg>.*)$')
