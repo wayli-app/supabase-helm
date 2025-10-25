@@ -61,7 +61,7 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.global.supabase.existingSecret | default (printf "%s-secret" (include "supabase.fullname" .)) }}
-                  key: {{ .Values.global.supabase.secretKeys.serviceRoleKey }}
+                  key: {{ .Values.global.supabase.secretKeys.anonKey }}
               {{- end }}
           {{- end }}
           ports:

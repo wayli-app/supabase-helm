@@ -130,9 +130,9 @@ spec:
                   name: {{ .Values.global.supabase.existingSecret | default (printf "%s-secret" (include "supabase.fullname" .)) }}
                   key: {{ .Values.global.supabase.secretKeys.serviceRoleKey }}
               {{- end }}
-          {{- end }}
             - name: LOGFLARE_URL
-              value: "http://{{ include "supabase.fullname" . }}-analytics:4000"
+              value: "http://{{ .Values.analytics.service.name | default (printf "%s-analytics" (include "supabase.fullname" .)) }}{{- if .Values.analytics.service.namespace }}.{{ .Values.analytics.service.namespace }}{{- end }}:{{ .Values.analytics.service.port }}"
+          {{- end }}
             - name: NEXT_PUBLIC_ENABLE_LOGS
               value: {{ .Values.studio.config.enableLogs | quote }}
             - name: NEXT_ANALYTICS_BACKEND_PROVIDER

@@ -53,13 +53,13 @@ data:
         inputs:
           - project_logs
         route:
-          kong: '.appname == "{{ include "supabase.fullname" . }}-kong"'
-          auth: '.appname == "{{ include "supabase.fullname" . }}-auth"'
-          rest: '.appname == "{{ include "supabase.fullname" . }}-rest"'
-          realtime: '.appname == "{{ include "supabase.fullname" . }}-realtime"'
-          storage: '.appname == "{{ include "supabase.fullname" . }}-storage"'
-          functions: '.appname == "{{ include "supabase.fullname" . }}-functions"'
-          db: '.appname == "{{ include "supabase.fullname" . }}-db"'
+          kong: '.appname == "kong"'
+          auth: '.appname == "auth"'
+          rest: '.appname == "rest"'
+          realtime: '.appname == "realtime"'
+          storage: '.appname == "storage"'
+          functions: '.appname == "functions"'
+          db: '.appname == "postgres"'
       # Ignores non nginx errors since they are related with kong booting up
       kong_logs:
         type: remap
