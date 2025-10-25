@@ -71,7 +71,8 @@ data:
           req, err = parse_nginx_log(.event_message, "combined")
           if err == null {
               # Filter out health check requests from kube-probe
-              if req.agent == "kube-probe/1.30" || starts_with(req.agent, "kube-probe/") {
+              user_agent = to_string(req.agent) ?? ""
+              if starts_with(user_agent, "kube-probe/") {
                 abort
               }
               .timestamp = req.timestamp
