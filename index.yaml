@@ -2,6 +2,35 @@ apiVersion: v1
 entries:
   supabase:
   - apiVersion: v2
+    appVersion: 0.0.20
+    created: "2025-10-25T10:19:33.01643542Z"
+    description: A complete Helm chart for deploying Supabase on Kubernetes with all
+      core services including database, auth, storage, realtime, and more
+    digest: d0002a80cb904e76f1911f8ae12b72ee7e7f38d9ca82bef42c4262053f0bb72e
+    home: https://github.com/wayli-app/supabase-helm
+    keywords:
+    - supabase
+    - postgresql
+    - database
+    - auth
+    - realtime
+    - storage
+    - kubernetes
+    - helm
+    kubeVersion: '>=1.19.0-0'
+    maintainers:
+    - email: bart@wayli.app
+      name: bartcode
+      url: https://github.com/bartcode
+    name: supabase
+    sources:
+    - https://github.com/wayli-app/supabase-helm
+    - https://supabase.com
+    type: application
+    urls:
+    - https://github.com/wayli-app/supabase-helm/releases/download/supabase-0.0.20/supabase-0.0.20.tgz
+    version: 0.0.20
+  - apiVersion: v2
     appVersion: 0.0.19
     created: "2025-10-25T09:37:15.476280412Z"
     description: A complete Helm chart for deploying Supabase on Kubernetes with all
@@ -552,4 +581,4 @@ entries:
     urls:
     - https://github.com/wayli-app/supabase-helm/releases/download/supabase-0.0.1/supabase-0.0.1.tgz
     version: 0.0.1
-generated: "2025-10-25T09:37:15.476429588Z"
+generated: "2025-10-25T10:19:33.016572416Z"
