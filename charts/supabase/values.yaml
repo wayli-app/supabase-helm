@@ -62,6 +62,8 @@ global:
     organizationName: Supabase Demo
     # Project name displayed in Studio
     projectName: Example project
+    # Project reference/ID for self-hosted instances (used in logs and analytics)
+    projectRef: default
     # Public URL of the Supabase instance
     publicUrl: https://supabase.example.com
     # Site URL of the Supabase instance

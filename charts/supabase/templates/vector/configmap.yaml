@@ -42,7 +42,8 @@ data:
         inputs:
           - kubernetes_host
         source: |-
-          .project = "{{ .Values.global.supabase.projectName | default "default" }}"
+          .project = "{{ .Values.global.supabase.projectRef | default "default" }}"
+          .metadata.project_ref = "{{ .Values.global.supabase.projectRef | default "default" }}"
           .event_message = del(.message)
           .appname = del(.kubernetes.container_name)
           del(.file)
@@ -69,6 +70,10 @@ data:
         source: |-
           req, err = parse_nginx_log(.event_message, "combined")
           if err == null {
+              # Filter out health check requests from kube-probe
+              if req.agent == "kube-probe/1.30" || starts_with(req.agent, "kube-probe/") {
+                abort
+              }
               .timestamp = req.timestamp
               .metadata.request.headers.referer = req.referer
               .metadata.request.headers.user_agent = req.agent
