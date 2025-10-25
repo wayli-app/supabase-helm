@@ -1330,6 +1330,8 @@ analytics:
     dbDatabase: "_supabase"
     # Database schema
     dbSchema: "_analytics"
+    # Database host (only used when db.enabled is false)
+    dbHost: ""
     # Single tenant mode
     singleTenant: true
     # Supabase mode
