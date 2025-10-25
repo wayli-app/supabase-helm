@@ -34,6 +34,7 @@ data:
       kubernetes_host:
         type: kubernetes_logs
         extra_label_selector: app.kubernetes.io/instance={{ .Release.Name }},app.kubernetes.io/name!={{ include "supabase.fullname" . }}-vector
+        data_dir: /vector-data-dir
 
     transforms:
       project_logs:

@@ -1,6 +1,6 @@
 {{- if .Values.vector.enabled }}
 apiVersion: apps/v1
-kind: Deployment
+kind: DaemonSet
 metadata:
   name: {{ include "supabase.fullname" . }}-vector
   namespace: {{ include "supabase.namespace" . }}
@@ -9,7 +9,6 @@ metadata:
     app.kubernetes.io/component: vector
     supabaseComponent: {{ include "supabase.fullname" . }}-vector
 spec:
-  replicas: 1
   selector:
     matchLabels:
       {{- include "supabase.selectorLabels" . | nindent 6 }}
@@ -75,6 +74,14 @@ spec:
             - mountPath: /etc/vector/secret.sh
               name: config
               subPath: secret.sh
+            - name: var-log
+              mountPath: /var/log
+              readOnly: true
+            - name: var-lib
+              mountPath: /var/lib
+              readOnly: true
+            - name: data
+              mountPath: /vector-data-dir
           resources:
             requests:
               cpu: {{ .Values.vector.resources.requests.cpu }}
@@ -86,4 +93,14 @@ spec:
         - name: config
           configMap:
             name: {{ include "supabase.fullname" . }}-vector-config
+        - name: var-log
+          hostPath:
+            path: /var/log
+        - name: var-lib
+          hostPath:
+            path: /var/lib
+        - name: data
+          hostPath:
+            path: /var/lib/vector
+            type: DirectoryOrCreate
 {{- end }}
