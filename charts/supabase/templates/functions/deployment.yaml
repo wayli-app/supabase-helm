@@ -73,6 +73,8 @@ spec:
                   key: {{ .Values.global.supabase.secretKeys.jwtSecret }}
             - name: SUPABASE_URL
               value: "http://{{ include "supabase.fullname" . }}-kong:{{ .Values.kong.service.port }}"
+            - name: PUBLIC_SUPABASE_URL
+              value: {{ .Values.global.supabase.publicUrl | quote }}
             - name: SUPABASE_ANON_KEY
               valueFrom:
                 secretKeyRef:
