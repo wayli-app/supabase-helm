@@ -80,6 +80,24 @@ data:
               - /auth/v1/authorize
         plugins:
           - name: cors
+      - name: auth-v1-open-sso-saml-acs
+        url: http://{{ include "supabase.fullname" . }}-auth:{{ .Values.auth.service.port }}/sso/saml/acs
+        routes:
+          - name: auth-v1-open-sso-saml-acs
+            strip_path: true
+            paths:
+            - /auth/v1/sso/saml/acs
+        plugins:
+          - name: cors
+      - name: auth-v1-open-sso-saml-metadata
+        url: http://{{ include "supabase.fullname" . }}-auth:{{ .Values.auth.service.port }}/sso/saml/metadata
+        routes:
+          - name: auth-v1-open-sso-saml-metadata
+            strip_path: true
+            paths:
+            - /auth/v1/sso/saml/metadata
+        plugins:
+          - name: cors
       - name: auth-v1
         _comment: "GoTrue: /auth/v1/* -> http://{{ include "supabase.fullname" . }}-auth:{{ .Values.auth.service.port }}/*"
         url: http://{{ include "supabase.fullname" . }}-auth:{{ .Values.auth.service.port }}
