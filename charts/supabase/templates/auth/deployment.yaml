@@ -77,7 +77,7 @@ spec:
         - name: GOTRUE_API_PORT
           value: {{ .Values.auth.service.port | quote }}
         - name: API_EXTERNAL_URL
-          value: {{ .Values.global.supabase.publicUrl | quote }}
+          value: {{ printf "%s/auth/v1" .Values.global.supabase.publicUrl | quote }}
         - name: GOTRUE_DB_DRIVER
           value: "postgres"
         - name: DB_NAMESPACE
@@ -152,6 +152,17 @@ spec:
           value: {{ .Values.global.supabase.auth.mailer.urlpathsRecovery | quote }}
         - name: GOTRUE_MAILER_URLPATHS_EMAIL_CHANGE
           value: {{ .Values.global.supabase.auth.mailer.urlpathsEmailChange | quote }}
+        - name: GOTRUE_SAML_ENABLED
+          value: {{ .Values.global.supabase.auth.enableSamlSignup | quote }}
+        - name: GOTRUE_SAML_PRIVATE_KEY
+          {{- if .Values.global.supabase.auth.saml.existingSecret }}
+          valueFrom:
+            secretKeyRef:
+                name: {{ .Values.global.supabase.auth.saml.existingSecret }}
+                key: {{ .Values.global.supabase.auth.saml.secretKeys.privateKeyKey }}
+          {{- else }}
+          value: {{ .Values.global.supabase.auth.saml.privateKey | quote }}
+          {{- end }}
         {{- with .Values.auth.extraEnvVars }}
         {{- toYaml . | nindent 8 }}
         {{- end }}

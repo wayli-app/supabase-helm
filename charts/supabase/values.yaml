@@ -110,6 +110,8 @@ global:
       enablePhoneSignup: false
       # Enable phone autoconfirm
       enablePhoneAutoconfirm: false
+      # Enable SAML SSO signup
+      enableSamlSignup: false
       # Additional redirect URLs
       additionalRedirectUrls: ""
       # SMTP configuration
@@ -137,13 +139,23 @@ global:
       # Mailer URL paths
       mailer:
         # Invite URL path
-        urlpathsInvite: /auth/v1/verify
+        urlpathsInvite: /verify
         # Confirmation URL path
-        urlpathsConfirmation: /auth/v1/verify
+        urlpathsConfirmation: /verify
         # Recovery URL path
-        urlpathsRecovery: /auth/v1/verify
+        urlpathsRecovery: /verify
         # Email change URL path
-        urlpathsEmailChange: /auth/v1/verify
+        urlpathsEmailChange: /verify
+      # SAML SSO configuration
+      saml:
+        # SAML private key
+        privateKey: ""
+        # Existing secret containing SAML configuration
+        existingSecret: ""
+        # Secret keys configuration for existing secret
+        secretKeys:
+          # SAML private key in the secret
+          privateKeyKey: saml-private-key
 
 # Common labels to add to all resources
 commonLabels: {}
