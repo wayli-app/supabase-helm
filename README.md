@@ -267,6 +267,7 @@ The following table lists the configurable parameters of the Supabase chart and 
 | `global.supabase.auth.enableEmailAutoconfirm` | Enable email autoconfirm                    | `false`                    |
 | `global.supabase.auth.enablePhoneSignup`     | Enable phone signup                            | `false`                    |
 | `global.supabase.auth.enablePhoneAutoconfirm` | Enable phone autoconfirm                    | `false`                    |
+| `global.supabase.auth.enableSamlSignup`      | Enable SAML SSO users                          | `false`                    |
 | `global.supabase.auth.additionalRedirectUrls` | Additional redirect URLs                    | `""`                       |
 
 #### Global SMTP Configuration
@@ -289,6 +290,14 @@ The following table lists the configurable parameters of the Supabase chart and 
 | `global.supabase.auth.mailer.urlpathsConfirmation` | Confirmation URL path                     | `"/auth/v1/verify"`        |
 | `global.supabase.auth.mailer.urlpathsRecovery` | Recovery URL path                           | `"/auth/v1/verify"`        |
 | `global.supabase.auth.mailer.urlpathsEmailChange` | Email change URL path                     | `"/auth/v1/verify"`        |
+
+#### Global SAML SSO Configuration
+
+| Parameter                                    | Description                                    | Default                    |
+| -------------------------------------------- | ---------------------------------------------- | -------------------------- |
+| `global.supabase.auth.saml.privateKey`       | SAML private key                               | `""`                       |
+| `global.supabase.auth.saml.existingSecret`   | Existing secret containing SAML configuration  | `""`                       |
+| `global.supabase.auth.saml.secretKeys.privateKeyKey`  | SAML private key key in the secret             | `"saml-private-key"`       |
 
 #### Required Secret Keys for `global.supabase.existingSecret`
 
