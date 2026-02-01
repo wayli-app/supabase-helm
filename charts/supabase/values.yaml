@@ -1087,7 +1087,7 @@ meta:
     # Meta image repository
     repository: supabase/postgres-meta
     # Meta image tag
-    tag: v0.93.0
+    tag: v0.95.2
     # Meta image pull policy
     pullPolicy: IfNotPresent
   # Meta image pull secrets
