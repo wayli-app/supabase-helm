@@ -1012,7 +1012,7 @@ imgproxy:
     # Imgproxy image repository
     repository: darthsim/imgproxy
     # Imgproxy image tag
-    tag: v3.30.0
+    tag: v3.30.1
     # Imgproxy image pull policy
     pullPolicy: IfNotPresent
   # Imgproxy image pull secrets
