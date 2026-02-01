@@ -731,7 +731,7 @@ rest:
     # REST image repository
     repository: postgrest/postgrest
     # REST image tag
-    tag: v13.0.7
+    tag: v13.0.8
     # REST image pull policy
     pullPolicy: IfNotPresent
   # REST image pull secrets
