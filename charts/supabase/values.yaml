@@ -817,7 +817,7 @@ realtime:
     # Realtime image repository
     repository: supabase/realtime
     # Realtime image tag
-    tag: v2.56.0
+    tag: v2.73.5
     # Realtime image pull policy
     pullPolicy: IfNotPresent
   # Realtime image pull secrets
