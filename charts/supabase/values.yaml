@@ -899,7 +899,7 @@ storage:
     # Storage image repository
     repository: supabase/storage-api
     # Storage image tag
-    tag: v1.36.1
+    tag: v1.36.2
     # Storage image pull policy
     pullPolicy: IfNotPresent
   # Storage image pull secrets
@@ -1173,7 +1173,7 @@ functions:
     # Functions image repository
     repository: supabase/edge-runtime
     # Functions image tag
-    tag: v1.70.0
+    tag: v1.70.1
     # Functions image pull policy
     pullPolicy: IfNotPresent
   # Functions image pull secrets
