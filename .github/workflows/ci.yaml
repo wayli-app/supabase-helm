@@ -31,7 +31,7 @@ jobs:
       - name: YAML Linting
         uses: actions/setup-python@v6
         with:
-          python-version: "3.14.2"
+          python-version: "3.14.3"
 
       - name: Install yamllint
         run: pip install yamllint
