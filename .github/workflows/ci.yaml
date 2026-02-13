@@ -49,7 +49,7 @@ jobs:
       - name: Shell Script Linting
         uses: actions/setup-node@v6
         with:
-          node-version: "24.13.0"
+          node-version: "24.13.1"
 
       - name: Install shellcheck
         run: |
