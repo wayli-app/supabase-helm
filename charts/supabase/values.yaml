@@ -899,7 +899,7 @@ storage:
     # Storage image repository
     repository: supabase/storage-api
     # Storage image tag
-    tag: v1.37.7
+    tag: v1.37.8
     # Storage image pull policy
     pullPolicy: IfNotPresent
   # Storage image pull secrets
