@@ -290,7 +290,7 @@ db:
       # PostgreSQL image repository
       repository: supabase/postgres
       # PostgreSQL image tag
-      tag: 17.6.1.091
+      tag: 17.6.1.093
       # PostgreSQL image pull policy
       pullPolicy: IfNotPresent
     # PostgreSQL image pull secrets
@@ -817,7 +817,7 @@ realtime:
     # Realtime image repository
     repository: supabase/realtime
     # Realtime image tag
-    tag: v2.78.5
+    tag: v2.78.10
     # Realtime image pull policy
     pullPolicy: IfNotPresent
   # Realtime image pull secrets
@@ -899,7 +899,7 @@ storage:
     # Storage image repository
     repository: supabase/storage-api
     # Storage image tag
-    tag: v1.40.0
+    tag: v1.41.8
     # Storage image pull policy
     pullPolicy: IfNotPresent
   # Storage image pull secrets
@@ -1087,7 +1087,7 @@ meta:
     # Meta image repository
     repository: supabase/postgres-meta
     # Meta image tag
-    tag: v0.96.0
+    tag: v0.96.1
     # Meta image pull policy
     pullPolicy: IfNotPresent
   # Meta image pull secrets
@@ -1173,7 +1173,7 @@ functions:
     # Functions image repository
     repository: supabase/edge-runtime
     # Functions image tag
-    tag: v1.70.5
+    tag: v1.71.0
     # Functions image pull policy
     pullPolicy: IfNotPresent
   # Functions image pull secrets
@@ -1285,7 +1285,7 @@ analytics:
     # Analytics image repository
     repository: supabase/logflare
     # Analytics image tag
-    tag: 1.34.0
+    tag: 1.34.7
     # Analytics image pull policy
     pullPolicy: IfNotPresent
   # Analytics image pull secrets
