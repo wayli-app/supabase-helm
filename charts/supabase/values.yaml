@@ -290,7 +290,7 @@ db:
       # PostgreSQL image repository
       repository: supabase/postgres
       # PostgreSQL image tag
-      tag: 17.6.1.103
+      tag: 17.6.1.104
       # PostgreSQL image pull policy
       pullPolicy: IfNotPresent
     # PostgreSQL image pull secrets
@@ -899,7 +899,7 @@ storage:
     # Storage image repository
     repository: supabase/storage-api
     # Storage image tag
-    tag: v1.48.4
+    tag: v1.48.5
     # Storage image pull policy
     pullPolicy: IfNotPresent
   # Storage image pull secrets
