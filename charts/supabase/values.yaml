@@ -899,7 +899,7 @@ storage:
     # Storage image repository
     repository: supabase/storage-api
     # Storage image tag
-    tag: v1.48.21
+    tag: v1.48.26
     # Storage image pull policy
     pullPolicy: IfNotPresent
   # Storage image pull secrets
@@ -1087,7 +1087,7 @@ meta:
     # Meta image repository
     repository: supabase/postgres-meta
     # Meta image tag
-    tag: v0.96.2
+    tag: v0.96.3
     # Meta image pull policy
     pullPolicy: IfNotPresent
   # Meta image pull secrets
