@@ -1173,7 +1173,7 @@ functions:
     # Functions image repository
     repository: supabase/edge-runtime
     # Functions image tag
-    tag: v1.73.5
+    tag: v1.73.6
     # Functions image pull policy
     pullPolicy: IfNotPresent
   # Functions image pull secrets
