@@ -26,12 +26,12 @@ jobs:
       - name: Install Helm
         uses: azure/setup-helm@v5
         with:
-          version: v3.12.0
+          version: v3.21.1
 
       - name: YAML Linting
         uses: actions/setup-python@v6
         with:
-          python-version: "3.14.5"
+          python-version: "3.14.6"
 
       - name: Install yamllint
         run: pip install yamllint
@@ -70,7 +70,7 @@ jobs:
       - name: Install Helm
         uses: azure/setup-helm@v5
         with:
-          version: v3.12.0
+          version: v3.21.1
 
       - name: Template and validate chart
         run: |
